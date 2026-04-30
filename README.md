@@ -86,14 +86,20 @@ npm install
 npm run dev
 
 ⚠️ Es necesario tener instalado MetaMask en el navegador para interactuar con la Blockchain.
+```
 
+---
+## 📋 Descripción del Proyecto
 
 👥 Autores
-Jesus Orellana
-Diego Mancha
+**Jesús Orellana**
+**Diego Mancha**
 
-📚 Contexto Académico
+## 📚 Contexto Académico
 
-Ciclo Formativo: Desarrollo de Aplicaciones Web (DAW)
-Tipo de trabajo: Trabajo de Fin de Grado (TFG)
-Curso: 2025 / 2026
+Ciclo Formativo: **Desarrollo de Aplicaciones Web (DAW)**
+Tipo de trabajo: **Trabajo de Fin de Grado (TFG)**
+Curso: **2025 / 2026**
+
+---
+
