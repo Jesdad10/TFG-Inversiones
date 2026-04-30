@@ -12,15 +12,20 @@ El objetivo principal es ofrecer una experiencia **moderna e intuitiva** en el m
 
 ---
 
-## ✨ Funcionalidades Principales
+## ✨ Funcionalidades Implementadas
 
-- 🔐 Registro e inicio de sesión de usuarios  
-- 📊 Dashboard de inversiones con gráficos en tiempo real  
-- 💰 Compra y venta de activos usando criptomonedas  
-- 🔗 Integración con Blockchain para validar transacciones  
-- 👛 Conexión con wallet de criptomonedas (MetaMask)  
-- 📈 Historial de transacciones y rendimiento de cartera  
-- 🌐 Interfaz responsive adaptada a móvil y escritorio  
+- 🔐 Registro e inicio de sesión de usuarios
+- 🔑 Autenticación con tokens JWT
+- 🔒 Encriptación de contraseñas con bcrypt
+- 🌐 Interfaz responsive adaptada a móvil y escritorio
+
+## 🚧 Funcionalidades en Desarrollo
+
+- 📊 Dashboard de inversiones con gráficos en tiempo real
+- 💰 Compra y venta de activos usando criptomonedas
+- 🔗 Integración con Blockchain para validar transacciones
+- 👛 Conexión con wallet de criptomonedas (MetaMask)
+- 📈 Historial de transacciones y rendimiento de cartera
 
 ---
 
@@ -33,40 +38,34 @@ El objetivo principal es ofrecer una experiencia **moderna e intuitiva** en el m
 | React        | Biblioteca principal para la interfaz         |
 | Vite         | Bundler y entorno de desarrollo rápido       |
 | React Router | Navegación entre páginas                     |
-| Tailwind CSS | Estilos y diseño responsive                  |
-| Recharts     | Gráficos e indicadores de inversión          |
-
----
-
-### 🔗 Blockchain & Criptomonedas
-
-| Tecnología  | Descripción                              |
-|------------|------------------------------------------|
-| Ethereum   | Red Blockchain principal                 |
-| Solidity   | Lenguaje para Smart Contracts            |
-| Hardhat    | Entorno de desarrollo de contratos       |
-| Ethers.js  | Librería para interactuar con Blockchain |
-| MetaMask   | Wallet para autenticación y pagos        |
+| CSS          | Estilos y diseño responsive                  |
 
 ---
 
 ### ⚙️ Backend & Base de Datos
 
-| Tecnología | Descripción                     |
-|-----------|--------------------------------|
-| Node.js   | Entorno de ejecución del servidor |
-| Express   | Framework para la API REST     |
-| MySQL     | Base de datos relacional       |
+| Tecnología          | Descripción                                      |
+|--------------------|--------------------------------------------------|
+| Node.js            | Entorno de ejecución del servidor                |
+| Express            | Framework para la API REST                       |
+| MySQL              | Base de datos relacional                         |
+| mysql2             | Conector de MySQL para Node.js                   |
+| bcryptjs           | Encriptación de contraseñas                      |
+| jsonwebtoken       | Generación y verificación de tokens JWT          |
+| express-validator  | Validación de datos en los endpoints             |
+| dotenv             | Gestión de variables de entorno                  |
+| cors               | Control de acceso entre frontend y backend       |
+| nodemon            | Reinicio automático del servidor en desarrollo   |
 
 ---
 
 ### 🧰 Herramientas
 
-| Herramienta | Descripción                     |
-|------------|---------------------------------|
-| Git        | Control de versiones            |
+| Herramienta | Descripción                       |
+|------------|-----------------------------------|
+| Git        | Control de versiones              |
 | GitHub     | Repositorio remoto y colaboración |
-| Postman    | Testing de la API               |
+| Postman    | Testing de la API                 |
 
 ---
 
@@ -78,20 +77,37 @@ git clone https://github.com/Jesdad10/TFG-Inversiones.git
 
 # 2. Entrar en el directorio
 cd TFG-Inversiones
-
-# 3. Instalar dependencias
-npm install
-
-# 4. Iniciar el servidor de desarrollo
-npm run dev
-
-⚠️ Es necesario tener instalado MetaMask en el navegador para interactuar con la Blockchain.
 ```
 
----
-## 📋 Descripción del Proyecto
+### ▶️ Frontend
 
-👥 Autores
+```bash
+# Instalar dependencias
+npm install
+
+# Iniciar el servidor de desarrollo
+npm run dev
+```
+
+### ▶️ Backend
+
+```bash
+# Entrar en la carpeta backend
+cd backend
+
+# Instalar dependencias
+npm install
+
+# Iniciar el servidor (con reinicio automático)
+npm run dev
+```
+
+> ⚠️ Antes de arrancar el backend, configura el archivo `backend/.env` con tus credenciales de MySQL.
+
+---
+
+## 👥 Autores
+
 - **Jesús Orellana**
 - **Diego Mancha**
 
@@ -102,4 +118,3 @@ npm run dev
 - Curso: **2025 / 2026**
 
 ---
-
