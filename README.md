@@ -92,8 +92,8 @@ npm run dev
 ## 📋 Descripción del Proyecto
 
 👥 Autores
-**Jesús Orellana**
-**Diego Mancha**
+- **Jesús Orellana**
+- **Diego Mancha**
 
 ## 📚 Contexto Académico
 
