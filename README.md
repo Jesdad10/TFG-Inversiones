@@ -97,9 +97,9 @@ npm run dev
 
 ## 📚 Contexto Académico
 
-Ciclo Formativo: **Desarrollo de Aplicaciones Web (DAW)**
-Tipo de trabajo: **Trabajo de Fin de Grado (TFG)**
-Curso: **2025 / 2026**
+- Ciclo Formativo: **Desarrollo de Aplicaciones Web (DAW)**
+- Tipo de trabajo: **Trabajo de Fin de Grado (TFG)**
+- Curso: **2025 / 2026**
 
 ---
 
