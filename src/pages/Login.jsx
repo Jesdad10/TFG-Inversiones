@@ -38,24 +38,20 @@ export default function Login() {
           {/* Logo */}
           <div className="brand">
             <div className="brand__icon">
-              <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                <path d="M14 2L26 8.5V19.5L14 26L2 19.5V8.5L14 2Z" fill="url(#brandGrad)" />
-                <path d="M9 14l3.5 3.5L19 10" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <defs>
-                  <linearGradient id="brandGrad" x1="2" y1="2" x2="26" y2="26" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#00D395" />
-                    <stop offset="1" stopColor="#00A3FF" />
-                  </linearGradient>
-                </defs>
+              <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+                <path d="M3,25 L14,3 L14,25" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M8,15 L14,15" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                <path d="M14,15 L25,3" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                <path d="M14,15 L25,25" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
               </svg>
             </div>
-            <span className="brand__name">MarketCrypto</span>
+            <span className="brand__name">AK-MARKET</span>
           </div>
 
           {/* Headline */}
           <div className="login-left__headline">
-            <h1>Invierte en el<br /><span className="accent">futuro digital</span></h1>
-            <p>Gestiona tu cartera de criptomonedas con tecnología Blockchain. Seguro, transparente y descentralizado.</p>
+            <h1>La armería<br /><span className="accent">del airsoft</span></h1>
+            <p>Compra y vende réplicas, accesorios y equipamiento de airsoft pagando con criptomonedas. Seguro, rápido y descentralizado.</p>
           </div>
 
           {/* Chart SVG */}
@@ -63,14 +59,14 @@ export default function Login() {
             <svg viewBox="0 0 400 120" className="chart-svg" preserveAspectRatio="none">
               <defs>
                 <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#00D395" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="#00D395" stopOpacity="0" />
+                  <stop offset="0%" stopColor="#CC1F1F" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="#CC1F1F" stopOpacity="0" />
                 </linearGradient>
               </defs>
               <path
                 d="M0,90 C30,80 50,60 80,55 C110,50 130,70 160,50 C190,30 210,40 240,25 C270,10 290,30 320,20 C350,10 370,15 400,8"
                 fill="none"
-                stroke="#00D395"
+                stroke="#CC1F1F"
                 strokeWidth="2.5"
                 className="chart-line"
               />
@@ -82,25 +78,25 @@ export default function Login() {
             </svg>
             <div className="chart-badge">
               <svg width="10" height="10" viewBox="0 0 10 10">
-                <circle cx="5" cy="5" r="5" fill="#00D395" />
+                <circle cx="5" cy="5" r="5" fill="#CC1F1F" />
               </svg>
-              <span>+18.3% este mes</span>
+              <span>+320 ventas este mes</span>
             </div>
           </div>
 
           {/* Stats */}
           <div className="stats-grid">
             <div className="stat">
-              <span className="stat__value">$2.4M</span>
-              <span className="stat__label">Cartera gestionada</span>
+              <span className="stat__value">500+</span>
+              <span className="stat__label">Réplicas disponibles</span>
             </div>
             <div className="stat">
               <span className="stat__value">1,247</span>
-              <span className="stat__label">Usuarios activos</span>
+              <span className="stat__label">Jugadores registrados</span>
             </div>
             <div className="stat">
-              <span className="stat__value">99.9%</span>
-              <span className="stat__label">Uptime garantizado</span>
+              <span className="stat__value">24h</span>
+              <span className="stat__label">Envío garantizado</span>
             </div>
           </div>
         </div>
@@ -116,7 +112,7 @@ export default function Login() {
         <div className="login-card">
           <div className="login-card__header">
             <h2>Iniciar sesión</h2>
-            <p>Accede a tu cartera de inversión</p>
+            <p>Accede a tu cuenta de AK-MARKET</p>
           </div>
 
           {error && <p className="form-error">{error}</p>}
@@ -185,7 +181,7 @@ export default function Login() {
               {loading ? (
                 <span className="spinner" />
               ) : (
-                'Acceder a mi cartera'
+                'Entrar a la tienda'
               )}
             </button>
           </form>
@@ -219,7 +215,7 @@ export default function Login() {
         </div>
 
         <p className="login-footer">
-          © 2025 MarketCrypto · <a href="#">Privacidad</a> · <a href="#">Términos</a>
+          © 2025 AK-MARKET · <a href="#">Privacidad</a> · <a href="#">Términos</a>
         </p>
       </div>
     </div>

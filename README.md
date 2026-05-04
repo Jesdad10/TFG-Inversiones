@@ -1,14 +1,14 @@
-# 💹 TFG-Inversiones
+# 🔫 AK-MARKET
 
-Plataforma web de inversiones con criptomonedas y tecnología Blockchain
+Plataforma web de compraventa de equipamiento de airsoft con pagos en criptomonedas
 
 ---
 
 ## 📋 Descripción del Proyecto
 
-La aplicación permite a los usuarios **comprar, vender y gestionar inversiones** utilizando criptomonedas como medio de pago, integrando tecnología **Blockchain** para garantizar la **seguridad, transparencia e inmutabilidad** de las transacciones.
+**AK-MARKET** es una armería online especializada en airsoft que permite a los usuarios **comprar, vender y gestionar equipamiento** — réplicas, accesorios y material táctico — utilizando **criptomonedas** como medio de pago e integrando tecnología **Blockchain** para garantizar la **seguridad, transparencia e inmutabilidad** de las transacciones.
 
-El objetivo principal es ofrecer una experiencia **moderna e intuitiva** en el mundo de las inversiones digitales, acercando la tecnología descentralizada al usuario final a través de una interfaz **sencilla y accesible**.
+El objetivo principal es ofrecer una experiencia **moderna e intuitiva** de compra para la comunidad airsofter, combinando el comercio electrónico con pagos descentralizados a través de una interfaz **sencilla y accesible**.
 
 ---
 
@@ -21,11 +21,12 @@ El objetivo principal es ofrecer una experiencia **moderna e intuitiva** en el m
 
 ## 🚧 Funcionalidades en Desarrollo
 
-- 📊 Dashboard de inversiones con gráficos en tiempo real
-- 💰 Compra y venta de activos usando criptomonedas
+- 🛒 Catálogo de productos con filtros por categoría
+- 💰 Compra de equipamiento pagando con criptomonedas
 - 🔗 Integración con Blockchain para validar transacciones
 - 👛 Conexión con wallet de criptomonedas (MetaMask)
-- 📈 Historial de transacciones y rendimiento de cartera
+- 📦 Gestión de pedidos e historial de compras
+- 📊 Panel de administración de productos
 
 ---
 
