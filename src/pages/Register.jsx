@@ -35,7 +35,7 @@ export default function Register() {
   }
 
   const strengthLabel = ['', 'Débil', 'Regular', 'Buena', 'Fuerte']
-  const strengthColor = ['', '#EF4444', '#F59E0B', '#3B82F6', '#00D395']
+  const strengthColor = ['', '#EF4444', '#F59E0B', '#3B82F6', '#7EAE28']
   const strength = passwordStrength()
 
   const passwordsMatch = form.confirm && form.password === form.confirm
@@ -73,18 +73,14 @@ export default function Register() {
           <div className="reg-left__inner">
             <div className="brand">
               <div className="brand__icon">
-                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                  <path d="M14 2L26 8.5V19.5L14 26L2 19.5V8.5L14 2Z" fill="url(#brandGradOk)" />
-                  <path d="M9 14l3.5 3.5L19 10" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <defs>
-                    <linearGradient id="brandGradOk" x1="2" y1="2" x2="26" y2="26" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#00D395" />
-                      <stop offset="1" stopColor="#00A3FF" />
-                    </linearGradient>
-                  </defs>
+                <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+                  <path d="M3,25 L14,3 L14,25" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M8,15 L14,15" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                  <path d="M14,15 L25,3" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                  <path d="M14,15 L25,25" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
                 </svg>
               </div>
-              <span className="brand__name">MarketCrypto</span>
+              <span className="brand__name">AK-MARKET</span>
             </div>
           </div>
           <div className="orb orb--1" />
@@ -95,17 +91,17 @@ export default function Register() {
         <div className="reg-right">
           <div className="success-card">
             <div className="success-icon">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#00D395" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#CC1F1F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
             <h2 className="success-title">¡Cuenta creada!</h2>
-            <p className="success-name">Bienvenido, <span>{nombreRegistrado}</span></p>
-            <p className="success-msg">Tu cuenta ha sido registrada correctamente. En unos segundos serás redirigido a tu Inicio.</p>
+            <p className="success-name">Bienvenido a AK-MARKET, <span>{nombreRegistrado}</span></p>
+            <p className="success-msg">Tu cuenta ha sido registrada correctamente. Ya puedes explorar el catálogo y comprar con criptomonedas.</p>
             <div className="success-bar">
               <div className="success-bar__fill" />
             </div>
-            <p className="success-redirect">Redirigiendo al Inicio...</p>
+            <p className="success-redirect">Redirigiendo a la tienda...</p>
           </div>
         </div>
       </div>
@@ -120,24 +116,20 @@ export default function Register() {
           {/* Logo */}
           <div className="brand">
             <div className="brand__icon">
-              <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                <path d="M14 2L26 8.5V19.5L14 26L2 19.5V8.5L14 2Z" fill="url(#brandGradR)" />
-                <path d="M9 14l3.5 3.5L19 10" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <defs>
-                  <linearGradient id="brandGradR" x1="2" y1="2" x2="26" y2="26" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#00D395" />
-                    <stop offset="1" stopColor="#00A3FF" />
-                  </linearGradient>
-                </defs>
+              <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+                <path d="M3,25 L14,3 L14,25" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M8,15 L14,15" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                <path d="M14,15 L25,3" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                <path d="M14,15 L25,25" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
               </svg>
             </div>
-            <span className="brand__name">MarketCrypto</span>
+            <span className="brand__name">AK-MARKET</span>
           </div>
 
           {/* Headline */}
           <div className="reg-left__headline">
-            <h1>Empieza a invertir<br /><span className="accent">hoy mismo</span></h1>
-            <p>Crea tu cuenta en menos de 2 minutos y accede a un ecosistema completo de inversión descentralizada.</p>
+            <h1>Únete a la<br /><span className="accent">mejor armería</span></h1>
+            <p>Crea tu cuenta en menos de 2 minutos y accede al mayor catálogo de airsoft con pagos seguros en criptomonedas.</p>
           </div>
 
           {/* Steps */}
@@ -153,16 +145,16 @@ export default function Register() {
             <div className="step">
               <div className="step__num">02</div>
               <div className="step__body">
-                <span className="step__title">Configura tu cartera</span>
-                <span className="step__desc">Personaliza tus activos y objetivos de inversión</span>
+                <span className="step__title">Explora el catálogo</span>
+                <span className="step__desc">Réplicas, accesorios, equipamiento táctico y mucho más</span>
               </div>
             </div>
             <div className="step__connector" />
             <div className="step">
               <div className="step__num">03</div>
               <div className="step__body">
-                <span className="step__title">Empieza a invertir</span>
-                <span className="step__desc">Compra, vende y gestiona criptoactivos en tiempo real</span>
+                <span className="step__title">Compra con cripto</span>
+                <span className="step__desc">Paga con MetaMask de forma segura y recibe en 24h</span>
               </div>
             </div>
           </div>
@@ -170,23 +162,22 @@ export default function Register() {
           {/* Trust badges */}
           <div className="trust-row">
             <div className="trust-badge">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00D395" strokeWidth="2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CC1F1F" strokeWidth="2.5">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
               </svg>
-              <span>Seguridad Blockchain</span>
+              <span>Pagos con cripto</span>
             </div>
             <div className="trust-badge">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00D395" strokeWidth="2.5">
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CC1F1F" strokeWidth="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span>Operaciones 24/7</span>
+              <span>Envío en 24h</span>
             </div>
             <div className="trust-badge">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00D395" strokeWidth="2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CC1F1F" strokeWidth="2.5">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
-              <span>Sin comisiones ocultas</span>
+              <span>Productos verificados</span>
             </div>
           </div>
         </div>
@@ -201,7 +192,7 @@ export default function Register() {
         <div className="reg-card">
           <div className="reg-card__header">
             <h2>Crear cuenta</h2>
-            <p>Únete a más de 1,200 inversores activos</p>
+            <p>Únete a más de 1,200 jugadores activos</p>
           </div>
 
           {error && <p className="form-error">{error}</p>}
@@ -323,7 +314,7 @@ export default function Register() {
                   onChange={handleChange}
                   required
                   autoComplete="new-password"
-                  style={form.confirm ? { borderColor: passwordsMatch ? 'rgba(0,211,149,0.45)' : 'rgba(239,68,68,0.45)' } : {}}
+                  style={form.confirm ? { borderColor: passwordsMatch ? 'rgba(255,255,255,0.2)' : 'rgba(239,68,68,0.45)' } : {}}
                 />
                 <button
                   type="button"
@@ -346,7 +337,7 @@ export default function Register() {
                 {form.confirm && (
                   <div className="match-icon">
                     {passwordsMatch ? (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00D395" strokeWidth="2.5">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CC1F1F" strokeWidth="2.5">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
                     ) : (
@@ -364,7 +355,7 @@ export default function Register() {
             <label className="terms-row">
               <div className={`checkbox${accepted ? ' checked' : ''}`} onClick={() => setAccepted(!accepted)}>
                 {accepted && (
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#050A14" strokeWidth="3.5">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3.5">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 )}
@@ -412,7 +403,7 @@ export default function Register() {
         </div>
 
         <p className="reg-footer">
-          © 2025 MarketCrypto · <a href="#">Privacidad</a> · <a href="#">Términos</a>
+          © 2025 AK-MARKET · <a href="#">Privacidad</a> · <a href="#">Términos</a>
         </p>
       </div>
     </div>
