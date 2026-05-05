@@ -25,4 +25,19 @@ export const articulosService = {
       headers: { Authorization: `Bearer ${token()}` },
     }).then((r) => r.json())
   },
+
+  misProductos: () =>
+    fetch(`${BASE}/mis`, {
+      headers: { Authorization: `Bearer ${token()}` },
+    }).then((r) => r.json()),
+
+  eliminar: (id) =>
+    fetch(`${BASE}/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token()}` },
+    }).then(async (r) => {
+      const data = await r.json()
+      if (!r.ok) throw new Error(data.error || 'Error al eliminar')
+      return data
+    }),
 }

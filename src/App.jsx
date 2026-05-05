@@ -4,6 +4,7 @@ import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Profile from './pages/Profile'
 import Vender from './pages/Vender'
+import MisProductos from './pages/MisProductos'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/perfil" element={<Profile />} />
         <Route path="/vender" element={<Vender />} />
+        <Route path="/mis-productos" element={<MisProductos />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
