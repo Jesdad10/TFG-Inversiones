@@ -1,0 +1,493 @@
+/* =============================================
+   PROFILE PAGE — AK-MARKET
+   Black & Red — Elegance & Danger
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ─── ROOT ────────────────────────────────── */
+
+.profile-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #080808;
+  color: #EDE8E8;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ─── MAIN ────────────────────────────────── */
+
+.profile-main {
+  padding-top: 64px;
+  padding: 64px 40px 60px;
+  flex: 1;
+}
+
+/* ─── CONTAINER ───────────────────────────── */
+
+.profile-container {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* ─── HEADER CARD ─────────────────────────── */
+
+.profile-header {
+  background: #0F0B0B;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 28px;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+/* ─── AVATAR COLUMN ──────────────────────── */
+
+.profile-avatar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* ─── AVATAR WRAP ─────────────────────────── */
+
+.profile-avatar-wrap {
+  position: relative;
+  cursor: pointer;
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.profile-avatar-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #CC1F1F, #8B0000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1px;
+  user-select: none;
+}
+
+.profile-avatar-img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-avatar-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.profile-avatar-wrap:hover .profile-avatar-overlay {
+  opacity: 1;
+}
+
+/* ─── REMOVE AVATAR ──────────────────────── */
+
+.btn-remove-avatar {
+  background: none;
+  border: none;
+  color: #5A4545;
+  font-size: 11px;
+  font-family: 'Inter', system-ui, sans-serif;
+  cursor: pointer;
+  padding: 2px 4px;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.btn-remove-avatar:hover {
+  color: #CC1F1F;
+}
+
+.avatar-remove-confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: rgba(204, 31, 31, 0.06);
+  border: 1px solid rgba(204, 31, 31, 0.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  width: 140px;
+}
+
+.avatar-remove-confirm p {
+  font-size: 11px;
+  color: #C0B0B0;
+  margin: 0;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.avatar-remove-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-confirm-yes {
+  height: 28px;
+  padding: 0 10px;
+  background: rgba(204, 31, 31, 0.15);
+  border: 1px solid rgba(204, 31, 31, 0.4);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #CC1F1F;
+  cursor: pointer;
+  font-family: 'Inter', system-ui, sans-serif;
+  transition: background 0.2s;
+}
+
+.btn-confirm-yes:hover {
+  background: rgba(204, 31, 31, 0.28);
+}
+
+.btn-confirm-no {
+  height: 28px;
+  padding: 0 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #7A6565;
+  cursor: pointer;
+  font-family: 'Inter', system-ui, sans-serif;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-confirm-no:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #C0B0B0;
+}
+
+/* ─── HEADER INFO ─────────────────────────── */
+
+.profile-header-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+.profile-header-info h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #EDE8E8;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.profile-header-email {
+  font-size: 14px;
+  color: #7A6565;
+  margin: 0;
+}
+
+.profile-header-meta {
+  font-size: 12px;
+  color: #5A4545;
+  margin: 0;
+}
+
+/* ─── SECTION CARD ────────────────────────── */
+
+.profile-section {
+  background: #0F0B0B;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 24px 28px 28px;
+}
+
+/* ─── SECTION TITLE ───────────────────────── */
+
+.profile-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #CC1F1F;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(204, 31, 31, 0.15);
+  padding-bottom: 12px;
+}
+
+/* ─── GRID ────────────────────────────────── */
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+/* ─── FIELD ───────────────────────────────── */
+
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-field label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #A89898;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ─── INPUTS ──────────────────────────────── */
+
+.profile-input,
+.profile-select {
+  height: 44px;
+  padding: 0 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  font-size: 14px;
+  color: #EDE8E8;
+  font-family: 'Inter', system-ui, sans-serif;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+
+.profile-select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237A6565' strokeWidth='1.5' fill='none' strokeLinecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-color: rgba(255, 255, 255, 0.04);
+  padding-right: 36px;
+}
+
+.profile-input:focus,
+.profile-select:focus {
+  border-color: rgba(204, 31, 31, 0.5);
+  background: rgba(204, 31, 31, 0.04);
+  box-shadow: 0 0 0 3px rgba(204, 31, 31, 0.08);
+}
+
+.profile-input::placeholder {
+  color: #3A2E2E;
+}
+
+.profile-select option {
+  background: #111010;
+  color: #EDE8E8;
+}
+
+/* Date input calendar icon color fix */
+.profile-input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.4) sepia(1) saturate(3) hue-rotate(330deg);
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+/* ─── TEXTAREA ────────────────────────────── */
+
+.profile-textarea {
+  padding: 12px 14px;
+  min-height: 100px;
+  resize: vertical;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  font-size: 14px;
+  color: #EDE8E8;
+  font-family: 'Inter', system-ui, sans-serif;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  width: 100%;
+  line-height: 1.6;
+}
+
+.profile-textarea:focus {
+  border-color: rgba(204, 31, 31, 0.5);
+  background: rgba(204, 31, 31, 0.04);
+  box-shadow: 0 0 0 3px rgba(204, 31, 31, 0.08);
+}
+
+.profile-textarea::placeholder {
+  color: #3A2E2E;
+}
+
+/* ─── BIO COUNTER ─────────────────────────── */
+
+.bio-counter {
+  font-size: 11px;
+  color: #5A4545;
+  text-align: right;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ─── ACTIONS ─────────────────────────────── */
+
+.profile-actions {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ─── SAVE BUTTON ─────────────────────────── */
+
+.btn-save {
+  height: 44px;
+  padding: 0 28px;
+  background: linear-gradient(135deg, #CC1F1F, #8B0000);
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-family: 'Inter', system-ui, sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(204, 31, 31, 0.3);
+}
+
+.btn-save:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(204, 31, 31, 0.4);
+}
+
+.btn-save:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── SPINNER ─────────────────────────────── */
+
+.profile-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: profileSpin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes profileSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── STATUS MESSAGES ─────────────────────── */
+
+.save-status--ok {
+  font-size: 13px;
+  color: #4ADE80;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.save-status--err {
+  font-size: 13px;
+  color: #F87171;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ─── RESPONSIVE ──────────────────────────── */
+
+@media (max-width: 768px) {
+  .profile-main {
+    padding: 80px 20px 48px;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px 20px;
+    gap: 16px;
+  }
+
+  .profile-avatar-col {
+    align-items: center;
+  }
+
+  .profile-header-info {
+    align-items: center;
+  }
+
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-field[style*="grid-column"] {
+    grid-column: auto;
+  }
+
+  .profile-section {
+    padding: 20px;
+  }
+
+  .profile-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-save {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-avatar-circle,
+  .profile-avatar-img,
+  .profile-avatar-wrap {
+    width: 90px;
+    height: 90px;
+  }
+
+  .profile-avatar-circle {
+    font-size: 30px;
+  }
+
+  .profile-header-info h1 {
+    font-size: 20px;
+  }
+}

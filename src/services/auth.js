@@ -12,8 +12,8 @@ async function peticion(endpoint, body) {
 }
 
 export const authService = {
-  register: (nombre, email, password) =>
-    peticion('/register', { nombre, email, password }),
+  register: (nombre, email, password, fecha_nacimiento) =>
+    peticion('/register', { nombre, email, password, fecha_nacimiento }),
 
   login: (email, password) =>
     peticion('/login', { email, password }),
@@ -34,6 +34,22 @@ export const authService = {
     return fetch(`${BASE}/me`, {
       headers: { Authorization: `Bearer ${token}` },
     }).then((r) => r.json())
+  },
+
+  updateMe: (datos) => {
+    const token = localStorage.getItem('token')
+    return fetch(`${BASE}/me`, {
+      method:  'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization:  `Bearer ${token}`,
+      },
+      body: JSON.stringify(datos),
+    }).then(async (r) => {
+      const data = await r.json()
+      if (!r.ok) throw new Error(data.error || 'Error al actualizar el perfil')
+      return data
+    })
   },
 
   guardarSesion: (token) => localStorage.setItem('token', token),

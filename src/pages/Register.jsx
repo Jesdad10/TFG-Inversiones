@@ -8,6 +8,7 @@ export default function Register() {
   const [form, setForm] = useState({
     name: '',
     email: '',
+    birthDate: '',
     password: '',
     confirm: '',
   })
@@ -38,6 +39,22 @@ export default function Register() {
   const strengthColor = ['', '#EF4444', '#F59E0B', '#3B82F6', '#7EAE28']
   const strength = passwordStrength()
 
+  const today = new Date()
+  const maxBirthDate = new Date(today)
+  maxBirthDate.setFullYear(today.getFullYear() - 18)
+  const maxBirthDateStr = maxBirthDate.toISOString().split('T')[0]
+
+  const calcAge = (dateStr) => {
+    if (!dateStr) return null
+    const birth = new Date(dateStr)
+    let a = today.getFullYear() - birth.getFullYear()
+    const m = today.getMonth() - birth.getMonth()
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) a--
+    return a
+  }
+  const age = calcAge(form.birthDate)
+  const ageValid = age === null || age >= 18
+
   const passwordsMatch = form.confirm && form.password === form.confirm
 
   const handleSubmit = async (e) => {
@@ -47,10 +64,18 @@ export default function Register() {
       setError('Las contraseñas no coinciden')
       return
     }
+    if (!form.birthDate) {
+      setError('La fecha de nacimiento es obligatoria')
+      return
+    }
+    if (!ageValid) {
+      setError('Debes ser mayor de 18 años para registrarte')
+      return
+    }
     setError('')
     setLoading(true)
     try {
-      const data = await authService.register(form.name, form.email, form.password)
+      const data = await authService.register(form.name, form.email, form.password, form.birthDate)
       authService.guardarSesion(data.token)
       setNombreRegistrado(form.name)
       setRegistrado(true)
@@ -240,6 +265,39 @@ export default function Register() {
               </div>
             </div>
 
+            {/* Birth Date */}
+            <div className="form-group">
+              <label htmlFor="birthDate">Fecha de nacimiento</label>
+              <div className="input-wrapper">
+                <svg className="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <input
+                  id="birthDate"
+                  name="birthDate"
+                  type="date"
+                  value={form.birthDate}
+                  onChange={handleChange}
+                  min="1920-01-01"
+                  max={maxBirthDateStr}
+                  required
+                />
+              </div>
+              {form.birthDate && !ageValid && (
+                <p className="field-error">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                  Debes ser mayor de 18 años para registrarte
+                </p>
+              )}
+            </div>
+
             {/* Password */}
             <div className="form-group">
               <label htmlFor="password">Contraseña</label>
@@ -368,7 +426,7 @@ export default function Register() {
             <button
               type="submit"
               className={`btn-primary${loading ? ' loading' : ''}`}
-              disabled={loading || !accepted}
+              disabled={loading || !accepted || !form.birthDate || !ageValid}
             >
               {loading ? <span className="spinner" /> : 'Crear mi cuenta'}
             </button>
