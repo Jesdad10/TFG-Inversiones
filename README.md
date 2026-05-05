@@ -21,7 +21,12 @@ El objetivo principal es ofrecer una experiencia **moderna e intuitiva** de comp
 - 🏠 Dashboard post-login con buscador, filtros por categoría, precio y condición
 - 👤 Página de perfil con foto de perfil (subida, previsualización y eliminación)
 - 📝 Edición de datos personales: nombre, teléfono, género, fecha de nacimiento, país, ciudad, dirección y biografía
-- 🧭 Navbar compartida con menú desplegable de usuario
+- ⚠️ Aviso de cambios sin guardar al navegar fuera del perfil (modal de confirmación)
+- 🛒 Página de venta: publicación de artículos con fotos, descripción, precio en ETH/BTC con estimación en €, tiers de envío por peso y tamaño, comisión del 3% y resumen de ingresos netos
+- 📦 Guardado de artículos en base de datos con transacciones SQL atómicas
+- 🖼️ Redimensionado de imágenes en el cliente (Canvas API) antes de enviarlas al servidor
+- 📋 Catálogo en el inicio con artículos reales cargados desde la API con foto principal
+- 🧭 Navbar compartida con menú desplegable de usuario y navegación con guardia de cambios
 - 🌐 Interfaz responsive adaptada a móvil y escritorio
 
 ## 🚧 Funcionalidades en Desarrollo
@@ -30,7 +35,6 @@ El objetivo principal es ofrecer una experiencia **moderna e intuitiva** de comp
 - 🔗 Integración con Blockchain para validar transacciones
 - 👛 Conexión con wallet de criptomonedas (MetaMask)
 - 📦 Gestión de pedidos e historial de compras
-- 🛒 Publicación de artículos para venta
 - 📊 Panel de administración
 
 ---
@@ -176,6 +180,41 @@ CREATE TABLE IF NOT EXISTS sesiones (
   PRIMARY KEY (id),
   CONSTRAINT fk_sesiones_usuario
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ── Tabla de artículos ────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS articulos (
+  id            INT UNSIGNED      NOT NULL AUTO_INCREMENT,
+  usuario_id    INT UNSIGNED      NOT NULL,
+  titulo        VARCHAR(80)       NOT NULL,
+  descripcion   TEXT              NOT NULL,
+  categoria     VARCHAR(40)       NOT NULL,
+  condicion     VARCHAR(20)       NOT NULL,
+  crypto        ENUM('ETH','BTC') NOT NULL,
+  precio_crypto DECIMAL(18,8)     NOT NULL,
+  precio_eur    DECIMAL(10,2)     DEFAULT NULL,
+  peso_tier     VARCHAR(20)       DEFAULT NULL,
+  tamano        VARCHAR(20)       DEFAULT NULL,
+  envio_precio  DECIMAL(8,2)      DEFAULT NULL,
+  comision      DECIMAL(8,2)      DEFAULT NULL,
+  neto_eur      DECIMAL(10,2)     DEFAULT NULL,
+  estado        ENUM('activo','vendido','eliminado') NOT NULL DEFAULT 'activo',
+  created_at    DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_estado   (estado),
+  KEY idx_usuario  (usuario_id),
+  CONSTRAINT fk_art_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ── Tabla de fotos de artículos ───────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS articulo_fotos (
+  id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  articulo_id INT UNSIGNED NOT NULL,
+  foto        LONGTEXT     NOT NULL,
+  orden       TINYINT      NOT NULL DEFAULT 0,
+  PRIMARY KEY (id),
+  KEY idx_articulo (articulo_id),
+  CONSTRAINT fk_foto_articulo FOREIGN KEY (articulo_id) REFERENCES articulos(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 

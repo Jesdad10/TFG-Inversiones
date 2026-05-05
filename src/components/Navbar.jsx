@@ -3,10 +3,19 @@ import { useNavigate } from 'react-router-dom'
 import { authService } from '../services/auth'
 import './Navbar.css'
 
-export default function Navbar({ user, activePage }) {
+export default function Navbar({ user, activePage, onNavigate }) {
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
   const dropdownRef = useRef(null)
+
+  const goTo = (path) => {
+    setMenuOpen(false)
+    if (onNavigate) {
+      onNavigate(path)
+    } else {
+      navigate(path)
+    }
+  }
 
   useEffect(() => {
     const handleClick = (e) => {
@@ -33,7 +42,7 @@ export default function Navbar({ user, activePage }) {
   return (
     <nav className="navbar">
       {/* Logo */}
-      <a className="nav-logo" onClick={() => navigate('/dashboard')} style={{ cursor: 'pointer' }}>
+      <a className="nav-logo" onClick={() => goTo('/dashboard')} style={{ cursor: 'pointer' }}>
         <div className="nav-brand-icon">
           <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
             <path d="M3,25 L14,3 L14,25" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -49,25 +58,25 @@ export default function Navbar({ user, activePage }) {
       <div className="nav-links">
         <a
           className={`nav-link${activePage === 'inicio' ? ' active' : ''}`}
-          onClick={() => navigate('/dashboard')}
+          onClick={() => goTo('/dashboard')}
         >
           Inicio
         </a>
         <a
           className={`nav-link${activePage === 'catalogo' ? ' active' : ''}`}
-          onClick={() => navigate('/catalogo')}
+          onClick={() => goTo('/catalogo')}
         >
           Catálogo
         </a>
         <a
           className={`nav-link${activePage === 'vender' ? ' active' : ''}`}
-          onClick={() => navigate('/vender')}
+          onClick={() => goTo('/vender')}
         >
           Vender
         </a>
         <a
           className={`nav-link${activePage === 'pedidos' ? ' active' : ''}`}
-          onClick={() => navigate('/pedidos')}
+          onClick={() => goTo('/pedidos')}
         >
           Mis pedidos
         </a>
@@ -120,7 +129,7 @@ export default function Navbar({ user, activePage }) {
 
             <button
               className="dropdown-item"
-              onClick={() => { setMenuOpen(false); navigate('/perfil') }}
+              onClick={() => goTo('/perfil')}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -131,7 +140,7 @@ export default function Navbar({ user, activePage }) {
 
             <button
               className="dropdown-item"
-              onClick={() => { setMenuOpen(false); navigate('/configuracion') }}
+              onClick={() => goTo('/configuracion')}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="3"/>
