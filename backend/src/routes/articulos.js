@@ -74,6 +74,52 @@ router.post(
   }
 )
 
+// ─── GET /api/articulos/mis ───────────────────────────────────────────────
+
+router.get('/mis', authMiddleware, async (req, res) => {
+  try {
+    const [articulos] = await pool.query(
+      `SELECT
+         a.id, a.titulo, a.descripcion, a.categoria, a.condicion,
+         a.crypto, a.precio_crypto, a.precio_eur, a.estado, a.created_at,
+         (SELECT af.foto FROM articulo_fotos af
+          WHERE af.articulo_id = a.id
+          ORDER BY af.orden LIMIT 1) AS foto_principal
+       FROM articulos a
+       WHERE a.usuario_id = ? AND a.estado != 'eliminado'
+       ORDER BY a.created_at DESC`,
+      [req.usuario.id]
+    )
+    return res.json({ articulos })
+  } catch (err) {
+    console.error('[GET /articulos/mis]', err)
+    return res.status(500).json({ error: 'Error al obtener tus artículos' })
+  }
+})
+
+// ─── DELETE /api/articulos/:id ────────────────────────────────────────────
+
+router.delete('/:id', authMiddleware, async (req, res) => {
+  const { id } = req.params
+  try {
+    const [rows] = await pool.query(
+      'SELECT id FROM articulos WHERE id = ? AND usuario_id = ?',
+      [id, req.usuario.id]
+    )
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Artículo no encontrado o no tienes permiso' })
+    }
+    await pool.query(
+      "UPDATE articulos SET estado = 'eliminado' WHERE id = ?",
+      [id]
+    )
+    return res.json({ mensaje: 'Artículo eliminado correctamente' })
+  } catch (err) {
+    console.error('[DELETE /articulos/:id]', err)
+    return res.status(500).json({ error: 'Error al eliminar el artículo' })
+  }
+})
+
 // ─── GET /api/articulos ────────────────────────────────────────────────────
 
 router.get('/', authMiddleware, async (req, res) => {

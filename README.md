@@ -27,6 +27,8 @@ El objetivo principal es ofrecer una experiencia **moderna e intuitiva** de comp
 - 🖼️ Redimensionado de imágenes en el cliente (Canvas API) antes de enviarlas al servidor
 - 📋 Catálogo en el inicio con artículos reales cargados desde la API con foto principal
 - 🧭 Navbar compartida con menú desplegable de usuario y navegación con guardia de cambios
+- 📂 Página "Mis productos": visualización de los artículos propios con foto, estado, precio y fecha
+- 🗑️ Eliminación de artículos propios con modal de confirmación centrado
 - 🌐 Interfaz responsive adaptada a móvil y escritorio
 
 ## 🚧 Funcionalidades en Desarrollo
