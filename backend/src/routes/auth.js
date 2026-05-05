@@ -37,11 +37,23 @@ router.post(
     body('email').isEmail().withMessage('Email no válido').normalizeEmail(),
     body('password')
       .isLength({ min: 8 }).withMessage('La contraseña debe tener al menos 8 caracteres'),
+    body('fecha_nacimiento')
+      .notEmpty().withMessage('La fecha de nacimiento es obligatoria')
+      .isISO8601().withMessage('Formato de fecha no válido'),
   ],
   async (req, res) => {
     if (!validarInput(req, res)) return
 
-    const { nombre, email, password, wallet } = req.body
+    const { nombre, email, password, wallet, fecha_nacimiento } = req.body
+
+    const hoy = new Date()
+    const nacimiento = new Date(fecha_nacimiento)
+    let edad = hoy.getFullYear() - nacimiento.getFullYear()
+    const m = hoy.getMonth() - nacimiento.getMonth()
+    if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) edad--
+    if (edad < 18) {
+      return res.status(403).json({ error: 'Debes ser mayor de 18 años para registrarte' })
+    }
 
     try {
       // Comprobar email duplicado
@@ -67,12 +79,12 @@ router.post(
       const hash = await bcrypt.hash(password, 12)
 
       const [result] = await pool.query(
-        'INSERT INTO usuarios (nombre, email, password_hash, wallet) VALUES (?, ?, ?, ?)',
-        [nombre, email, hash, wallet || null]
+        'INSERT INTO usuarios (nombre, email, password_hash, wallet, fecha_nacimiento) VALUES (?, ?, ?, ?, ?)',
+        [nombre, email, hash, wallet || null, fecha_nacimiento]
       )
 
       const usuarioId = result.insertId
-      const token = generarToken({ id: usuarioId, email, rol: 'user' })
+      const token = generarToken({ id: usuarioId, nombre, email, rol: 'user' })
 
       await pool.query(
         'INSERT INTO sesiones (usuario_id, token, ip, user_agent, expira_en) VALUES (?, ?, ?, ?, ?)',
@@ -132,9 +144,10 @@ router.post(
       }
 
       const token = generarToken({
-        id: usuario.id,
-        email: usuario.email,
-        rol: usuario.rol,
+        id:     usuario.id,
+        nombre: usuario.nombre,
+        email:  usuario.email,
+        rol:    usuario.rol,
       })
 
       await pool.query(
@@ -244,7 +257,9 @@ router.post('/logout', authMiddleware, async (req, res) => {
 router.get('/me', authMiddleware, async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT id, nombre, email, wallet, rol, created_at FROM usuarios WHERE id = ?',
+      `SELECT id, nombre, email, wallet, rol, created_at,
+              telefono, pais, ciudad, direccion, genero, bio, avatar, fecha_nacimiento
+       FROM usuarios WHERE id = ?`,
       [req.usuario.id]
     )
     if (rows.length === 0) {
@@ -256,5 +271,67 @@ router.get('/me', authMiddleware, async (req, res) => {
     return res.status(500).json({ error: 'Error interno del servidor' })
   }
 })
+
+// ─── PUT /api/auth/me ──────────────────────────────────────────────────────
+
+router.put(
+  '/me',
+  authMiddleware,
+  [
+    body('nombre').trim().notEmpty().withMessage('El nombre es obligatorio'),
+    body('telefono').optional({ checkFalsy: true }).trim(),
+    body('genero').optional({ checkFalsy: true }).trim(),
+    body('fecha_nacimiento').optional({ checkFalsy: true }).isISO8601().withMessage('Formato de fecha no válido'),
+    body('pais').optional({ checkFalsy: true }).trim(),
+    body('ciudad').optional({ checkFalsy: true }).trim(),
+    body('direccion').optional({ checkFalsy: true }).trim(),
+    body('bio').optional({ checkFalsy: true }).isLength({ max: 300 }).withMessage('La bio no puede superar 300 caracteres'),
+  ],
+  async (req, res) => {
+    if (!validarInput(req, res)) return
+
+    const { nombre, telefono, genero, fecha_nacimiento, pais, ciudad, direccion, bio, avatar } = req.body
+
+    try {
+      await pool.query(
+        `UPDATE usuarios SET
+          nombre          = ?,
+          telefono        = ?,
+          genero          = ?,
+          fecha_nacimiento = ?,
+          pais            = ?,
+          ciudad          = ?,
+          direccion       = ?,
+          bio             = ?,
+          avatar          = ?
+         WHERE id = ?`,
+        [
+          nombre,
+          telefono        || null,
+          genero          || null,
+          fecha_nacimiento || null,
+          pais            || null,
+          ciudad          || null,
+          direccion       || null,
+          bio             || null,
+          avatar          || null,
+          req.usuario.id,
+        ]
+      )
+
+      const [rows] = await pool.query(
+        `SELECT id, nombre, email, wallet, rol, created_at,
+                telefono, pais, ciudad, direccion, genero, bio, avatar, fecha_nacimiento
+         FROM usuarios WHERE id = ?`,
+        [req.usuario.id]
+      )
+
+      return res.json({ mensaje: 'Perfil actualizado correctamente', usuario: rows[0] })
+    } catch (err) {
+      console.error('[put /me]', err)
+      return res.status(500).json({ error: 'Error interno del servidor' })
+    }
+  }
+)
 
 module.exports = router

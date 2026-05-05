@@ -245,6 +245,23 @@
   margin: 0 0 4px;
 }
 
+/* Inline field error */
+.field-error {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #F87171;
+  margin: 2px 0 0;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* Form */
 .reg-form {
   display: flex;
