@@ -124,66 +124,116 @@
   color: #CC1F1F;
 }
 
-.avatar-remove-confirm {
+/* ─── MODAL ───────────────────────────────── */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  background: rgba(204, 31, 31, 0.06);
-  border: 1px solid rgba(204, 31, 31, 0.2);
-  border-radius: 10px;
-  padding: 10px 14px;
-  width: 140px;
+  justify-content: center;
+  animation: fadeIn 0.15s ease;
 }
 
-.avatar-remove-confirm p {
-  font-size: 11px;
-  color: #C0B0B0;
-  margin: 0;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal-card {
+  background: #131010;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 18px;
+  padding: 36px 32px 28px;
+  width: 340px;
   text-align: center;
-  line-height: 1.4;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(204, 31, 31, 0.08);
+  animation: slideUp 0.18s ease;
 }
 
-.avatar-remove-btns {
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.modal-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(204, 31, 31, 0.08);
+  border: 1px solid rgba(204, 31, 31, 0.2);
   display: flex;
-  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+}
+
+.modal-card h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #EDE8E8;
+  margin: 0 0 8px;
+  letter-spacing: -0.3px;
+}
+
+.modal-card p {
+  font-size: 13px;
+  color: #7A6565;
+  line-height: 1.55;
+  margin: 0 0 24px;
+}
+
+.modal-card p strong {
+  color: #A89898;
+  font-weight: 600;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
 }
 
 .btn-confirm-yes {
-  height: 28px;
-  padding: 0 10px;
-  background: rgba(204, 31, 31, 0.15);
-  border: 1px solid rgba(204, 31, 31, 0.4);
-  border-radius: 6px;
-  font-size: 11px;
+  height: 40px;
+  padding: 0 20px;
+  background: linear-gradient(135deg, #CC1F1F, #8B0000);
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
   font-weight: 600;
-  color: #CC1F1F;
+  color: #fff;
   cursor: pointer;
   font-family: 'Inter', system-ui, sans-serif;
-  transition: background 0.2s;
+  transition: opacity 0.2s;
+  box-shadow: 0 4px 16px rgba(204, 31, 31, 0.3);
 }
 
 .btn-confirm-yes:hover {
-  background: rgba(204, 31, 31, 0.28);
+  opacity: 0.88;
 }
 
 .btn-confirm-no {
-  height: 28px;
-  padding: 0 10px;
-  background: rgba(255, 255, 255, 0.04);
+  height: 40px;
+  padding: 0 20px;
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  font-size: 11px;
+  border-radius: 10px;
+  font-size: 13px;
   font-weight: 500;
-  color: #7A6565;
+  color: #A89898;
   cursor: pointer;
   font-family: 'Inter', system-ui, sans-serif;
   transition: background 0.2s, color 0.2s;
 }
 
 .btn-confirm-no:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #C0B0B0;
+  background: rgba(255, 255, 255, 0.09);
+  color: #EDE8E8;
 }
 
 /* ─── HEADER INFO ─────────────────────────── */

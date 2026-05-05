@@ -44,11 +44,22 @@ export default function Profile() {
   const [user, setUser]               = useState(null)
   const [form, setForm]               = useState(FORM_INICIAL)
   const [avatarPreview, setAvatarPreview] = useState('')
+  const [avatarRemoved, setAvatarRemoved]   = useState(false)
   const [loading, setLoading]               = useState(false)
   const [status, setStatus]                 = useState(null) // 'ok' | 'err'
   const [statusMsg, setStatusMsg]           = useState('')
   const [memberSince, setMemberSince]       = useState('')
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [pendingNavPath, setPendingNavPath]         = useState(null)
+
+  const guardedNavigate = (path) => {
+    if (hasUnsavedChanges) {
+      setPendingNavPath(path)
+    } else {
+      navigate(path)
+    }
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -106,6 +117,7 @@ export default function Profile() {
   const handleField = (e) => {
     const { name, value } = e.target
     setForm(f => ({ ...f, [name]: value }))
+    setHasUnsavedChanges(true)
   }
 
   const handleAvatarClick = () => {
@@ -136,6 +148,8 @@ export default function Profile() {
 
       const dataUrl = canvas.toDataURL('image/jpeg', 0.85)
       setAvatarPreview(dataUrl)
+      setAvatarRemoved(false)
+      setHasUnsavedChanges(true)
       setForm(f => ({ ...f, avatar: dataUrl }))
     }
     img.src = url
@@ -146,6 +160,8 @@ export default function Profile() {
   const handleRemoveAvatar = () => {
     setShowRemoveConfirm(false)
     setAvatarPreview('')
+    setAvatarRemoved(true)
+    setHasUnsavedChanges(true)
     setForm(f => ({ ...f, avatar: '' }))
   }
 
@@ -157,8 +173,9 @@ export default function Profile() {
 
     try {
       await authService.updateMe(form)
-      // Update local user state with new data
       setUser(u => ({ ...u, nombre: form.nombre, avatar: form.avatar || u?.avatar || '' }))
+      setHasUnsavedChanges(false)
+      setAvatarRemoved(false)
       setStatus('ok')
       setStatusMsg('¡Perfil actualizado correctamente!')
       setTimeout(() => setStatus(null), 3000)
@@ -174,11 +191,65 @@ export default function Profile() {
     ? user.nombre.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
     : '?'
 
-  const displayAvatar = avatarPreview || user?.avatar || ''
+  const displayAvatar = avatarRemoved ? '' : (avatarPreview || user?.avatar || '')
 
   return (
     <div className="profile-root">
-      <Navbar user={user ? { ...user, avatar: displayAvatar } : null} activePage="perfil" />
+      <Navbar user={user ? { ...user, avatar: displayAvatar } : null} activePage="perfil" onNavigate={guardedNavigate} />
+
+      {pendingNavPath && (
+        <div className="modal-backdrop">
+          <div className="modal-card" onClick={e => e.stopPropagation()}>
+            <div className="modal-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#CC1F1F" strokeWidth="1.5">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <h3>¿Deseas guardar los cambios?</h3>
+            <p>Tienes cambios sin guardar que se perderán si sales ahora.</p>
+            <div className="modal-actions">
+              <button type="button" className="btn-confirm-no" onClick={() => {
+                setPendingNavPath(null)
+                navigate(pendingNavPath)
+              }}>
+                No, salir
+              </button>
+              <button type="button" className="btn-confirm-yes" onClick={async () => {
+                try { await authService.updateMe(form) } catch (_) {}
+                navigate(pendingNavPath)
+              }}>
+                Sí, guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showRemoveConfirm && (
+        <div className="modal-backdrop" onClick={() => setShowRemoveConfirm(false)}>
+          <div className="modal-card" onClick={e => e.stopPropagation()}>
+            <div className="modal-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#CC1F1F" strokeWidth="1.5">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <h3>¿Eliminar foto de perfil?</h3>
+            <p>Los cambios se guardarán al pulsar <strong>Guardar cambios</strong>.</p>
+            <div className="modal-actions">
+              <button type="button" className="btn-confirm-no" onClick={() => setShowRemoveConfirm(false)}>
+                Cancelar
+              </button>
+              <button type="button" className="btn-confirm-yes" onClick={handleRemoveAvatar}>
+                Sí, quitar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="profile-main">
         <div className="profile-container">
@@ -208,19 +279,9 @@ export default function Profile() {
               </div>
 
               {displayAvatar && (
-                showRemoveConfirm ? (
-                  <div className="avatar-remove-confirm">
-                    <p>¿Eliminar foto de perfil?</p>
-                    <div className="avatar-remove-btns">
-                      <button type="button" className="btn-confirm-yes" onClick={handleRemoveAvatar}>Sí, quitar</button>
-                      <button type="button" className="btn-confirm-no" onClick={() => setShowRemoveConfirm(false)}>Cancelar</button>
-                    </div>
-                  </div>
-                ) : (
-                  <button type="button" className="btn-remove-avatar" onClick={() => setShowRemoveConfirm(true)}>
-                    Quitar foto
-                  </button>
-                )
+                <button type="button" className="btn-remove-avatar" onClick={() => setShowRemoveConfirm(true)}>
+                  Quitar foto
+                </button>
               )}
             </div>
 

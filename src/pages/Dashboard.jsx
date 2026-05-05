@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../services/auth'
+import { articulosService } from '../services/articulos'
 import Navbar from '../components/Navbar'
 import './Dashboard.css'
 
@@ -14,24 +15,12 @@ const CATEGORIES = [
   { label: 'Piezas', icon: '🔧' },
 ]
 
-const PRODUCTS = [
-  { id: 1, name: 'Tokyo Marui M4A1 SOPMOD', category: 'Rifles AEG', eth: '0.280', eur: '420', condition: 'Nuevo', rating: 4.8, reviews: 23, badge: 'Destacado', seller: 'OperadorAlpha' },
-  { id: 2, name: 'WE Tech Glock 17 Gen4 GBB', category: 'Pistolas GBB', eth: '0.120', eur: '180', condition: 'Nuevo', rating: 4.6, reviews: 15, badge: null, seller: 'TacticoMadrid' },
-  { id: 3, name: 'WELL MB4410 Sniper 6mm', category: 'Sniper', eth: '0.080', eur: '120', condition: 'Usado', rating: 4.2, reviews: 8, badge: null, seller: 'FrancoSevilla' },
-  { id: 4, name: 'G&G CM16 Raider 2.0 AEG', category: 'Rifles AEG', eth: '0.150', eur: '220', condition: 'Nuevo', rating: 4.7, reviews: 31, badge: 'Popular', seller: 'AirsoftBCN' },
-  { id: 5, name: 'KWA ATP Auto FPG GBB', category: 'Pistolas GBB', eth: '0.180', eur: '270', condition: 'Nuevo', rating: 4.9, reviews: 12, badge: null, seller: 'OperadorAlpha' },
-  { id: 6, name: 'Lancer Tactical Gen 2 M4', category: 'Rifles AEG', eth: '0.100', eur: '150', condition: 'Usado', rating: 3.9, reviews: 5, badge: null, seller: 'AirsoftVLC' },
-  { id: 7, name: 'Rail Noveske 14.5" KX3', category: 'Accesorios', eth: '0.040', eur: '60', condition: 'Nuevo', rating: 4.5, reviews: 19, badge: null, seller: 'PiezasAK' },
-  { id: 8, name: 'Chaleco HSGI Sure-Grip', category: 'Equipamiento', eth: '0.060', eur: '90', condition: 'Nuevo', rating: 4.3, reviews: 7, badge: null, seller: 'TacticoMadrid' },
-  { id: 9, name: 'ASG CZ P-09 GBB Duty', category: 'Pistolas GBB', eth: '0.095', eur: '142', condition: 'Nuevo', rating: 4.4, reviews: 11, badge: null, seller: 'FrancoSevilla' },
-  { id: 10, name: 'G&G GR16 Carbine AEG', category: 'Rifles AEG', eth: '0.200', eur: '300', condition: 'Nuevo', rating: 4.8, reviews: 27, badge: 'Popular', seller: 'AirsoftBCN' },
-  { id: 11, name: 'Madbull XM203 Lanzador', category: 'Accesorios', eth: '0.055', eur: '82', condition: 'Usado', rating: 4.1, reviews: 6, badge: null, seller: 'PiezasAK' },
-  { id: 12, name: 'Botas Haix Scout Black Eagle', category: 'Equipamiento', eth: '0.090', eur: '135', condition: 'Nuevo', rating: 4.6, reviews: 14, badge: null, seller: 'TacticoMadrid' },
-]
 
 export default function Dashboard() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
+  const [products, setProducts] = useState([])
+  const [loadingProducts, setLoadingProducts] = useState(true)
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('Todos')
   const [filters, setFilters] = useState({ precio: '', condicion: '', orden: '' })
@@ -51,22 +40,27 @@ export default function Dashboard() {
     authService.me()
       .then(data => { if (data?.usuario) setUser(data.usuario) })
       .catch(() => {})
+
+    articulosService.listar()
+      .then(data => { if (data?.articulos) setProducts(data.articulos) })
+      .catch(() => {})
+      .finally(() => setLoadingProducts(false))
   }, [navigate])
 
-  const filtered = PRODUCTS.filter(p => {
-    if (activeCategory !== 'Todos' && p.category !== activeCategory) return false
-    if (search && !p.name.toLowerCase().includes(search.toLowerCase()) && !p.category.toLowerCase().includes(search.toLowerCase())) return false
-    if (filters.condicion && p.condition !== filters.condicion) return false
-    const eur = parseInt(p.eur)
+  const filtered = products.filter(p => {
+    if (activeCategory !== 'Todos' && p.categoria !== activeCategory) return false
+    if (search && !p.titulo.toLowerCase().includes(search.toLowerCase()) && !p.categoria.toLowerCase().includes(search.toLowerCase())) return false
+    if (filters.condicion && p.condicion !== filters.condicion) return false
+    const eur = parseFloat(p.precio_eur) || 0
     if (filters.precio === '<100' && eur >= 100) return false
     if (filters.precio === '100-250' && (eur < 100 || eur > 250)) return false
     if (filters.precio === '250-500' && (eur < 250 || eur > 500)) return false
     if (filters.precio === '>500' && eur <= 500) return false
     return true
   }).sort((a, b) => {
-    if (filters.orden === 'precio_asc') return parseInt(a.eur) - parseInt(b.eur)
-    if (filters.orden === 'precio_desc') return parseInt(b.eur) - parseInt(a.eur)
-    if (filters.orden === 'rating') return b.rating - a.rating
+    if (filters.orden === 'precio_asc') return (parseFloat(a.precio_eur) || 0) - (parseFloat(b.precio_eur) || 0)
+    if (filters.orden === 'precio_desc') return (parseFloat(b.precio_eur) || 0) - (parseFloat(a.precio_eur) || 0)
+    if (filters.orden === 'reciente') return new Date(b.created_at) - new Date(a.created_at)
     return 0
   })
 
@@ -171,7 +165,9 @@ export default function Dashboard() {
               >
                 <option value="">Condición</option>
                 <option value="Nuevo">Nuevo</option>
-                <option value="Usado">Usado</option>
+                <option value="Como nuevo">Como nuevo</option>
+                <option value="Bueno">Bueno</option>
+                <option value="Aceptable">Aceptable</option>
               </select>
 
               {activeFiltersCount > 0 && (
@@ -196,7 +192,7 @@ export default function Dashboard() {
                 <option value="">Ordenar por</option>
                 <option value="precio_asc">Precio: menor a mayor</option>
                 <option value="precio_desc">Precio: mayor a menor</option>
-                <option value="rating">Mejor valorados</option>
+                <option value="reciente">Más recientes</option>
               </select>
             </div>
           </div>
@@ -204,17 +200,24 @@ export default function Dashboard() {
 
         {/* PRODUCTS */}
         <section className="products-section">
-          {filtered.length === 0 ? (
+          {loadingProducts ? (
+            <div className="empty-state">
+              <span className="loading-spinner" />
+              <p style={{ marginTop: '16px', color: '#8A7070' }}>Cargando artículos...</p>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="empty-state">
               <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#5A4545" strokeWidth="1.2">
                 <circle cx="11" cy="11" r="8"/>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
-              <p>Sin resultados</p>
-              <span>Prueba otros términos o quita los filtros</span>
-              <button className="empty-reset" onClick={() => { setSearch(''); setActiveCategory('Todos'); setFilters({ precio: '', condicion: '', orden: '' }) }}>
-                Restablecer búsqueda
-              </button>
+              <p>{products.length === 0 ? 'Aún no hay artículos publicados' : 'Sin resultados'}</p>
+              <span>{products.length === 0 ? 'Sé el primero en publicar una réplica' : 'Prueba otros términos o quita los filtros'}</span>
+              {products.length > 0 && (
+                <button className="empty-reset" onClick={() => { setSearch(''); setActiveCategory('Todos'); setFilters({ precio: '', condicion: '', orden: '' }) }}>
+                  Restablecer búsqueda
+                </button>
+              )}
             </div>
           ) : (
             <div className="products-grid">
@@ -230,31 +233,30 @@ export default function Dashboard() {
 
 /* ── PRODUCT CARD ── */
 function ProductCard({ product }) {
+  const cryptoSym = product.crypto === 'BTC' ? '₿' : 'Ξ'
+  const precioStr = parseFloat(product.precio_crypto).toString()
+  const eurStr    = parseFloat(product.precio_eur).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+
   return (
     <article className="product-card">
-      {product.badge && <span className="product-badge">{product.badge}</span>}
-
       <div className="product-img">
-        <div className="product-img__icon">
-          <CategorySVG category={product.category} />
-        </div>
-        <span className="product-cat-tag">{product.category}</span>
+        {product.foto_principal ? (
+          <img src={product.foto_principal} alt={product.titulo} className="product-photo" />
+        ) : (
+          <div className="product-img__icon">
+            <CategorySVG category={product.categoria} />
+          </div>
+        )}
+        <span className="product-cat-tag">{product.categoria}</span>
       </div>
 
       <div className="product-body">
-        <h3 className="product-name">{product.name}</h3>
+        <h3 className="product-name">{product.titulo}</h3>
 
         <div className="product-meta">
-          <span className={`product-cond${product.condition === 'Nuevo' ? ' new' : ' used'}`}>
-            {product.condition}
+          <span className={`product-cond${product.condicion === 'Nuevo' ? ' new' : ' used'}`}>
+            {product.condicion}
           </span>
-          <div className="product-rating">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="#F59E0B" stroke="none">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-            </svg>
-            <span className="rating-val">{product.rating}</span>
-            <span className="rating-cnt">({product.reviews})</span>
-          </div>
         </div>
 
         <p className="product-seller">
@@ -267,8 +269,8 @@ function ProductCard({ product }) {
 
         <div className="product-footer">
           <div className="product-price">
-            <p className="price-eth">{product.eth} ETH</p>
-            <p className="price-eur">≈ {product.eur}€</p>
+            <p className="price-eth">{precioStr} ETH</p>
+            <p className="price-eur">= {eurStr}€</p>
           </div>
           <button className="btn-buy">Comprar</button>
         </div>
