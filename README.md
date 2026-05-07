@@ -14,49 +14,75 @@ El objetivo principal es ofrecer una experiencia **moderna e intuitiva** de comp
 
 ## ✨ Funcionalidades Implementadas
 
-- 🔐 Registro e inicio de sesión de usuarios (email + contraseña)
-- 🎂 Validación de edad en el registro (mayores de 18 años)
-- 🔑 Autenticación con tokens JWT (generación, verificación y cierre de sesión)
-- 🔒 Encriptación de contraseñas con bcrypt
-- 🏠 Dashboard post-login con buscador, filtros por categoría, precio y condición
-- 👤 Página de perfil con foto de perfil (subida, previsualización y eliminación)
-- 📝 Edición de datos personales: nombre, teléfono (con prefijo de país), género, fecha de nacimiento, país, ciudad, dirección y biografía
-- ⚠️ Aviso de cambios sin guardar al navegar fuera del perfil (modal de confirmación)
-- 🛒 Página de venta: publicación de artículos con fotos, descripción, precio en ETH/BTC con estimación en €, tiers de envío por peso y tamaño, comisión del 3% y resumen de ingresos netos
-- 📦 Guardado de artículos en base de datos con transacciones SQL atómicas
-- 🖼️ Redimensionado de imágenes en el cliente (Canvas API) antes de enviarlas al servidor
-- 📋 Catálogo en el inicio con artículos reales cargados desde la API con foto principal
-- 🧭 Navbar compartida con menú desplegable de usuario y navegación con guardia de cambios
-- 📂 Página "Mis productos": visualización de los artículos propios con foto, estado, precio y fecha
-- 🗑️ Eliminación de artículos propios con modal de confirmación centrado
-- 🌐 Interfaz responsive adaptada a móvil y escritorio
+### 🔐 Autenticación y Usuarios
+- Registro con validación de edad (mayores de 18 años obligatorio)
+- Inicio de sesión con email + contraseña
+- Inicio de sesión con wallet de criptomonedas (MetaMask — estructura lista)
+- Autenticación con tokens JWT (generación, verificación y cierre de sesión)
+- Sesiones persistidas en base de datos con fecha de expiración
+- Encriptación de contraseñas con bcrypt
+- Cierre de sesión con invalidación del token en BD
 
-## 🛡️ Panel Administrativo (En desarrollo)
+### 👤 Perfil de Usuario
+- Foto de perfil: subida, previsualización y eliminación
+- Redimensionado automático de imagen en el cliente (Canvas API) antes de enviarla
+- Edición de datos personales: nombre, teléfono con prefijo internacional, género, fecha de nacimiento, país, ciudad, dirección y biografía
+- El número de teléfono se guarda con el prefijo de país (`+34 600000000`)
+- Aviso de cambios sin guardar al navegar fuera del perfil (modal de confirmación)
 
-Accesible únicamente para usuarios con rol `admin`. Aparece como opción en el menú desplegable de la Navbar junto a Mi perfil, Mis productos y Configuración.
+### 🛒 Marketplace
+- Dashboard con catálogo de artículos reales cargados desde la API
+- Buscador y filtros por categoría, precio y condición
+- Publicación de artículos con múltiples fotos, descripción y precio
+- Precios en ETH o BTC con estimación automática en euros
+- Cálculo de tiers de envío por peso y tamaño
+- Comisión del 3% con resumen de ingresos netos
+- Guardado de artículos en BD con transacciones SQL atómicas
+- Página "Mis productos": listado propio con foto, estado, precio y fecha
+- Eliminación de artículos propios con modal de confirmación
 
-### Funcionalidades previstas:
+### 🛡️ Panel Administrativo
+Accesible únicamente para usuarios con rol `admin`. Visible en el menú desplegable de la Navbar solo para administradores.
 
-- 📊 **Gráfico de usuarios** — visualización de altas de usuarios en el tiempo
-- 💬 **Chat de soporte** — icono de acceso rápido a conversaciones con clientes (estructura lista, funcionalidad pendiente)
-- 👥 **Gestión de usuarios** — listado completo de clientes con opciones de:
-  - Ver perfil y datos
-  - Bloquear / desbloquear (el usuario bloqueado ve "Usuario bloqueado temporalmente, contacte con soporte" al iniciar sesión)
-  - Eliminar cuenta
-  - Cambiar rol (user ↔ admin)
-- ➕ **Crear usuarios** — el admin puede crear nuevas cuentas con rol `user` o `admin`
-- 📦 **Gestión de productos** — el admin ve todos los artículos (activos, vendidos y eliminados) y puede:
-  - Eliminar cualquier producto con motivo opcional
-  - El propietario recibe una notificación con el motivo al iniciar sesión
-- 📜 **Historial de acciones** — registro de todas las acciones del admin (bloqueos, eliminaciones, cambios de rol, etc.) con fecha y detalle
+- **Resumen** — estadísticas generales: total de usuarios, bloqueados, admins, productos activos y totales; gráfico de barras con altas de usuarios por mes (últimos 12 meses)
+- **Gestión de usuarios** — listado completo con búsqueda; acciones por usuario:
+  - Bloquear con motivo opcional → el usuario ve "Usuario bloqueado temporalmente, contacte con soporte" al intentar iniciar sesión
+  - Desbloquear
+  - Cambiar rol (`user` ↔ `admin`) con verificación de contraseña del admin
+  - Eliminar (soft-delete: desaparece de la lista activa, visible en sección de usuarios eliminados)
+- **Crear usuario** — el admin crea cuentas nuevas con rol `user` o `admin` directamente desde el panel
+- **Gestión de productos** — el admin ve todos los artículos (activos, vendidos y eliminados), puede filtrar por estado y eliminar cualquier producto con motivo opcional; el vendedor recibe una notificación automática
+- **Historial de acciones** — registro de auditoría de todas las acciones del admin (bloqueos, eliminaciones, cambios de rol, creaciones) con fecha y detalle
+- **Chat de soporte** — botón visible, funcionalidad pendiente de implementar
+
+### 🔔 Notificaciones
+- Sistema de notificaciones en tiempo real en la Navbar (campana con badge de no leídas)
+- Tipos: producto eliminado por admin, cuenta bloqueada, sistema
+- Marcar como leída individualmente o todas a la vez
+- Desplegable con icono por tipo, mensaje y fecha
+
+### 🔒 Seguridad
+- Contraseñas hasheadas con bcrypt (compatibilidad `$2a$` / `$2b$`)
+- Tokens JWT verificados en cada petición contra la tabla de sesiones
+- Middleware de rol: rutas de admin protegidas con verificación `rol === 'admin'`
+- Validación de inputs en el backend con `express-validator`
+- Detección de cuenta bloqueada en el login con mensaje diferenciado
+- Seed automático al arrancar el servidor: crea el primer admin si no existe
+
+### 🌐 Interfaz
+- Navbar compartida con menú desplegable de usuario
+- Diseño responsive adaptado a móvil y escritorio
+- Tema oscuro consistente (negro y rojo)
+
+---
 
 ## 🚧 Funcionalidades en Desarrollo
 
-- 💰 Compra de equipamiento pagando con criptomonedas
+- 💰 Compra de equipamiento pagando con criptomonedas (ETH / BTC)
 - 🔗 Integración con Blockchain para validar transacciones
-- 👛 Conexión con wallet de criptomonedas (MetaMask)
+- 👛 Conexión completa con wallet MetaMask
 - 📦 Gestión de pedidos e historial de compras
-- 💬 Chat de soporte admin-usuario (en tiempo real)
+- 💬 Chat de soporte admin-usuario en tiempo real
 
 ---
 
@@ -64,41 +90,123 @@ Accesible únicamente para usuarios con rol `admin`. Aparece como opción en el 
 
 ### 🎨 Frontend
 
-| Tecnología     | Descripción                                                    |
-|----------------|----------------------------------------------------------------|
-| React 19       | Biblioteca principal para la interfaz                          |
-| Vite           | Bundler y entorno de desarrollo rápido                         |
-| React Router   | Navegación entre páginas (SPA)                                 |
-| CSS            | Estilos y diseño responsive                                    |
-| Canvas API     | Redimensionado de imágenes en el cliente antes de subirlas     |
-| JWT (cliente)  | Decodificación del token en el frontend para acceso inmediato  |
-
----
+| Tecnología    | Descripción                                                   |
+|---------------|---------------------------------------------------------------|
+| React 19      | Biblioteca principal para la interfaz                         |
+| Vite          | Bundler y entorno de desarrollo rápido                        |
+| React Router  | Navegación entre páginas (SPA)                                |
+| CSS           | Estilos y diseño responsive                                   |
+| Canvas API    | Redimensionado de imágenes en el cliente antes de subirlas    |
+| JWT (cliente) | Decodificación del token en el frontend para acceso inmediato |
 
 ### ⚙️ Backend & Base de Datos
 
-| Tecnología         | Descripción                                      |
-|--------------------|--------------------------------------------------|
-| Node.js            | Entorno de ejecución del servidor                |
-| Express            | Framework para la API REST                       |
-| MySQL              | Base de datos relacional                         |
-| mysql2             | Conector de MySQL para Node.js                   |
-| bcryptjs           | Encriptación de contraseñas                      |
-| jsonwebtoken       | Generación y verificación de tokens JWT          |
-| express-validator  | Validación de datos en los endpoints             |
-| dotenv             | Gestión de variables de entorno                  |
-| cors               | Control de acceso entre frontend y backend       |
-| nodemon            | Reinicio automático del servidor en desarrollo   |
-
----
+| Tecnología        | Descripción                                    |
+|-------------------|------------------------------------------------|
+| Node.js           | Entorno de ejecución del servidor              |
+| Express 5         | Framework para la API REST                     |
+| MySQL             | Base de datos relacional                       |
+| mysql2            | Conector de MySQL para Node.js                 |
+| bcryptjs          | Encriptación de contraseñas                    |
+| jsonwebtoken      | Generación y verificación de tokens JWT        |
+| express-validator | Validación de datos en los endpoints           |
+| dotenv            | Gestión de variables de entorno                |
+| cors              | Control de acceso entre frontend y backend     |
+| nodemon           | Reinicio automático del servidor en desarrollo |
 
 ### 🧰 Herramientas
 
-| Herramienta | Descripción                       |
-|-------------|-----------------------------------|
-| Git         | Control de versiones              |
-| GitHub      | Repositorio remoto y colaboración |
-| Postman     | Testing de la API                 |
+| Herramienta     | Descripción                       |
+|-----------------|-----------------------------------|
+| Git             | Control de versiones              |
+| GitHub          | Repositorio remoto y colaboración |
+| MySQL Workbench | Gestión visual de la base de datos|
+| Postman         | Testing de la API                 |
+
+---
+
+## 📁 Estructura del Proyecto
+
+```
+TFG-Inversiones/
+├── src/
+│   ├── pages/
+│   │   ├── Login.jsx / Login.css
+│   │   ├── Register.jsx / Register.css
+│   │   ├── Dashboard.jsx / Dashboard.css
+│   │   ├── Profile.jsx / Profile.css
+│   │   ├── Vender.jsx / Vender.css
+│   │   ├── MisProductos.jsx / MisProductos.css
+│   │   └── AdminPanel.jsx / AdminPanel.css
+│   ├── components/
+│   │   └── Navbar.jsx / Navbar.css
+│   ├── services/
+│   │   ├── auth.js        (auth + admin + notificaciones)
+│   │   └── articulos.js
+│   ├── App.jsx
+│   └── main.jsx
+└── backend/
+    ├── src/
+    │   ├── routes/
+    │   │   ├── auth.js
+    │   │   ├── articulos.js
+    │   │   ├── admin.js
+    │   │   └── notificaciones.js
+    │   ├── middleware/
+    │   │   ├── auth.js
+    │   │   └── admin.js
+    │   ├── db.js
+    │   └── seed.js
+    ├── server.js
+    └── .env
+```
+
+---
+
+## 🔌 API Endpoints
+
+### Auth — `/api/auth`
+
+| Método | Ruta            | Descripción                          | Auth |
+|--------|-----------------|--------------------------------------|------|
+| POST   | `/register`     | Registrar usuario (valida edad ≥ 18) | No   |
+| POST   | `/login`        | Login con email y contraseña         | No   |
+| POST   | `/login-wallet` | Login con wallet blockchain          | No   |
+| POST   | `/logout`       | Cerrar sesión e invalidar token      | Sí   |
+| GET    | `/me`           | Obtener perfil del usuario actual    | Sí   |
+| PUT    | `/me`           | Actualizar perfil del usuario actual | Sí   |
+
+### Artículos — `/api/articulos`
+
+| Método | Ruta    | Descripción                                  | Auth |
+|--------|---------|----------------------------------------------|------|
+| POST   | `/`     | Publicar nuevo artículo con fotos            | Sí   |
+| GET    | `/`     | Listar artículos activos (con filtros)       | No   |
+| GET    | `/mis`  | Listar artículos propios del usuario         | Sí   |
+| DELETE | `/:id`  | Eliminar artículo propio (soft-delete)       | Sí   |
+
+### Admin — `/api/admin` *(requiere rol admin)*
+
+| Método | Ruta                          | Descripción                                    |
+|--------|-------------------------------|------------------------------------------------|
+| GET    | `/stats`                      | Estadísticas y gráfico de altas por mes        |
+| GET    | `/usuarios`                   | Listar todos los usuarios                      |
+| POST   | `/usuarios`                   | Crear nuevo usuario                            |
+| PUT    | `/usuarios/:id/bloquear`      | Bloquear usuario con motivo opcional           |
+| PUT    | `/usuarios/:id/desbloquear`   | Desbloquear usuario                            |
+| PUT    | `/usuarios/:id/rol`           | Cambiar rol (requiere contraseña del admin)    |
+| DELETE | `/usuarios/:id`               | Eliminar usuario (soft-delete)                 |
+| GET    | `/articulos`                  | Listar todos los artículos incluidos eliminados|
+| DELETE | `/articulos/:id`              | Eliminar artículo con motivo + notificación    |
+| GET    | `/historial`                  | Historial de acciones del admin                |
+
+### Notificaciones — `/api/notificaciones` *(requiere auth)*
+
+| Método | Ruta           | Descripción                              |
+|--------|----------------|------------------------------------------|
+| GET    | `/`            | Obtener notificaciones del usuario       |
+| PUT    | `/:id/leer`    | Marcar notificación como leída           |
+| PUT    | `/leer-todas`  | Marcar todas las notificaciones como leídas |
 
 ---
 
@@ -115,44 +223,41 @@ cd TFG-Inversiones
 ### ▶️ Frontend
 
 ```bash
-# Instalar dependencias
 npm install
-
-# Iniciar el servidor de desarrollo
 npm run dev
 ```
 
 ### ▶️ Backend
 
 ```bash
-# Entrar en la carpeta backend
 cd backend
-
-# Instalar dependencias
 npm install
-
-# Iniciar el servidor (con reinicio automático)
 npm run dev
 ```
 
-> ⚠️ Antes de arrancar el backend, configura el archivo `backend/.env` con tus credenciales de MySQL.
+> ⚠️ Configura `backend/.env` antes de arrancar el servidor.
 
-Ejemplo de `backend/.env`:
+### 📄 Variables de entorno (`backend/.env`)
 
 ```env
+PORT=3001
+
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=tu_contraseña
-DB_NAME=akmarket
-JWT_SECRET=una_clave_secreta_larga
-JWT_EXPIRES_IN=7d
-PORT=3001
+DB_NAME=nombre_base_de_datos
 
-ADMIN_EMAIL=admin@gmail.com
-ADMIN_PASSWORD="Ovejita123#"
+JWT_SECRET=una_clave_secreta_larga_y_segura
+JWT_EXPIRES_IN=7d
+
+# Credenciales del primer admin (se crea automáticamente al arrancar)
+ADMIN_EMAIL=admin@tudominio.com
+ADMIN_PASSWORD="TuContraseñaSegura"
 ADMIN_NOMBRE=Admin
 ```
+
+> El servidor crea automáticamente el usuario admin al arrancar si no existe. Las credenciales se leen del `.env` y nunca se exponen en el código fuente.
 
 ---
 
@@ -160,15 +265,12 @@ ADMIN_NOMBRE=Admin
 
 ### Creación completa desde cero
 
-Ejecuta el siguiente script SQL en tu cliente MySQL (phpMyAdmin, MySQL Workbench, terminal, etc.):
-
 ```sql
--- Crear base de datos
-CREATE DATABASE IF NOT EXISTS marketcripto
+CREATE DATABASE IF NOT EXISTS akmarket
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-USE marketcripto;
+USE akmarket;
 
 -- ── Tabla de usuarios ──────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS usuarios (
@@ -250,8 +352,6 @@ CREATE TABLE IF NOT EXISTS articulo_fotos (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ── Tabla de notificaciones ───────────────────────────────────────────────
--- Usada para avisar al usuario cuando un admin elimina su producto,
--- bloquea su cuenta o envía mensajes del sistema.
 CREATE TABLE IF NOT EXISTS notificaciones (
   id          INT          NOT NULL AUTO_INCREMENT,
   usuario_id  INT          NOT NULL,
@@ -267,7 +367,6 @@ CREATE TABLE IF NOT EXISTS notificaciones (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ── Historial de acciones del administrador ───────────────────────────────
--- Registro de auditoría de todo lo que hacen los admins.
 CREATE TABLE IF NOT EXISTS historial_admin (
   id           INT  NOT NULL AUTO_INCREMENT,
   admin_id     INT  NOT NULL,
@@ -289,8 +388,7 @@ CREATE TABLE IF NOT EXISTS historial_admin (
     REFERENCES usuarios(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ── Tabla de chats de soporte ─────────────────────────────────────────────
--- Estructura para el chat admin-usuario (funcionalidad pendiente).
+-- ── Tabla de chats de soporte (estructura para uso futuro) ────────────────
 CREATE TABLE IF NOT EXISTS chats (
   id          INT  NOT NULL AUTO_INCREMENT,
   admin_id    INT  NOT NULL,
@@ -316,6 +414,29 @@ CREATE TABLE IF NOT EXISTS mensajes (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
+### Descripción de tablas
+
+| Tabla            | Descripción                                                        |
+|------------------|--------------------------------------------------------------------|
+| `usuarios`       | Datos de usuario, autenticación, perfil, rol y estado de bloqueo  |
+| `sesiones`       | Tokens JWT activos con IP, user-agent y fecha de expiración        |
+| `articulos`      | Productos publicados con precio crypto, estado y datos de envío    |
+| `articulo_fotos` | Imágenes asociadas a cada artículo (múltiples por artículo)        |
+| `notificaciones` | Avisos al usuario: productos eliminados, bloqueos, sistema         |
+| `historial_admin`| Registro de auditoría de todas las acciones de los administradores |
+| `chats`          | Conversaciones de soporte admin-usuario (pendiente de implementar) |
+| `mensajes`       | Mensajes dentro de cada conversación de soporte                    |
+
+---
+
+## 🔑 Primer Administrador
+
+Al arrancar el servidor por primera vez, el seed crea automáticamente el usuario admin definido en `.env`. Si el usuario ya existe, no se modifica nada.
+
+Para **promover un usuario registrado** a admin sin tocar el seed:
+```sql
+UPDATE usuarios SET rol = 'admin' WHERE email = 'tu@email.com';
+```
 
 ---
 
