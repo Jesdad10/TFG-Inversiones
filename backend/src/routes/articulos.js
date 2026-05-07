@@ -1,159 +1,144 @@
-const router = require('express').Router()
-const { body, validationResult } = require('express-validator')
-const pool = require('../db')
-const authMiddleware = require('../middleware/auth')
+import {
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  doc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  serverTimestamp,
+} from 'firebase/firestore'
 
-function validarInput(req, res) {
-  const errores = validationResult(req)
-  if (!errores.isEmpty()) {
-    res.status(422).json({ error: errores.array()[0].msg })
-    return false
-  }
-  return true
+import { auth, db } from '../firebase'
+
+function esperarUsuario() {
+  return new Promise((resolve) => {
+    const unsub = auth.onAuthStateChanged((user) => {
+      unsub()
+      resolve(user)
+    })
+  })
 }
 
-// ─── POST /api/articulos ───────────────────────────────────────────────────
+async function usuarioActual() {
+  return auth.currentUser || await esperarUsuario()
+}
 
-router.post(
-  '/',
-  authMiddleware,
-  [
-    body('titulo').trim().notEmpty().withMessage('El título es obligatorio'),
-    body('descripcion').trim().notEmpty().withMessage('La descripción es obligatoria'),
-    body('categoria').notEmpty().withMessage('La categoría es obligatoria'),
-    body('condicion').notEmpty().withMessage('La condición es obligatoria'),
-    body('crypto').isIn(['ETH', 'BTC']).withMessage('Cripto no válida'),
-    body('precio_crypto').isFloat({ min: 0.00001 }).withMessage('Precio no válido'),
-    body('fotos').isArray({ min: 1 }).withMessage('Se requiere al menos una foto'),
-  ],
-  async (req, res) => {
-    if (!validarInput(req, res)) return
+function normalizarArticulo(id, data) {
+  return {
+    id,
+    titulo: data.titulo || '',
+    descripcion: data.descripcion || '',
+    categoria: data.categoria || '',
+    condicion: data.condicion || '',
+    crypto: data.crypto || 'ETH',
+    precio_crypto: data.precio_crypto || '',
+    precio_eur: data.precio_eur || '',
+    peso_tier: data.peso_tier || '',
+    tamano: data.tamano || '',
+    envio_precio: data.envio_precio || 0,
+    comision: data.comision || 0,
+    neto_eur: data.neto_eur || 0,
+    fotos: data.fotos || [],
+    foto_principal: data.foto_principal || data.fotos?.[0] || '',
+    estado: data.estado || 'activo',
+    usuario_id: data.usuario_id || '',
+    created_at: data.created_at || '',
+  }
+}
 
-    const {
-      titulo, descripcion, categoria, condicion,
-      crypto, precio_crypto, precio_eur,
-      peso_tier, tamano, envio_precio, comision, neto_eur,
-      fotos,
-    } = req.body
+export const articulosService = {
+  crear: async (datos) => {
+    const user = await usuarioActual()
 
-    const conn = await pool.getConnection()
-    try {
-      await conn.beginTransaction()
-
-      const [result] = await conn.query(
-        `INSERT INTO articulos
-          (usuario_id, titulo, descripcion, categoria, condicion,
-           crypto, precio_crypto, precio_eur,
-           peso_tier, tamano, envio_precio, comision, neto_eur)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          req.usuario.id, titulo, descripcion, categoria, condicion,
-          crypto, precio_crypto, precio_eur,
-          peso_tier, tamano, envio_precio, comision, neto_eur,
-        ]
-      )
-
-      const articuloId = result.insertId
-
-      for (let i = 0; i < fotos.length; i++) {
-        await conn.query(
-          'INSERT INTO articulo_fotos (articulo_id, foto, orden) VALUES (?, ?, ?)',
-          [articuloId, fotos[i], i]
-        )
-      }
-
-      await conn.commit()
-      return res.status(201).json({ mensaje: 'Artículo publicado correctamente', id: articuloId })
-    } catch (err) {
-      await conn.rollback()
-      console.error('[POST /articulos]', err)
-      return res.status(500).json({ error: 'Error al publicar el artículo' })
-    } finally {
-      conn.release()
+    if (!user) {
+      throw new Error('Debes iniciar sesión para publicar un artículo')
     }
-  }
-)
 
-// ─── GET /api/articulos/mis ───────────────────────────────────────────────
-
-router.get('/mis', authMiddleware, async (req, res) => {
-  try {
-    const [articulos] = await pool.query(
-      `SELECT
-         a.id, a.titulo, a.descripcion, a.categoria, a.condicion,
-         a.crypto, a.precio_crypto, a.precio_eur, a.estado, a.created_at,
-         (SELECT af.foto FROM articulo_fotos af
-          WHERE af.articulo_id = a.id
-          ORDER BY af.orden LIMIT 1) AS foto_principal
-       FROM articulos a
-       WHERE a.usuario_id = ? AND a.estado != 'eliminado'
-       ORDER BY a.created_at DESC`,
-      [req.usuario.id]
-    )
-    return res.json({ articulos })
-  } catch (err) {
-    console.error('[GET /articulos/mis]', err)
-    return res.status(500).json({ error: 'Error al obtener tus artículos' })
-  }
-})
-
-// ─── DELETE /api/articulos/:id ────────────────────────────────────────────
-
-router.delete('/:id', authMiddleware, async (req, res) => {
-  const { id } = req.params
-  try {
-    const [rows] = await pool.query(
-      'SELECT id FROM articulos WHERE id = ? AND usuario_id = ?',
-      [id, req.usuario.id]
-    )
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'Artículo no encontrado o no tienes permiso' })
+    const articulo = {
+      ...datos,
+      usuario_id: user.uid,
+      vendedor_email: user.email,
+      estado: 'activo',
+      foto_principal: datos.fotos?.[0] || '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      created_at_server: serverTimestamp(),
+      updated_at_server: serverTimestamp(),
     }
-    await pool.query(
-      "UPDATE articulos SET estado = 'eliminado' WHERE id = ?",
-      [id]
-    )
-    return res.json({ mensaje: 'Artículo eliminado correctamente' })
-  } catch (err) {
-    console.error('[DELETE /articulos/:id]', err)
-    return res.status(500).json({ error: 'Error al eliminar el artículo' })
-  }
-})
 
-// ─── GET /api/articulos ────────────────────────────────────────────────────
+    const ref = await addDoc(collection(db, 'articulos'), articulo)
 
-router.get('/', authMiddleware, async (req, res) => {
-  try {
-    const { categoria, condicion, crypto } = req.query
+    return {
+      mensaje: 'Artículo publicado correctamente',
+      id: ref.id,
+    }
+  },
 
-    let where = "WHERE a.estado = 'activo'"
-    const params = []
-
-    if (categoria) { where += ' AND a.categoria = ?'; params.push(categoria) }
-    if (condicion) { where += ' AND a.condicion = ?'; params.push(condicion) }
-    if (crypto)    { where += ' AND a.crypto = ?';    params.push(crypto) }
-
-    const [articulos] = await pool.query(
-      `SELECT
-         a.id, a.titulo, a.descripcion, a.categoria, a.condicion,
-         a.crypto, a.precio_crypto, a.precio_eur, a.estado, a.created_at,
-         u.nombre   AS seller,
-         u.avatar   AS seller_avatar,
-         (SELECT af.foto FROM articulo_fotos af
-          WHERE af.articulo_id = a.id
-          ORDER BY af.orden LIMIT 1) AS foto_principal
-       FROM articulos a
-       JOIN usuarios u ON u.id = a.usuario_id
-       ${where}
-       ORDER BY a.created_at DESC`,
-      params
+  listar: async () => {
+    const q = query(
+      collection(db, 'articulos'),
+      where('estado', '==', 'activo'),
+      orderBy('created_at', 'desc')
     )
 
-    return res.json({ articulos })
-  } catch (err) {
-    console.error('[GET /articulos]', err)
-    return res.status(500).json({ error: 'Error al obtener los artículos' })
-  }
-})
+    const snap = await getDocs(q)
 
-module.exports = router
+    const articulos = snap.docs.map((d) =>
+      normalizarArticulo(d.id, d.data())
+    )
+
+    return { articulos }
+  },
+
+  misProductos: async () => {
+    const user = await usuarioActual()
+
+    if (!user) {
+      throw new Error('Debes iniciar sesión')
+    }
+
+    const q = query(
+      collection(db, 'articulos'),
+      where('usuario_id', '==', user.uid),
+      orderBy('created_at', 'desc')
+    )
+
+    const snap = await getDocs(q)
+
+    const articulos = snap.docs.map((d) =>
+      normalizarArticulo(d.id, d.data())
+    )
+
+    return { articulos }
+  },
+
+  eliminar: async (id) => {
+    const user = await usuarioActual()
+
+    if (!user) {
+      throw new Error('Debes iniciar sesión')
+    }
+
+    const ref = doc(db, 'articulos', id)
+    const snap = await getDoc(ref)
+
+    if (!snap.exists()) {
+      throw new Error('El artículo no existe')
+    }
+
+    const articulo = snap.data()
+
+    if (articulo.usuario_id !== user.uid) {
+      throw new Error('No puedes eliminar un artículo que no es tuyo')
+    }
+
+    await deleteDoc(ref)
+
+    return {
+      mensaje: 'Artículo eliminado correctamente',
+    }
+  },
+}
