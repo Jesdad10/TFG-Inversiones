@@ -2,13 +2,12 @@ import {
   collection,
   getDocs,
   getDoc,
-  doc,
-  updateDoc,
   addDoc,
+  updateDoc,
+  doc,
 } from 'firebase/firestore'
 
 import { auth, db } from '../firebase/firebase'
-import { authService } from './auth'
 
 function esperarUsuario() {
   return new Promise((resolve) => {
@@ -37,32 +36,40 @@ function normalizarProducto(id, data) {
 
     titulo: data.titulo || 'Producto sin título',
     descripcion: data.descripcion || '',
-    categoria: data.categoria || '',
-    condicion: data.condicion || '',
+    categoria: data.categoria || 'Accesorios',
+    condicion: data.condicion || 'Nuevo',
+
     marca: data.marca || '',
     modelo: data.modelo || '',
     numeroSerie: data.numeroSerie || '',
 
+    estado: data.estado || 'en_venta',
+    activo: data.activo !== false,
+    enVenta: data.enVenta !== false,
+
     precioEUR,
     precioETH,
+
     precio_eur: precioEUR,
     precio_crypto: precioETH,
     crypto: data.crypto || 'ETH',
 
-    imagen: data.imagen || data.foto_principal || '',
-    foto_principal: data.foto_principal || data.imagen || '',
+    imagen: data.imagen || '',
+    foto_principal: data.foto_principal || data.imagen || data.fotos?.[0] || '',
 
-    activo: data.activo !== false,
-    estado: data.estado || 'en_venta',
-    enVenta: data.enVenta !== false,
+    fechaCreacion: data.fechaCreacion || data.created_at || '',
+    created_at: data.created_at || data.fechaCreacion || '',
+
+    seller: data.ownerNombre || data.seller || data.vendedor_nombre || 'AK-MARKET',
+    seller_avatar: data.seller_avatar || '',
 
     ownerUid: data.ownerUid || '',
     ownerNombre: data.ownerNombre || '',
     ownerEmail: data.ownerEmail || '',
     ownerWallet: data.ownerWallet || '',
 
-    propietarioActual: data.propietarioActual || data.ownerWallet || '',
     walletActual: data.walletActual || data.ownerWallet || '',
+    propietarioActual: data.propietarioActual || data.ownerWallet || '',
 
     propietariosAnteriores: Array.isArray(data.propietariosAnteriores)
       ? data.propietariosAnteriores
@@ -75,283 +82,125 @@ function normalizarProducto(id, data) {
     txHashCreacion: data.txHashCreacion || '',
     txHashUltimaTransferencia: data.txHashUltimaTransferencia || '',
     estadoBlockchain: data.estadoBlockchain || 'pendiente_mint',
-
-    fechaCreacion: data.fechaCreacion || data.created_at || '',
-    created_at: data.created_at || data.fechaCreacion || '',
-    fechaUltimaOperacion: data.fechaUltimaOperacion || '',
   }
 }
 
-async function obtenerUsuarioLogueado() {
-  const firebaseUser = await usuarioActual()
+export const articulosService = {
+  listar: async () => {
+    const snap = await getDocs(collection(db, 'products'))
 
-  if (!firebaseUser) {
-    throw new Error('Debes iniciar sesión')
-  }
+    const articulos = snap.docs
+      .map((d) => normalizarProducto(d.id, d.data()))
+      .filter((p) => p.activo !== false)
+      .filter((p) => p.enVenta !== false)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 
-  const data = await authService.me()
+    return { articulos }
+  },
 
-  if (!data?.usuario) {
-    throw new Error('No se ha podido obtener el usuario')
-  }
+  misProductos: async () => {
+    const user = await usuarioActual()
 
-  return {
-    uid: firebaseUser.uid,
-    email: data.usuario.email || firebaseUser.email || '',
-    nombre: data.usuario.nombre || firebaseUser.displayName || '',
-    wallet: data.usuario.wallet || '',
-  }
-}
-
-async function obtenerProducto(productId) {
-  const ref = doc(db, 'products', productId)
-  const snap = await getDoc(ref)
-
-  if (!snap.exists()) {
-    throw new Error('El producto no existe')
-  }
-
-  return {
-    ref,
-    producto: normalizarProducto(snap.id, snap.data()),
-    raw: snap.data(),
-  }
-}
-
-async function registrarHistorial(productId, movimiento) {
-  await addDoc(collection(db, 'products', productId, 'historial'), {
-    ...movimiento,
-    fecha: new Date().toISOString(),
-  })
-}
-
-function calcularPrecioETH(precioEUR, ethRateEUR) {
-  const eur = numero(precioEUR)
-  const rate = numero(ethRateEUR)
-
-  if (!eur || !rate) return 0
-
-  return Number((eur / rate).toFixed(8))
-}
-
-export const armeriaService = {
-  listarMiArmeria: async () => {
-    const usuario = await obtenerUsuarioLogueado()
+    if (!user) {
+      throw new Error('Debes iniciar sesión')
+    }
 
     const snap = await getDocs(collection(db, 'products'))
 
-    const productos = snap.docs
+    const articulos = snap.docs
       .map((d) => normalizarProducto(d.id, d.data()))
-      .filter((p) => p.ownerUid === usuario.uid)
+      .filter((p) => p.usuario_id === user.uid || p.ownerUid === user.uid)
       .filter((p) => p.activo !== false)
-      .sort((a, b) => {
-        const fa = new Date(a.fechaUltimaOperacion || a.fechaCreacion || 0)
-        const fb = new Date(b.fechaUltimaOperacion || b.fechaCreacion || 0)
-        return fb - fa
-      })
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 
-    return {
-      usuario,
-      productos,
-    }
+    return { articulos }
   },
 
-  listarHistorial: async (productId) => {
-    const snap = await getDocs(collection(db, 'products', productId, 'historial'))
+  crear: async (datos) => {
+    const user = await usuarioActual()
 
-    return snap.docs
-      .map((d) => ({
-        id: d.id,
-        ...d.data(),
-      }))
-      .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-  },
-
-  comprarProducto: async (productId) => {
-    const usuario = await obtenerUsuarioLogueado()
-    const { ref, producto } = await obtenerProducto(productId)
-
-    if (!producto.activo) {
-      throw new Error('Este producto no está activo')
+    if (!user) {
+      throw new Error('Debes iniciar sesión para publicar un artículo')
     }
 
-    if (!producto.enVenta) {
-      throw new Error('Este producto no está en venta')
-    }
-
-    if (!usuario.wallet) {
-      throw new Error('Tu usuario no tiene wallet asignada')
-    }
-
-    if (producto.ownerUid === usuario.uid) {
-      throw new Error('Este producto ya pertenece a tu armería')
-    }
-
+    const precioEUR = numero(datos.precioEUR ?? datos.precio_eur)
+    const precioETH = numero(datos.precioETH ?? datos.precio_crypto)
     const fecha = new Date().toISOString()
 
-    const anteriorPropietario = producto.ownerUid
-      ? {
-          uid: producto.ownerUid,
-          nombre: producto.ownerNombre || '',
-          email: producto.ownerEmail || '',
-          wallet: producto.ownerWallet || '',
-          fechaHasta: fecha,
-        }
-      : null
+    const producto = {
+      titulo: datos.titulo || '',
+      descripcion: datos.descripcion || '',
+      categoria: datos.categoria || '',
+      condicion: datos.condicion || '',
 
-    const propietariosAnteriores = anteriorPropietario
-      ? [...producto.propietariosAnteriores, anteriorPropietario]
-      : producto.propietariosAnteriores
+      marca: datos.marca || '',
+      modelo: datos.modelo || '',
+      numeroSerie: datos.numeroSerie || '',
 
-    const numPropietarios = producto.ownerUid
-      ? producto.numPropietarios + 1
-      : 1
+      precioEUR,
+      precioETH,
+      ethRateEUR: numero(datos.ethRateEUR),
 
-    await updateDoc(ref, {
-      estado: 'comprado',
-      enVenta: false,
-      activo: true,
+      precio_eur: precioEUR,
+      precio_crypto: precioETH,
+      crypto: 'ETH',
 
-      ownerUid: usuario.uid,
-      ownerNombre: usuario.nombre,
-      ownerEmail: usuario.email,
-      ownerWallet: usuario.wallet,
-
-      propietarioActual: usuario.wallet,
-      walletActual: usuario.wallet,
-
-      propietariosAnteriores,
-      numPropietarios,
-
-      fechaUltimaOperacion: fecha,
-
-      txHashUltimaTransferencia: '',
-      estadoBlockchain: producto.estadoBlockchain || 'pendiente_mint',
-    })
-
-    await registrarHistorial(productId, {
-      tipo: producto.ownerUid ? 'transferencia' : 'compra',
-
-      fromUid: producto.ownerUid || '',
-      fromNombre: producto.ownerNombre || 'AK-MARKET',
-      fromEmail: producto.ownerEmail || '',
-      fromWallet: producto.ownerWallet || '',
-
-      toUid: usuario.uid,
-      toNombre: usuario.nombre,
-      toEmail: usuario.email,
-      toWallet: usuario.wallet,
-
-      precioEUR: producto.precioEUR,
-      precioETH: producto.precioETH,
-
-      txHash: '',
-      red: 'sepolia',
-      estadoBlockchain: 'pendiente',
-    })
-
-    return {
-      mensaje: 'Producto añadido a tu armería',
-    }
-  },
-
-  ponerEnVenta: async (productId, precioEUR, ethRateEUR) => {
-    const usuario = await obtenerUsuarioLogueado()
-    const { ref, producto } = await obtenerProducto(productId)
-
-    if (producto.ownerUid !== usuario.uid) {
-      throw new Error('No puedes vender un producto que no es tuyo')
-    }
-
-    const precioEURFinal = numero(precioEUR)
-    const precioETHFinal = calcularPrecioETH(precioEURFinal, ethRateEUR)
-
-    if (!precioEURFinal || precioEURFinal <= 0) {
-      throw new Error('Introduce un precio en euros válido')
-    }
-
-    if (!precioETHFinal || precioETHFinal <= 0) {
-      throw new Error('No se ha podido calcular el precio en ETH')
-    }
-
-    const fecha = new Date().toISOString()
-
-    await updateDoc(ref, {
       estado: 'reventa',
-      enVenta: true,
       activo: true,
+      enVenta: true,
 
-      precioEUR: precioEURFinal,
-      precioETH: precioETHFinal,
-      precio_eur: precioEURFinal,
-      precio_crypto: precioETHFinal,
+      fechaCreacion: fecha,
+      created_at: fecha,
 
-      fechaUltimaOperacion: fecha,
-    })
+      imagen: datos.imagen || datos.foto_principal || datos.fotos?.[0] || '',
+      foto_principal: datos.imagen || datos.foto_principal || datos.fotos?.[0] || '',
 
-    await registrarHistorial(productId, {
-      tipo: 'puesta_en_venta',
+      usuario_id: user.uid,
+      vendedor_email: user.email || '',
+      seller: user.displayName || user.email || 'Usuario',
 
-      fromUid: usuario.uid,
-      fromNombre: usuario.nombre,
-      fromEmail: usuario.email,
-      fromWallet: usuario.wallet,
+      ownerUid: user.uid,
+      ownerNombre: user.displayName || '',
+      ownerEmail: user.email || '',
+      ownerWallet: '',
 
-      toUid: '',
-      toNombre: '',
-      toEmail: '',
-      toWallet: '',
+      walletActual: '',
+      propietarioActual: '',
+      propietariosAnteriores: [],
+      numPropietarios: 1,
 
-      precioEUR: precioEURFinal,
-      precioETH: precioETHFinal,
+      contrato: '',
+      tokenId: '',
+      txHashCreacion: '',
+      txHashUltimaTransferencia: '',
+      estadoBlockchain: 'pendiente_mint',
+    }
 
-      txHash: '',
-      red: 'sepolia',
-      estadoBlockchain: 'sin_transaccion',
-    })
+    const ref = await addDoc(collection(db, 'products'), producto)
 
     return {
-      mensaje: 'Producto puesto a la venta',
+      mensaje: 'Artículo publicado correctamente',
+      id: ref.id,
     }
   },
 
-  quitarDeVenta: async (productId) => {
-    const usuario = await obtenerUsuarioLogueado()
-    const { ref, producto } = await obtenerProducto(productId)
+  eliminar: async (id) => {
+    const ref = doc(db, 'products', id)
+    const snap = await getDoc(ref)
 
-    if (producto.ownerUid !== usuario.uid) {
-      throw new Error('No puedes modificar un producto que no es tuyo')
+    if (!snap.exists()) {
+      throw new Error('El producto no existe')
     }
 
     await updateDoc(ref, {
-      estado: 'comprado',
+      activo: false,
+      estado: 'baja',
       enVenta: false,
-      fechaUltimaOperacion: new Date().toISOString(),
-    })
-
-    await registrarHistorial(productId, {
-      tipo: 'retirada_de_venta',
-
-      fromUid: usuario.uid,
-      fromNombre: usuario.nombre,
-      fromEmail: usuario.email,
-      fromWallet: usuario.wallet,
-
-      toUid: '',
-      toNombre: '',
-      toEmail: '',
-      toWallet: '',
-
-      precioEUR: producto.precioEUR,
-      precioETH: producto.precioETH,
-
-      txHash: '',
-      red: 'sepolia',
-      estadoBlockchain: 'sin_transaccion',
+      fechaBaja: new Date().toISOString(),
     })
 
     return {
-      mensaje: 'Producto retirado de la venta',
+      mensaje: 'Artículo dado de baja correctamente',
     }
   },
 }
