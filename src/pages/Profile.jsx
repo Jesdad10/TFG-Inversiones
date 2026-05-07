@@ -10,6 +10,33 @@ const PAISES = [
   'Alemania', 'Reino Unido', 'Portugal', 'Brasil', 'Japón', 'Australia', 'Otros',
 ]
 
+const PREFIJOS = [
+  { code: '+34',  pais: 'España'         },
+  { code: '+1',   pais: 'EE.UU./Canadá' },
+  { code: '+44',  pais: 'Reino Unido'   },
+  { code: '+33',  pais: 'Francia'       },
+  { code: '+49',  pais: 'Alemania'      },
+  { code: '+39',  pais: 'Italia'        },
+  { code: '+351', pais: 'Portugal'      },
+  { code: '+31',  pais: 'Países Bajos'  },
+  { code: '+32',  pais: 'Bélgica'       },
+  { code: '+41',  pais: 'Suiza'         },
+  { code: '+46',  pais: 'Suecia'        },
+  { code: '+47',  pais: 'Noruega'       },
+  { code: '+45',  pais: 'Dinamarca'     },
+  { code: '+358', pais: 'Finlandia'     },
+  { code: '+52',  pais: 'México'        },
+  { code: '+54',  pais: 'Argentina'     },
+  { code: '+57',  pais: 'Colombia'      },
+  { code: '+56',  pais: 'Chile'         },
+  { code: '+51',  pais: 'Perú'          },
+  { code: '+58',  pais: 'Venezuela'     },
+  { code: '+593', pais: 'Ecuador'       },
+  { code: '+55',  pais: 'Brasil'        },
+  { code: '+61',  pais: 'Australia'     },
+  { code: '+81',  pais: 'Japón'         },
+]
+
 const GENEROS = [
   'Masculino', 'Femenino', 'No binario', 'Prefiero no decirlo',
 ]
@@ -27,6 +54,7 @@ const toDateInput = (val) => {
 
 const FORM_INICIAL = {
   nombre: '',
+  prefijo: '+34',
   telefono: '',
   genero: '',
   fecha_nacimiento: '',
@@ -90,17 +118,27 @@ export default function Profile() {
       .then(data => {
         if (data?.usuario) {
           const u = data.usuario
+
+          // Separar prefijo y número si el teléfono guardado incluye el prefijo
+          let prefijoCargado = u.prefijo || '+34'
+          let telefonoCargado = u.telefono || ''
+          if (!u.prefijo && telefonoCargado.startsWith('+')) {
+            const m = telefonoCargado.match(/^(\+\d{1,4})\s*(\d*)$/)
+            if (m) { prefijoCargado = m[1]; telefonoCargado = m[2] }
+          }
+
           setUser(u)
           setForm({
-            nombre:          u.nombre          || '',
-            telefono:        u.telefono         || '',
-            genero:          u.genero           || '',
+            nombre:           u.nombre          || '',
+            prefijo:          prefijoCargado,
+            telefono:         telefonoCargado.replace(/\D/g, ''),
+            genero:           u.genero           || '',
             fecha_nacimiento: toDateInput(u.fecha_nacimiento),
-            pais:            u.pais             || '',
-            ciudad:          u.ciudad           || '',
-            direccion:       u.direccion        || '',
-            bio:             u.bio              || '',
-            avatar:          u.avatar           || '',
+            pais:             u.pais             || '',
+            ciudad:           u.ciudad           || '',
+            direccion:        u.direccion        || '',
+            bio:              u.bio              || '',
+            avatar:           u.avatar           || '',
           })
           if (u.avatar) setAvatarPreview(u.avatar)
           if (u.created_at) {
@@ -117,6 +155,12 @@ export default function Profile() {
   const handleField = (e) => {
     const { name, value } = e.target
     setForm(f => ({ ...f, [name]: value }))
+    setHasUnsavedChanges(true)
+  }
+
+  const handleTelefono = (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 15)
+    setForm(f => ({ ...f, telefono: value }))
     setHasUnsavedChanges(true)
   }
 
@@ -172,7 +216,11 @@ export default function Profile() {
     setStatusMsg('')
 
     try {
-      await authService.updateMe(form)
+      const payload = {
+        ...form,
+        telefono: form.telefono ? `${form.prefijo} ${form.telefono}` : '',
+      }
+      await authService.updateMe(payload)
       setUser(u => ({ ...u, nombre: form.nombre, avatar: form.avatar || u?.avatar || '' }))
       setHasUnsavedChanges(false)
       setAvatarRemoved(false)
@@ -217,7 +265,10 @@ export default function Profile() {
                 No, salir
               </button>
               <button type="button" className="btn-confirm-yes" onClick={async () => {
-                try { await authService.updateMe(form) } catch (_) {}
+                try {
+                  const payload = { ...form, telefono: form.telefono ? `${form.prefijo} ${form.telefono}` : '' }
+                  await authService.updateMe(payload)
+                } catch (_) {}
                 navigate(pendingNavPath)
               }}>
                 Sí, guardar
@@ -324,15 +375,32 @@ export default function Profile() {
 
                 <div className="profile-field">
                   <label htmlFor="telefono">Teléfono</label>
-                  <input
-                    id="telefono"
-                    name="telefono"
-                    type="tel"
-                    className="profile-input"
-                    placeholder="+34 600 000 000"
-                    value={form.telefono}
-                    onChange={handleField}
-                  />
+                  <div className="phone-input-group">
+                    <select
+                      name="prefijo"
+                      className="phone-prefix-select profile-select"
+                      value={form.prefijo}
+                      onChange={handleField}
+                      aria-label="Prefijo país"
+                    >
+                      {PREFIJOS.map(p => (
+                        <option key={p.code} value={p.code}>
+                          {p.code} {p.pais}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      id="telefono"
+                      name="telefono"
+                      type="tel"
+                      inputMode="numeric"
+                      className="profile-input phone-number-input"
+                      placeholder="600 000 000"
+                      value={form.telefono}
+                      onChange={handleTelefono}
+                      maxLength={15}
+                    />
+                  </div>
                 </div>
 
                 <div className="profile-field">

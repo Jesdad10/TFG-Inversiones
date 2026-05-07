@@ -359,6 +359,22 @@
   color: #EDE8E8;
 }
 
+/* ─── PHONE INPUT ─────────────────────────── */
+
+.phone-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.phone-prefix-select {
+  width: 145px;
+  flex-shrink: 0;
+}
+
+.phone-number-input {
+  flex: 1;
+}
+
 /* Date input calendar icon color fix */
 .profile-input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.4) sepia(1) saturate(3) hue-rotate(330deg);

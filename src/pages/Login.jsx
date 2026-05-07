@@ -10,6 +10,8 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [bloqueado, setBloqueado] = useState(false)
+  const [motivoBloqueo, setMotivoBloqueo] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -20,7 +22,12 @@ export default function Login() {
       authService.guardarSesion(data.token)
       navigate('/dashboard')
     } catch (err) {
-      setError(err.message)
+      if (err.data?.error === 'bloqueado') {
+        setBloqueado(true)
+        setMotivoBloqueo(err.data?.motivo || '')
+      } else {
+        setError(err.message)
+      }
     } finally {
       setLoading(false)
     }
@@ -32,6 +39,28 @@ export default function Login() {
 
   return (
     <div className="login-root">
+      {bloqueado && (
+        <div className="modal-backdrop" style={{ zIndex: 1000 }}>
+          <div className="login-blocked-modal">
+            <div className="login-blocked-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#CC1F1F" strokeWidth="1.5">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+              </svg>
+            </div>
+            <h3>Usuario bloqueado temporalmente</h3>
+            <p>Tu cuenta ha sido suspendida temporalmente. Por favor, contacta con el soporte para más información.</p>
+            {motivoBloqueo && (
+              <div className="login-blocked-reason">
+                <strong>Motivo:</strong> {motivoBloqueo}
+              </div>
+            )}
+            <button className="btn-primary" style={{ marginTop: '16px' }} onClick={() => setBloqueado(false)}>
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
       {/* LEFT PANEL */}
       <div className="login-left">
         <div className="login-left__inner">

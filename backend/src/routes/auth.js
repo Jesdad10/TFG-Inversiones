@@ -124,7 +124,7 @@ router.post(
 
     try {
       const [rows] = await pool.query(
-        'SELECT id, nombre, email, password_hash, rol, activo FROM usuarios WHERE email = ?',
+        'SELECT id, nombre, email, password_hash, rol, activo, bloqueado, motivo_bloqueo FROM usuarios WHERE email = ?',
         [email]
       )
 
@@ -138,7 +138,16 @@ router.post(
         return res.status(403).json({ error: 'Cuenta desactivada' })
       }
 
-      const coincide = await bcrypt.compare(password, usuario.password_hash)
+      if (usuario.bloqueado) {
+        return res.status(403).json({
+          error: 'bloqueado',
+          motivo: usuario.motivo_bloqueo || null,
+        })
+      }
+
+      let hashLogin = usuario.password_hash || ''
+      if (hashLogin.startsWith('$2b$')) hashLogin = '$2a$' + hashLogin.slice(4)
+      const coincide = await bcrypt.compare(password, hashLogin)
       if (!coincide) {
         return res.status(401).json({ error: 'Credenciales incorrectas' })
       }

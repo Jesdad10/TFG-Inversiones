@@ -1,4 +1,6 @@
-const BASE = 'http://localhost:3001/api/auth'
+const BASE       = 'http://localhost:3001/api/auth'
+const BASE_ADMIN = 'http://localhost:3001/api/admin'
+const BASE_NOTIF = 'http://localhost:3001/api/notificaciones'
 
 async function peticion(endpoint, body) {
   const res = await fetch(`${BASE}${endpoint}`, {
@@ -7,11 +9,34 @@ async function peticion(endpoint, body) {
     body:    JSON.stringify(body),
   })
   const data = await res.json()
+  if (!res.ok) {
+    const err = new Error(data.error || 'Error desconocido')
+    err.data = data
+    throw err
+  }
+  return data
+}
+
+function authHeaders() {
+  const token = localStorage.getItem('token')
+  return {
+    'Content-Type': 'application/json',
+    Authorization:  `Bearer ${token}`,
+  }
+}
+
+async function apiFetch(url, options = {}) {
+  const res = await fetch(url, {
+    headers: authHeaders(),
+    ...options,
+  })
+  const data = await res.json()
   if (!res.ok) throw new Error(data.error || 'Error desconocido')
   return data
 }
 
 export const authService = {
+  // ── Auth ───────────────────────────────────────────────────────────────
   register: (nombre, email, password, fecha_nacimiento) =>
     peticion('/register', { nombre, email, password, fecha_nacimiento }),
 
@@ -55,4 +80,57 @@ export const authService = {
   guardarSesion: (token) => localStorage.setItem('token', token),
   borrarSesion:  ()      => localStorage.removeItem('token'),
   estaLogueado:  ()      => !!localStorage.getItem('token'),
+
+  // ── Notificaciones ──────────────────────────────────────────────────────
+  getNotificaciones: () =>
+    apiFetch(BASE_NOTIF),
+
+  marcarNotificacionLeida: (id) =>
+    apiFetch(`${BASE_NOTIF}/${id}/leer`, { method: 'PUT' }),
+
+  marcarTodasLeidas: () =>
+    apiFetch(`${BASE_NOTIF}/leer-todas`, { method: 'PUT' }),
+
+  // ── Admin: stats ────────────────────────────────────────────────────────
+  adminGetStats: () =>
+    apiFetch(`${BASE_ADMIN}/stats`),
+
+  // ── Admin: usuarios ─────────────────────────────────────────────────────
+  adminGetUsuarios: () =>
+    apiFetch(`${BASE_ADMIN}/usuarios`),
+
+  adminCrearUsuario: (datos) =>
+    apiFetch(`${BASE_ADMIN}/usuarios`, { method: 'POST', body: JSON.stringify(datos) }),
+
+  adminBloquearUsuario: (id, motivo) =>
+    apiFetch(`${BASE_ADMIN}/usuarios/${id}/bloquear`, {
+      method: 'PUT',
+      body: JSON.stringify({ motivo }),
+    }),
+
+  adminDesbloquearUsuario: (id) =>
+    apiFetch(`${BASE_ADMIN}/usuarios/${id}/desbloquear`, { method: 'PUT' }),
+
+  adminCambiarRol: (id, rol, password) =>
+    apiFetch(`${BASE_ADMIN}/usuarios/${id}/rol`, {
+      method: 'PUT',
+      body: JSON.stringify({ rol, password }),
+    }),
+
+  adminEliminarUsuario: (id) =>
+    apiFetch(`${BASE_ADMIN}/usuarios/${id}`, { method: 'DELETE' }),
+
+  // ── Admin: artículos ────────────────────────────────────────────────────
+  adminGetArticulos: () =>
+    apiFetch(`${BASE_ADMIN}/articulos`),
+
+  adminEliminarArticulo: (id, motivo) =>
+    apiFetch(`${BASE_ADMIN}/articulos/${id}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ motivo }),
+    }),
+
+  // ── Admin: historial ────────────────────────────────────────────────────
+  adminGetHistorial: () =>
+    apiFetch(`${BASE_ADMIN}/historial`),
 }
