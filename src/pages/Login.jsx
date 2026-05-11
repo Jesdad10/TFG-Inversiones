@@ -5,6 +5,7 @@ import './Login.css'
 
 export default function Login() {
   const navigate = useNavigate()
+<<<<<<< HEAD
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -16,10 +17,43 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+=======
+
+  const [form, setForm] = useState({
+    email: '',
+    password: '',
+  })
+
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    })
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    if (!form.email.trim()) {
+      setError('El email es obligatorio')
+      return
+    }
+
+    if (!form.password) {
+      setError('La contraseña es obligatoria')
+      return
+    }
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
     setError('')
     setLoading(true)
 
     try {
+<<<<<<< HEAD
       const data = await authService.login(email, password)
       authService.guardarSesion(data.token)
       navigate('/dashboard')
@@ -30,11 +64,25 @@ export default function Login() {
       } else {
         setError(err.message)
       }
+=======
+      const data = await authService.login(form.email, form.password)
+
+      authService.guardarSesion(data.token)
+
+      if (data.usuario?.rol === 'admin') {
+        navigate('/admin')
+      } else {
+        navigate('/dashboard')
+      }
+    } catch (err) {
+      setError(err.message || 'Error al iniciar sesión')
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
     } finally {
       setLoading(false)
     }
   }
 
+<<<<<<< HEAD
   const conectarWallet = async () => {
     if (!window.ethereum) {
       throw new Error('No tienes MetaMask instalado en este navegador.')
@@ -105,15 +153,47 @@ export default function Login() {
         </div>
       )}
 
+=======
+  return (
+    <div className="login-root">
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
       <div className="login-left">
         <div className="login-left__inner">
           <div className="brand">
             <div className="brand__icon">
               <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+<<<<<<< HEAD
                 <path d="M3,25 L14,3 L14,25" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M8,15 L14,15" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
                 <path d="M14,15 L25,3" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
                 <path d="M14,15 L25,25" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+=======
+                <path
+                  d="M3,25 L14,3 L14,25"
+                  stroke="white"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M8,15 L14,15"
+                  stroke="white"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M14,15 L25,3"
+                  stroke="white"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M14,15 L25,25"
+                  stroke="white"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
               </svg>
             </div>
 
@@ -121,14 +201,27 @@ export default function Login() {
           </div>
 
           <div className="login-left__headline">
+<<<<<<< HEAD
             <h1>La armería<br /><span className="accent">del airsoft</span></h1>
             <p>
               Compra y vende réplicas, accesorios y equipamiento de airsoft pagando con criptomonedas.
               Seguro, rápido y descentralizado.
+=======
+            <h1>
+              Bienvenido
+              <br />
+              <span className="accent">de nuevo</span>
+            </h1>
+
+            <p>
+              Inicia sesión para acceder a tu cuenta. Si eres administrador,
+              entrarás directamente al panel interno.
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
             </p>
           </div>
 
           <div className="chart-container">
+<<<<<<< HEAD
             <svg viewBox="0 0 400 120" className="chart-svg" preserveAspectRatio="none">
               <defs>
                 <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
@@ -157,11 +250,39 @@ export default function Login() {
                 <circle cx="5" cy="5" r="5" fill="#CC1F1F" />
               </svg>
               <span>+320 ventas este mes</span>
+=======
+            <svg className="chart-svg" viewBox="0 0 420 120" fill="none">
+              <path
+                className="chart-fill"
+                d="M0 95 C50 80 70 60 110 70 C160 85 180 25 230 35 C280 45 300 75 350 40 C385 15 405 20 420 10 L420 120 L0 120 Z"
+                fill="url(#chartGradient)"
+              />
+
+              <path
+                className="chart-line"
+                d="M0 95 C50 80 70 60 110 70 C160 85 180 25 230 35 C280 45 300 75 350 40 C385 15 405 20 420 10"
+                stroke="#CC1F1F"
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+
+              <defs>
+                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="120">
+                  <stop stopColor="#CC1F1F" stopOpacity="0.22" />
+                  <stop offset="1" stopColor="#CC1F1F" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+            </svg>
+
+            <div className="chart-badge">
+              <span>Firebase activo</span>
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
             </div>
           </div>
 
           <div className="stats-grid">
             <div className="stat">
+<<<<<<< HEAD
               <span className="stat__value">500+</span>
               <span className="stat__label">Réplicas disponibles</span>
             </div>
@@ -174,6 +295,20 @@ export default function Login() {
             <div className="stat">
               <span className="stat__value">24h</span>
               <span className="stat__label">Envío garantizado</span>
+=======
+              <span className="stat__value">Auth</span>
+              <span className="stat__label">Login</span>
+            </div>
+
+            <div className="stat">
+              <span className="stat__value">DB</span>
+              <span className="stat__label">Firestore</span>
+            </div>
+
+            <div className="stat">
+              <span className="stat__value">Rol</span>
+              <span className="stat__label">Admin</span>
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
             </div>
           </div>
         </div>
@@ -187,7 +322,11 @@ export default function Login() {
         <div className="login-card">
           <div className="login-card__header">
             <h2>Iniciar sesión</h2>
+<<<<<<< HEAD
             <p>Accede a tu cuenta de AK-MARKET</p>
+=======
+            <p>Accede con tu email y contraseña</p>
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
           </div>
 
           {error && <p className="form-error">{error}</p>}
@@ -197,17 +336,37 @@ export default function Login() {
               <label htmlFor="email">Correo electrónico</label>
 
               <div className="input-wrapper">
+<<<<<<< HEAD
                 <svg className="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+=======
+                <svg
+                  className="input-icon"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                   <polyline points="22,6 12,13 2,6" />
                 </svg>
 
                 <input
                   id="email"
+<<<<<<< HEAD
                   type="email"
                   placeholder="tu@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+=======
+                  name="email"
+                  type="email"
+                  placeholder="tu@email.com"
+                  value={form.email}
+                  onChange={handleChange}
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                   required
                   autoComplete="email"
                 />
@@ -215,6 +374,7 @@ export default function Login() {
             </div>
 
             <div className="form-group">
+<<<<<<< HEAD
               <div className="label-row">
                 <label htmlFor="password">Contraseña</label>
                 <a href="#" className="forgot-link">¿Olvidaste tu contraseña?</a>
@@ -222,16 +382,38 @@ export default function Login() {
 
               <div className="input-wrapper">
                 <svg className="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+=======
+              <label htmlFor="password">Contraseña</label>
+
+              <div className="input-wrapper">
+                <svg
+                  className="input-icon"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                   <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
 
                 <input
                   id="password"
+<<<<<<< HEAD
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+=======
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Tu contraseña"
+                  value={form.password}
+                  onChange={handleChange}
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                   required
                   autoComplete="current-password"
                 />
@@ -242,6 +424,7 @@ export default function Login() {
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label="Mostrar contraseña"
                 >
+<<<<<<< HEAD
                   {showPassword ? (
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
@@ -253,10 +436,14 @@ export default function Login() {
                       <circle cx="12" cy="12" r="3" />
                     </svg>
                   )}
+=======
+                  {showPassword ? '🙈' : '👁️'}
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                 </button>
               </div>
             </div>
 
+<<<<<<< HEAD
             <button type="submit" className={`btn-primary${loading ? ' loading' : ''}`} disabled={loading || loadingWallet}>
               {loading ? (
                 <span className="spinner" />
@@ -301,11 +488,29 @@ export default function Login() {
           <p className="register-link">
             ¿No tienes cuenta?{' '}
             <Link to="/register">Regístrate gratis</Link>
+=======
+            <button
+              type="submit"
+              className={`btn-primary${loading ? ' loading' : ''}`}
+              disabled={loading}
+            >
+              {loading ? <span className="spinner" /> : 'Entrar'}
+            </button>
+          </form>
+
+          <p className="register-link">
+            ¿No tienes cuenta? <Link to="/register">Crear cuenta</Link>
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
           </p>
         </div>
 
         <p className="login-footer">
+<<<<<<< HEAD
           © 2025 AK-MARKET · <a href="#">Privacidad</a> · <a href="#">Términos</a>
+=======
+          © 2025 AK-MARKET · <a href="#">Privacidad</a> ·{' '}
+          <a href="#">Términos</a>
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
         </p>
       </div>
     </div>

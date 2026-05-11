@@ -5,6 +5,7 @@ import './Register.css'
 
 export default function Register() {
   const navigate = useNavigate()
+<<<<<<< HEAD
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -12,6 +13,17 @@ export default function Register() {
     password: '',
     confirm: '',
   })
+=======
+
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    wallet: '',
+    password: '',
+    confirm: '',
+  })
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [accepted, setAccepted] = useState(false)
@@ -21,17 +33,36 @@ export default function Register() {
   const [nombreRegistrado, setNombreRegistrado] = useState('')
 
   const handleChange = (e) => {
+<<<<<<< HEAD
     setForm({ ...form, [e.target.name]: e.target.value })
+=======
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    })
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
   }
 
   const passwordStrength = () => {
     const p = form.password
+<<<<<<< HEAD
     if (!p) return 0
     let score = 0
+=======
+
+    if (!p) return 0
+
+    let score = 0
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
     if (p.length >= 8) score++
     if (/[A-Z]/.test(p)) score++
     if (/[0-9]/.test(p)) score++
     if (/[^A-Za-z0-9]/.test(p)) score++
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
     return score
   }
 
@@ -39,6 +70,7 @@ export default function Register() {
   const strengthColor = ['', '#EF4444', '#F59E0B', '#3B82F6', '#7EAE28']
   const strength = passwordStrength()
 
+<<<<<<< HEAD
   const today = new Date()
   const maxBirthDate = new Date(today)
   maxBirthDate.setFullYear(today.getFullYear() - 18)
@@ -60,10 +92,72 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!accepted) return
+=======
+  const passwordsMatch = form.confirm && form.password === form.confirm
+
+  const conectarWallet = async () => {
+    setError('')
+
+    try {
+      if (!window.ethereum) {
+        setError('No tienes MetaMask instalado')
+        return
+      }
+
+      const accounts = await window.ethereum.request({
+        method: 'eth_requestAccounts',
+      })
+
+      const wallet = accounts?.[0] || ''
+
+      if (!wallet) {
+        setError('No se ha podido obtener la wallet')
+        return
+      }
+
+      setForm((prev) => ({
+        ...prev,
+        wallet,
+      }))
+    } catch {
+      setError('No se ha podido conectar con MetaMask')
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    if (!accepted) {
+      setError('Debes aceptar los términos')
+      return
+    }
+
+    if (!form.name.trim()) {
+      setError('El nombre es obligatorio')
+      return
+    }
+
+    if (!form.email.trim()) {
+      setError('El email es obligatorio')
+      return
+    }
+
+    if (!form.wallet.trim()) {
+      setError('Debes conectar o introducir tu wallet')
+      return
+    }
+
+    if (form.password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres')
+      return
+    }
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
     if (form.password !== form.confirm) {
       setError('Las contraseñas no coinciden')
       return
     }
+<<<<<<< HEAD
     if (!form.birthDate) {
       setError('La fecha de nacimiento es obligatoria')
       return
@@ -82,15 +176,42 @@ export default function Register() {
       setTimeout(() => navigate('/dashboard'), 3000)
     } catch (err) {
       setError(err.message)
+=======
+
+    setError('')
+    setLoading(true)
+
+    try {
+      const data = await authService.register(
+        form.name,
+        form.email,
+        form.password,
+        form.wallet
+      )
+
+      authService.guardarSesion(data.token)
+
+      setNombreRegistrado(form.name)
+      setRegistrado(true)
+
+      setTimeout(() => {
+        navigate('/dashboard')
+      }, 1200)
+    } catch (err) {
+      setError(err.message || 'Error al registrar el usuario')
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
     } finally {
       setLoading(false)
     }
   }
 
+<<<<<<< HEAD
   const handleMetaMask = () => {
     alert('Conexión con MetaMask próximamente')
   }
 
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
   if (registrado) {
     return (
       <div className="reg-root">
@@ -99,15 +220,26 @@ export default function Register() {
             <div className="brand">
               <div className="brand__icon">
                 <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+<<<<<<< HEAD
                   <path d="M3,25 L14,3 L14,25" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M8,15 L14,15" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
                   <path d="M14,15 L25,3" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
                   <path d="M14,15 L25,25" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+=======
+                  <path d="M3,25 L14,3 L14,25" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M8,15 L14,15" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M14,15 L25,3" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M14,15 L25,25" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                 </svg>
               </div>
               <span className="brand__name">AK-MARKET</span>
             </div>
           </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
           <div className="orb orb--1" />
           <div className="orb orb--2" />
           <div className="grid-overlay" />
@@ -120,6 +252,7 @@ export default function Register() {
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
+<<<<<<< HEAD
             <h2 className="success-title">¡Cuenta creada!</h2>
             <p className="success-name">Bienvenido a AK-MARKET, <span>{nombreRegistrado}</span></p>
             <p className="success-msg">Tu cuenta ha sido registrada correctamente. Ya puedes explorar el catálogo y comprar con criptomonedas.</p>
@@ -127,6 +260,24 @@ export default function Register() {
               <div className="success-bar__fill" />
             </div>
             <p className="success-redirect">Redirigiendo a la tienda...</p>
+=======
+
+            <h2 className="success-title">¡Cuenta creada!</h2>
+
+            <p className="success-name">
+              Bienvenido, <span>{nombreRegistrado}</span>
+            </p>
+
+            <p className="success-msg">
+              Tu cuenta se ha registrado correctamente en Firebase.
+            </p>
+
+            <div className="success-bar">
+              <div className="success-bar__fill" />
+            </div>
+
+            <p className="success-redirect">Redirigiendo...</p>
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
           </div>
         </div>
       </div>
@@ -135,6 +286,7 @@ export default function Register() {
 
   return (
     <div className="reg-root">
+<<<<<<< HEAD
       {/* LEFT PANEL */}
       <div className="reg-left">
         <div className="reg-left__inner">
@@ -158,10 +310,40 @@ export default function Register() {
           </div>
 
           {/* Steps */}
+=======
+      <div className="reg-left">
+        <div className="reg-left__inner">
+          <div className="brand">
+            <div className="brand__icon">
+              <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+                <path d="M3,25 L14,3 L14,25" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M8,15 L14,15" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                <path d="M14,15 L25,3" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                <path d="M14,15 L25,25" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+              </svg>
+            </div>
+
+            <span className="brand__name">AK-MARKET</span>
+          </div>
+
+          <div className="reg-left__headline">
+            <h1>
+              Crea tu cuenta
+              <br />
+              <span className="accent">con Firebase</span>
+            </h1>
+
+            <p>
+              Regístrate con email, contraseña y wallet. El usuario se guardará directamente en Firestore.
+            </p>
+          </div>
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
           <div className="steps">
             <div className="step">
               <div className="step__num">01</div>
               <div className="step__body">
+<<<<<<< HEAD
                 <span className="step__title">Crea tu cuenta</span>
                 <span className="step__desc">Regístrate con email o conecta tu wallet de MetaMask</span>
               </div>
@@ -180,16 +362,44 @@ export default function Register() {
               <div className="step__body">
                 <span className="step__title">Compra con cripto</span>
                 <span className="step__desc">Paga con MetaMask de forma segura y recibe en 24h</span>
+=======
+                <span className="step__title">Datos básicos</span>
+                <span className="step__desc">Nombre y correo electrónico</span>
+              </div>
+            </div>
+
+            <div className="step__connector" />
+
+            <div className="step">
+              <div className="step__num">02</div>
+              <div className="step__body">
+                <span className="step__title">Wallet</span>
+                <span className="step__desc">Introduce o conecta tu wallet</span>
+              </div>
+            </div>
+
+            <div className="step__connector" />
+
+            <div className="step">
+              <div className="step__num">03</div>
+              <div className="step__body">
+                <span className="step__title">Acceso</span>
+                <span className="step__desc">Login automático al registrarte</span>
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
               </div>
             </div>
           </div>
 
+<<<<<<< HEAD
           {/* Trust badges */}
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
           <div className="trust-row">
             <div className="trust-badge">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CC1F1F" strokeWidth="2.5">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
               </svg>
+<<<<<<< HEAD
               <span>Pagos con cripto</span>
             </div>
             <div className="trust-badge">
@@ -198,11 +408,20 @@ export default function Register() {
               </svg>
               <span>Envío en 24h</span>
             </div>
+=======
+              <span>Firebase Auth</span>
+            </div>
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
             <div className="trust-badge">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CC1F1F" strokeWidth="2.5">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
+<<<<<<< HEAD
               <span>Productos verificados</span>
+=======
+              <span>Firestore</span>
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
             </div>
           </div>
         </div>
@@ -212,25 +431,42 @@ export default function Register() {
         <div className="grid-overlay" />
       </div>
 
+<<<<<<< HEAD
       {/* RIGHT PANEL */}
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
       <div className="reg-right">
         <div className="reg-card">
           <div className="reg-card__header">
             <h2>Crear cuenta</h2>
+<<<<<<< HEAD
             <p>Únete a más de 1,200 jugadores activos</p>
+=======
+            <p>Guarda el usuario directamente en Firebase</p>
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
           </div>
 
           {error && <p className="form-error">{error}</p>}
 
           <form className="reg-form" onSubmit={handleSubmit}>
+<<<<<<< HEAD
             {/* Name */}
             <div className="form-group">
               <label htmlFor="name">Nombre completo</label>
+=======
+            <div className="form-group">
+              <label htmlFor="name">Nombre</label>
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
               <div className="input-wrapper">
                 <svg className="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                   <circle cx="12" cy="7" r="4" />
                 </svg>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                 <input
                   id="name"
                   name="name"
@@ -244,14 +480,24 @@ export default function Register() {
               </div>
             </div>
 
+<<<<<<< HEAD
             {/* Email */}
             <div className="form-group">
               <label htmlFor="email">Correo electrónico</label>
+=======
+            <div className="form-group">
+              <label htmlFor="email">Correo electrónico</label>
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
               <div className="input-wrapper">
                 <svg className="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                   <polyline points="22,6 12,13 2,6" />
                 </svg>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                 <input
                   id="email"
                   name="email"
@@ -265,6 +511,7 @@ export default function Register() {
               </div>
             </div>
 
+<<<<<<< HEAD
             {/* Birth Date */}
             <div className="form-group">
               <label htmlFor="birthDate">Fecha de nacimiento</label>
@@ -301,11 +548,49 @@ export default function Register() {
             {/* Password */}
             <div className="form-group">
               <label htmlFor="password">Contraseña</label>
+=======
+            <div className="form-group">
+              <label htmlFor="wallet">Wallet</label>
+
+              <div className="input-wrapper">
+                <svg className="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="2" y="5" width="20" height="14" rx="2" />
+                  <path d="M16 12h4" />
+                </svg>
+
+                <input
+                  id="wallet"
+                  name="wallet"
+                  type="text"
+                  placeholder="0x..."
+                  value={form.wallet}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="btn-metamask"
+              onClick={conectarWallet}
+            >
+              Conectar wallet con MetaMask
+            </button>
+
+            <div className="form-group">
+              <label htmlFor="password">Contraseña</label>
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
               <div className="input-wrapper">
                 <svg className="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                   <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                 <input
                   id="password"
                   name="password"
@@ -316,12 +601,17 @@ export default function Register() {
                   required
                   autoComplete="new-password"
                 />
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                 <button
                   type="button"
                   className="toggle-password"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label="Mostrar contraseña"
                 >
+<<<<<<< HEAD
                   {showPassword ? (
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
@@ -337,6 +627,12 @@ export default function Register() {
               </div>
 
               {/* Strength bar */}
+=======
+                  {showPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
               {form.password && (
                 <div className="strength-wrap">
                   <div className="strength-bar">
@@ -344,25 +640,52 @@ export default function Register() {
                       <div
                         key={i}
                         className="strength-segment"
+<<<<<<< HEAD
                         style={{ background: i <= strength ? strengthColor[strength] : 'rgba(255,255,255,0.07)' }}
                       />
                     ))}
                   </div>
                   <span className="strength-label" style={{ color: strengthColor[strength] }}>
+=======
+                        style={{
+                          background:
+                            i <= strength
+                              ? strengthColor[strength]
+                              : 'rgba(255,255,255,0.07)',
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  <span
+                    className="strength-label"
+                    style={{ color: strengthColor[strength] }}
+                  >
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                     {strengthLabel[strength]}
                   </span>
                 </div>
               )}
             </div>
 
+<<<<<<< HEAD
             {/* Confirm password */}
             <div className="form-group">
               <label htmlFor="confirm">Confirmar contraseña</label>
+=======
+            <div className="form-group">
+              <label htmlFor="confirm">Confirmar contraseña</label>
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
               <div className="input-wrapper">
                 <svg className="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                   <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                 <input
                   id="confirm"
                   name="confirm"
@@ -372,14 +695,29 @@ export default function Register() {
                   onChange={handleChange}
                   required
                   autoComplete="new-password"
+<<<<<<< HEAD
                   style={form.confirm ? { borderColor: passwordsMatch ? 'rgba(255,255,255,0.2)' : 'rgba(239,68,68,0.45)' } : {}}
                 />
+=======
+                  style={
+                    form.confirm
+                      ? {
+                          borderColor: passwordsMatch
+                            ? 'rgba(255,255,255,0.2)'
+                            : 'rgba(239,68,68,0.45)',
+                        }
+                      : {}
+                  }
+                />
+
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                 <button
                   type="button"
                   className="toggle-password"
                   onClick={() => setShowConfirm(!showConfirm)}
                   aria-label="Mostrar confirmación"
                 >
+<<<<<<< HEAD
                   {showConfirm ? (
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
@@ -412,26 +750,50 @@ export default function Register() {
             {/* Terms */}
             <label className="terms-row">
               <div className={`checkbox${accepted ? ' checked' : ''}`} onClick={() => setAccepted(!accepted)}>
+=======
+                  {showConfirm ? '🙈' : '👁️'}
+                </button>
+              </div>
+            </div>
+
+            <label className="terms-row">
+              <div
+                className={`checkbox${accepted ? ' checked' : ''}`}
+                onClick={() => setAccepted(!accepted)}
+              >
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                 {accepted && (
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3.5">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 )}
               </div>
+<<<<<<< HEAD
               <span>
                 Acepto los <a href="#">Términos de servicio</a> y la <a href="#">Política de privacidad</a>
+=======
+
+              <span>
+                Acepto los <a href="#">Términos de servicio</a> y la{' '}
+                <a href="#">Política de privacidad</a>
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
               </span>
             </label>
 
             <button
               type="submit"
               className={`btn-primary${loading ? ' loading' : ''}`}
+<<<<<<< HEAD
               disabled={loading || !accepted || !form.birthDate || !ageValid}
+=======
+              disabled={loading || !accepted}
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
             >
               {loading ? <span className="spinner" /> : 'Crear mi cuenta'}
             </button>
           </form>
 
+<<<<<<< HEAD
           <div className="divider">
             <span>o regístrate con</span>
           </div>
@@ -457,13 +819,26 @@ export default function Register() {
           <p className="login-link">
             ¿Ya tienes cuenta?{' '}
             <Link to="/login">Inicia sesión</Link>
+=======
+          <p className="login-link">
+            ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
           </p>
         </div>
 
         <p className="reg-footer">
+<<<<<<< HEAD
           © 2025 AK-MARKET · <a href="#">Privacidad</a> · <a href="#">Términos</a>
+=======
+          © 2025 AK-MARKET · <a href="#">Privacidad</a> ·{' '}
+          <a href="#">Términos</a>
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
         </p>
       </div>
     </div>
   )
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953

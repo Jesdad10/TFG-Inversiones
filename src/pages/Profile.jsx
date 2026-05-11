@@ -10,6 +10,7 @@ const PAISES = [
   'Alemania', 'Reino Unido', 'Portugal', 'Brasil', 'Japón', 'Australia', 'Otros',
 ]
 
+<<<<<<< HEAD
 const PREFIJOS = [
   { code: '+34',  pais: 'España'         },
   { code: '+1',   pais: 'EE.UU./Canadá' },
@@ -37,6 +38,8 @@ const PREFIJOS = [
   { code: '+81',  pais: 'Japón'         },
 ]
 
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
 const GENEROS = [
   'Masculino', 'Femenino', 'No binario', 'Prefiero no decirlo',
 ]
@@ -44,6 +47,7 @@ const GENEROS = [
 const toDateInput = (val) => {
   if (!val) return ''
   if (/^\d{4}-\d{2}-\d{2}$/.test(String(val))) return String(val)
+<<<<<<< HEAD
 
   const d = new Date(val)
   if (isNaN(d)) return ''
@@ -52,12 +56,22 @@ const toDateInput = (val) => {
   const m = String(d.getMonth() + 1).padStart(2, '0')
   const day = String(d.getDate()).padStart(2, '0')
 
+=======
+  const d = new Date(val)
+  if (isNaN(d)) return ''
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
   return `${y}-${m}-${day}`
 }
 
 const FORM_INICIAL = {
   nombre: '',
+<<<<<<< HEAD
   prefijo: '+34',
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
   telefono: '',
   genero: '',
   fecha_nacimiento: '',
@@ -66,13 +80,17 @@ const FORM_INICIAL = {
   direccion: '',
   bio: '',
   avatar: '',
+<<<<<<< HEAD
   wallet: '',
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
 }
 
 export default function Profile() {
   const navigate = useNavigate()
   const fileRef = useRef(null)
 
+<<<<<<< HEAD
   const [user, setUser] = useState(null)
   const [form, setForm] = useState(FORM_INICIAL)
   const [avatarPreview, setAvatarPreview] = useState('')
@@ -85,6 +103,19 @@ export default function Profile() {
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [pendingNavPath, setPendingNavPath] = useState(null)
+=======
+  const [user, setUser]               = useState(null)
+  const [form, setForm]               = useState(FORM_INICIAL)
+  const [avatarPreview, setAvatarPreview] = useState('')
+  const [avatarRemoved, setAvatarRemoved]   = useState(false)
+  const [loading, setLoading]               = useState(false)
+  const [status, setStatus]                 = useState(null) // 'ok' | 'err'
+  const [statusMsg, setStatusMsg]           = useState('')
+  const [memberSince, setMemberSince]       = useState('')
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [pendingNavPath, setPendingNavPath]         = useState(null)
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
 
   const guardedNavigate = (path) => {
     if (hasUnsavedChanges) {
@@ -96,16 +127,24 @@ export default function Profile() {
 
   useEffect(() => {
     const token = localStorage.getItem('token')
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
     if (!token) {
       navigate('/login')
       return
     }
 
+<<<<<<< HEAD
+=======
+    // Decode JWT payload immediately for name/email
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
     try {
       const payload = JSON.parse(
         atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))
       )
+<<<<<<< HEAD
 
       setUser({
         nombre: payload.nombre,
@@ -127,14 +166,29 @@ export default function Profile() {
             month: 'long',
             day: 'numeric',
           })
+=======
+      setUser({ nombre: payload.nombre, email: payload.email, avatar: '' })
+      setForm(f => ({ ...f, nombre: payload.nombre || '' }))
+
+      // Member since from token iat if available
+      if (payload.iat) {
+        const d = new Date(payload.iat * 1000)
+        setMemberSince(
+          d.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
         )
       }
     } catch (_) {}
 
+<<<<<<< HEAD
+=======
+    // Fetch full profile from server
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
     authService.me()
       .then(data => {
         if (data?.usuario) {
           const u = data.usuario
+<<<<<<< HEAD
 
           let prefijoCargado = u.prefijo || '+34'
           let telefonoCargado = u.telefono || ''
@@ -175,6 +229,25 @@ export default function Profile() {
                 month: 'long',
                 day: 'numeric',
               })
+=======
+          setUser(u)
+          setForm({
+            nombre:          u.nombre          || '',
+            telefono:        u.telefono         || '',
+            genero:          u.genero           || '',
+            fecha_nacimiento: toDateInput(u.fecha_nacimiento),
+            pais:            u.pais             || '',
+            ciudad:          u.ciudad           || '',
+            direccion:       u.direccion        || '',
+            bio:             u.bio              || '',
+            avatar:          u.avatar           || '',
+          })
+          if (u.avatar) setAvatarPreview(u.avatar)
+          if (u.created_at) {
+            const d = new Date(u.created_at)
+            setMemberSince(
+              d.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
             )
           }
         }
@@ -184,6 +257,7 @@ export default function Profile() {
 
   const handleField = (e) => {
     const { name, value } = e.target
+<<<<<<< HEAD
 
     setForm(f => ({
       ...f,
@@ -201,6 +275,9 @@ export default function Profile() {
       telefono: value,
     }))
 
+=======
+    setForm(f => ({ ...f, [name]: value }))
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
     setHasUnsavedChanges(true)
   }
 
@@ -214,6 +291,7 @@ export default function Profile() {
 
     const img = new Image()
     const url = URL.createObjectURL(file)
+<<<<<<< HEAD
 
     img.onload = () => {
       const MAX = 200
@@ -253,6 +331,32 @@ export default function Profile() {
     }
 
     img.src = url
+=======
+    img.onload = () => {
+      const MAX = 200
+      let { width, height } = img
+      if (width > height) {
+        if (width > MAX) { height = Math.round(height * MAX / width); width = MAX }
+      } else {
+        if (height > MAX) { width = Math.round(width * MAX / height); height = MAX }
+      }
+
+      const canvas = document.createElement('canvas')
+      canvas.width  = width
+      canvas.height = height
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(img, 0, 0, width, height)
+      URL.revokeObjectURL(url)
+
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85)
+      setAvatarPreview(dataUrl)
+      setAvatarRemoved(false)
+      setHasUnsavedChanges(true)
+      setForm(f => ({ ...f, avatar: dataUrl }))
+    }
+    img.src = url
+    // Reset input so the same file can be selected again
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
     e.target.value = ''
   }
 
@@ -261,6 +365,7 @@ export default function Profile() {
     setAvatarPreview('')
     setAvatarRemoved(true)
     setHasUnsavedChanges(true)
+<<<<<<< HEAD
 
     setForm(f => ({
       ...f,
@@ -320,6 +425,9 @@ export default function Profile() {
     } finally {
       setLoadingWallet(false)
     }
+=======
+    setForm(f => ({ ...f, avatar: '' }))
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
   }
 
   const handleSubmit = async (e) => {
@@ -329,6 +437,7 @@ export default function Profile() {
     setStatusMsg('')
 
     try {
+<<<<<<< HEAD
       const payload = {
         ...form,
         telefono: form.telefono ? `${form.prefijo} ${form.telefono}` : '',
@@ -347,6 +456,10 @@ export default function Profile() {
         }))
       }
 
+=======
+      await authService.updateMe(form)
+      setUser(u => ({ ...u, nombre: form.nombre, avatar: form.avatar || u?.avatar || '' }))
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
       setHasUnsavedChanges(false)
       setAvatarRemoved(false)
       setStatus('ok')
@@ -368,11 +481,15 @@ export default function Profile() {
 
   return (
     <div className="profile-root">
+<<<<<<< HEAD
       <Navbar
         user={user ? { ...user, avatar: displayAvatar } : null}
         activePage="perfil"
         onNavigate={guardedNavigate}
       />
+=======
+      <Navbar user={user ? { ...user, avatar: displayAvatar } : null} activePage="perfil" onNavigate={guardedNavigate} />
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
 
       {pendingNavPath && (
         <div className="modal-backdrop">
@@ -384,6 +501,7 @@ export default function Profile() {
                 <line x1="12" y1="17" x2="12.01" y2="17"/>
               </svg>
             </div>
+<<<<<<< HEAD
 
             <h3>¿Deseas guardar los cambios?</h3>
             <p>Tienes cambios sin guardar que se perderán si sales ahora.</p>
@@ -416,6 +534,21 @@ export default function Profile() {
                   navigate(pendingNavPath)
                 }}
               >
+=======
+            <h3>¿Deseas guardar los cambios?</h3>
+            <p>Tienes cambios sin guardar que se perderán si sales ahora.</p>
+            <div className="modal-actions">
+              <button type="button" className="btn-confirm-no" onClick={() => {
+                setPendingNavPath(null)
+                navigate(pendingNavPath)
+              }}>
+                No, salir
+              </button>
+              <button type="button" className="btn-confirm-yes" onClick={async () => {
+                try { await authService.updateMe(form) } catch (_) {}
+                navigate(pendingNavPath)
+              }}>
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                 Sí, guardar
               </button>
             </div>
@@ -433,6 +566,7 @@ export default function Profile() {
                 <line x1="12" y1="16" x2="12.01" y2="16"/>
               </svg>
             </div>
+<<<<<<< HEAD
 
             <h3>¿Eliminar foto de perfil?</h3>
             <p>Los cambios se guardarán al pulsar <strong>Guardar cambios</strong>.</p>
@@ -451,6 +585,15 @@ export default function Profile() {
                 className="btn-confirm-yes"
                 onClick={handleRemoveAvatar}
               >
+=======
+            <h3>¿Eliminar foto de perfil?</h3>
+            <p>Los cambios se guardarán al pulsar <strong>Guardar cambios</strong>.</p>
+            <div className="modal-actions">
+              <button type="button" className="btn-confirm-no" onClick={() => setShowRemoveConfirm(false)}>
+                Cancelar
+              </button>
+              <button type="button" className="btn-confirm-yes" onClick={handleRemoveAvatar}>
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                 Sí, quitar
               </button>
             </div>
@@ -461,6 +604,10 @@ export default function Profile() {
       <main className="profile-main">
         <div className="profile-container">
 
+<<<<<<< HEAD
+=======
+          {/* Header card */}
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
           <div className="profile-header">
             <div className="profile-avatar-col">
               <div className="profile-avatar-wrap" onClick={handleAvatarClick} title="Cambiar foto">
@@ -469,14 +616,20 @@ export default function Profile() {
                 ) : (
                   <div className="profile-avatar-circle">{initials}</div>
                 )}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                 <div className="profile-avatar-overlay">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
                     <circle cx="12" cy="13" r="4"/>
                   </svg>
                 </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                 <input
                   ref={fileRef}
                   type="file"
@@ -487,11 +640,15 @@ export default function Profile() {
               </div>
 
               {displayAvatar && (
+<<<<<<< HEAD
                 <button
                   type="button"
                   className="btn-remove-avatar"
                   onClick={() => setShowRemoveConfirm(true)}
                 >
+=======
+                <button type="button" className="btn-remove-avatar" onClick={() => setShowRemoveConfirm(true)}>
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                   Quitar foto
                 </button>
               )}
@@ -500,6 +657,7 @@ export default function Profile() {
             <div className="profile-header-info">
               <h1>{user?.nombre || 'Usuario'}</h1>
               <p className="profile-header-email">{user?.email || ''}</p>
+<<<<<<< HEAD
 
               {memberSince && (
                 <p className="profile-header-meta">Miembro desde {memberSince}</p>
@@ -515,6 +673,18 @@ export default function Profile() {
 
           <form onSubmit={handleSubmit}>
 
+=======
+              {memberSince && (
+                <p className="profile-header-meta">Miembro desde {memberSince}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit}>
+
+            {/* Sección 1: Información personal */}
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
             <div className="profile-section">
               <h2 className="profile-section-title">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -541,6 +711,7 @@ export default function Profile() {
 
                 <div className="profile-field">
                   <label htmlFor="telefono">Teléfono</label>
+<<<<<<< HEAD
 
                   <div className="phone-input-group">
                     <select
@@ -569,11 +740,25 @@ export default function Profile() {
                       maxLength={15}
                     />
                   </div>
+=======
+                  <input
+                    id="telefono"
+                    name="telefono"
+                    type="tel"
+                    className="profile-input"
+                    placeholder="+34 600 000 000"
+                    value={form.telefono}
+                    onChange={handleField}
+                  />
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                 </div>
 
                 <div className="profile-field">
                   <label htmlFor="genero">Género</label>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                   <select
                     id="genero"
                     name="genero"
@@ -582,7 +767,10 @@ export default function Profile() {
                     onChange={handleField}
                   >
                     <option value="">Selecciona...</option>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                     {GENEROS.map(g => (
                       <option key={g} value={g}>{g}</option>
                     ))}
@@ -591,7 +779,10 @@ export default function Profile() {
 
                 <div className="profile-field">
                   <label htmlFor="fecha_nacimiento">Fecha de nacimiento</label>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                   <input
                     id="fecha_nacimiento"
                     name="fecha_nacimiento"
@@ -604,6 +795,7 @@ export default function Profile() {
               </div>
             </div>
 
+<<<<<<< HEAD
             <div className="profile-section" style={{ marginTop: '16px' }}>
               <h2 className="profile-section-title">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -651,6 +843,9 @@ export default function Profile() {
               </div>
             </div>
 
+=======
+            {/* Sección 2: Ubicación */}
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
             <div className="profile-section" style={{ marginTop: '16px' }}>
               <h2 className="profile-section-title">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -663,7 +858,10 @@ export default function Profile() {
               <div className="profile-grid">
                 <div className="profile-field">
                   <label htmlFor="pais">País</label>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                   <select
                     id="pais"
                     name="pais"
@@ -672,7 +870,10 @@ export default function Profile() {
                     onChange={handleField}
                   >
                     <option value="">Selecciona tu país...</option>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                     {PAISES.map(p => (
                       <option key={p} value={p}>{p}</option>
                     ))}
@@ -681,7 +882,10 @@ export default function Profile() {
 
                 <div className="profile-field">
                   <label htmlFor="ciudad">Ciudad</label>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                   <input
                     id="ciudad"
                     name="ciudad"
@@ -695,7 +899,10 @@ export default function Profile() {
 
                 <div className="profile-field" style={{ gridColumn: '1 / -1' }}>
                   <label htmlFor="direccion">Dirección</label>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                   <input
                     id="direccion"
                     name="direccion"
@@ -709,6 +916,10 @@ export default function Profile() {
               </div>
             </div>
 
+<<<<<<< HEAD
+=======
+            {/* Sección 3: Sobre ti */}
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
             <div className="profile-section" style={{ marginTop: '16px' }}>
               <h2 className="profile-section-title">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -719,7 +930,10 @@ export default function Profile() {
 
               <div className="profile-field">
                 <label htmlFor="bio">Biografía</label>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                 <textarea
                   id="bio"
                   name="bio"
@@ -729,11 +943,18 @@ export default function Profile() {
                   value={form.bio}
                   onChange={handleField}
                 />
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                 <span className="bio-counter">{form.bio.length} / 300</span>
               </div>
             </div>
 
+<<<<<<< HEAD
+=======
+            {/* Actions */}
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
             <div className="profile-actions">
               <button
                 type="submit"
@@ -743,14 +964,20 @@ export default function Profile() {
                 {loading ? (
                   <span className="profile-spinner" />
                 ) : null}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                 {loading ? 'Guardando...' : 'Guardar cambios'}
               </button>
 
               {status === 'ok' && (
                 <span className="save-status--ok">{statusMsg}</span>
               )}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
               {status === 'err' && (
                 <span className="save-status--err">{statusMsg}</span>
               )}
@@ -761,4 +988,8 @@ export default function Profile() {
       </main>
     </div>
   )
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953

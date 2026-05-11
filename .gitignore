@@ -34,4 +34,10 @@ backend/keys/serviceAccountKey.json
 *.ntvs*
 *.njsproj
 *.sln
+<<<<<<< HEAD
 *.sw?
+=======
+*.sw?
+.env
+backend/keys/serviceAccountKey.json
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953

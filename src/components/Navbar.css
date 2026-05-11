@@ -299,6 +299,7 @@
   color: #E53535;
 }
 
+<<<<<<< HEAD
 /* ─── DROPDOWN ITEM ADMIN ─────────────────── */
 
 .dropdown-item--admin {
@@ -420,6 +421,8 @@
   margin: 0;
 }
 
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
 /* ─── RESPONSIVE ──────────────────────────── */
 
 @media (max-width: 1024px) {

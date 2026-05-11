@@ -660,6 +660,7 @@
   .product-img { height: 190px; }
   .search-bar__btn span { display: none; }
 }
+<<<<<<< HEAD
 .product-countdown {
   position: absolute;
   left: 12px;
@@ -951,3 +952,5 @@
   color: #fff;
   text-decoration: underline;
 }
+=======
+>>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
