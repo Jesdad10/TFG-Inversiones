@@ -15,6 +15,7 @@ export default function Navbar({ user, activePage, onNavigate }) {
   const goTo = (path) => {
     setMenuOpen(false)
     setNotifOpen(false)
+
     if (onNavigate) {
       onNavigate(path)
     } else {
@@ -27,16 +28,19 @@ export default function Navbar({ user, activePage, onNavigate }) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setMenuOpen(false)
       }
+
       if (notifRef.current && !notifRef.current.contains(e.target)) {
         setNotifOpen(false)
       }
     }
+
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
   useEffect(() => {
     if (!user) return
+
     authService.getNotificaciones()
       .then(data => {
         setNotificaciones(data.notificaciones || [])
@@ -46,20 +50,31 @@ export default function Navbar({ user, activePage, onNavigate }) {
   }, [user])
 
   const handleLogout = async () => {
-    try { await authService.logout() } catch (_) {}
+    try {
+      await authService.logout()
+    } catch (_) {}
+
     authService.borrarSesion()
     navigate('/login')
   }
 
   const handleMarcarLeida = async (id) => {
     await authService.marcarNotificacionLeida(id).catch(() => {})
-    setNotificaciones(prev => prev.map(n => n.id === id ? { ...n, leida: 1 } : n))
+
+    setNotificaciones(prev =>
+      prev.map(n => n.id === id ? { ...n, leida: 1 } : n)
+    )
+
     setNoLeidas(prev => Math.max(0, prev - 1))
   }
 
   const handleMarcarTodasLeidas = async () => {
     await authService.marcarTodasLeidas().catch(() => {})
-    setNotificaciones(prev => prev.map(n => ({ ...n, leida: 1 })))
+
+    setNotificaciones(prev =>
+      prev.map(n => ({ ...n, leida: 1 }))
+    )
+
     setNoLeidas(0)
   }
 
@@ -72,8 +87,11 @@ export default function Navbar({ user, activePage, onNavigate }) {
 
   return (
     <nav className="navbar">
-      {/* Logo */}
-      <a className="nav-logo" onClick={() => goTo('/dashboard')} style={{ cursor: 'pointer' }}>
+      <a
+        className="nav-logo"
+        onClick={() => goTo('/dashboard')}
+        style={{ cursor: 'pointer' }}
+      >
         <div className="nav-brand-icon">
           <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
             <path d="M3,25 L14,3 L14,25" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -82,10 +100,10 @@ export default function Navbar({ user, activePage, onNavigate }) {
             <path d="M14,15 L25,25" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
           </svg>
         </div>
+
         <span className="nav-brand-name">AK-MARKET</span>
       </a>
 
-      {/* Nav links */}
       <div className="nav-links">
         <a
           className={`nav-link${activePage === 'inicio' ? ' active' : ''}`}
@@ -93,29 +111,23 @@ export default function Navbar({ user, activePage, onNavigate }) {
         >
           Inicio
         </a>
+
         <a
           className={`nav-link${activePage === 'catalogo' ? ' active' : ''}`}
-          onClick={() => goTo('/catalogo')}
+          onClick={() => goTo('/dashboard')}
         >
           Catálogo
         </a>
+
         <a
-          className={`nav-link${activePage === 'vender' ? ' active' : ''}`}
-          onClick={() => goTo('/vender')}
+          className={`nav-link${activePage === 'armeria' ? ' active' : ''}`}
+          onClick={() => goTo('/armeria')}
         >
-          Vender
-        </a>
-        <a
-          className={`nav-link${activePage === 'pedidos' ? ' active' : ''}`}
-          onClick={() => goTo('/pedidos')}
-        >
-          Mis pedidos
+          Mi armería
         </a>
       </div>
 
-      {/* Right section */}
       <div className="nav-right">
-        {/* Notification bell */}
         <div ref={notifRef} style={{ position: 'relative' }}>
           <button
             className="nav-icon-btn"
@@ -126,6 +138,7 @@ export default function Navbar({ user, activePage, onNavigate }) {
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
               <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
+
             {noLeidas > 0 && <span className="notif-badge">{noLeidas}</span>}
           </button>
 
@@ -133,12 +146,14 @@ export default function Navbar({ user, activePage, onNavigate }) {
             <div className="notif-dropdown">
               <div className="notif-dropdown-header">
                 <span>Notificaciones</span>
+
                 {noLeidas > 0 && (
                   <button className="notif-mark-all" onClick={handleMarcarTodasLeidas}>
                     Marcar todas como leídas
                   </button>
                 )}
               </div>
+
               {notificaciones.length === 0 ? (
                 <p className="notif-empty">No tienes notificaciones</p>
               ) : (
@@ -152,25 +167,40 @@ export default function Navbar({ user, activePage, onNavigate }) {
                       <div className="notif-item-icon">
                         {n.tipo === 'producto_eliminado' && (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6l-1 14H6L5 6"/>
+                            <path d="M10 11v6"/>
+                            <path d="M14 11v6"/>
+                            <path d="M9 6V4h6v2"/>
                           </svg>
                         )}
+
                         {n.tipo === 'cuenta_bloqueada' && (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
                           </svg>
                         )}
+
                         {n.tipo === 'sistema' && (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
                           </svg>
                         )}
                       </div>
+
                       <div className="notif-item-body">
                         <p className="notif-item-titulo">{n.titulo}</p>
                         <p className="notif-item-msg">{n.mensaje}</p>
                         <p className="notif-item-fecha">
-                          {new Date(n.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                          {new Date(n.created_at).toLocaleDateString('es-ES', {
+                            day: '2-digit',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
                         </p>
                       </div>
                     </li>
@@ -181,25 +211,32 @@ export default function Navbar({ user, activePage, onNavigate }) {
           )}
         </div>
 
-        {/* Profile button */}
         <div ref={dropdownRef} style={{ position: 'relative' }}>
-          <button className="nav-profile-btn" onClick={() => setMenuOpen(v => !v)}>
+          <button
+            className="nav-profile-btn"
+            onClick={() => setMenuOpen(v => !v)}
+          >
             {user?.avatar ? (
               <img src={user.avatar} alt={firstName} className="avatar-img" />
             ) : (
               <div className="avatar">{initials}</div>
             )}
+
             <span className="nav-username">{firstName}</span>
+
             <svg
-              width="11" height="11" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" strokeWidth="2.5"
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
               className={`chevron${menuOpen ? ' open' : ''}`}
             >
               <polyline points="6 9 12 15 18 9"/>
             </svg>
           </button>
 
-          {/* Dropdown */}
           {menuOpen && (
             <div className="profile-dropdown">
               <div className="dropdown-header">
@@ -208,6 +245,7 @@ export default function Navbar({ user, activePage, onNavigate }) {
                 ) : (
                   <div className="avatar avatar--lg">{initials}</div>
                 )}
+
                 <div className="dropdown-user-info">
                   <p className="dropdown-name">{user?.nombre || 'Usuario'}</p>
                   <p className="dropdown-email">{user?.email || ''}</p>
@@ -217,15 +255,19 @@ export default function Navbar({ user, activePage, onNavigate }) {
               <div className="dropdown-divider" />
 
               {esAdmin && (
-                <button
-                  className="dropdown-item dropdown-item--admin"
-                  onClick={() => goTo('/admin')}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                  </svg>
-                  Panel Administrativo
-                </button>
+                <>
+                  <button
+                    className="dropdown-item dropdown-item--admin"
+                    onClick={() => goTo('/admin')}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    Panel Administrativo
+                  </button>
+
+                  <div className="dropdown-divider" />
+                </>
               )}
 
               <button
@@ -237,6 +279,16 @@ export default function Navbar({ user, activePage, onNavigate }) {
                   <circle cx="12" cy="7" r="4"/>
                 </svg>
                 Mi perfil
+              </button>
+
+              <button
+                className="dropdown-item"
+                onClick={() => goTo('/armeria')}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                Mi armería
               </button>
 
               <button

@@ -606,3 +606,341 @@
   .ap-header { flex-direction: column; align-items: flex-start; }
   .ap-stats-grid { grid-template-columns: 1fr; }
 }
+
+.ap-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ap-btn {
+  min-height: 32px;
+  padding: 0 11px;
+  border-radius: 8px;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.ap-btn--primary {
+  background: #CC1F1F;
+  color: #fff;
+}
+
+.ap-btn--primary:hover {
+  background: #B01A1A;
+}
+
+.ap-btn--danger {
+  background: rgba(239, 68, 68, 0.14);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.ap-btn--danger:hover {
+  background: rgba(239, 68, 68, 0.22);
+}
+
+.ap-btn--warn {
+  background: rgba(234, 179, 8, 0.12);
+  color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.22);
+}
+
+.ap-btn--warn:hover {
+  background: rgba(234, 179, 8, 0.2);
+}
+
+.ap-btn--green {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.22);
+}
+
+.ap-btn--green:hover {
+  background: rgba(34, 197, 94, 0.2);
+}
+
+.ap-btn--outline {
+  background: rgba(255, 255, 255, 0.04);
+  color: #EDE8E8;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.ap-btn--outline:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ap-badge--retirado,
+.ap-badge--expirado {
+  background: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+}
+
+.ap-hash-link {
+  color: #FBBF24;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ap-hash-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.ap-modal-textarea {
+  width: 100%;
+  min-height: 94px;
+  margin-top: 14px;
+  resize: vertical;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  color: #EDE8E8;
+  padding: 12px;
+  font-family: inherit;
+  outline: none;
+}
+
+.ap-modal-input {
+  width: 100%;
+  height: 42px;
+  margin-top: 14px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  color: #EDE8E8;
+  padding: 0 12px;
+  font-family: inherit;
+  outline: none;
+}
+
+.ap-modal-error {
+  margin-top: 10px !important;
+  color: #ef4444 !important;
+}
+
+.ap-form-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.ap-form-card h3 {
+  margin: 0 0 18px;
+  color: #EDE8E8;
+}
+
+.ap-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.ap-form-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #7A6565;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.ap-form-row input,
+.ap-form-row select {
+  height: 42px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  color: #EDE8E8;
+  padding: 0 12px;
+  font-family: inherit;
+  outline: none;
+}
+
+.ap-form-row select option {
+  background: #1A1212;
+  color: #EDE8E8;
+}
+
+.ap-form-actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ap-history-weapon-modal {
+  max-width: 920px;
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+}
+
+.ap-history-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.ap-history-modal-head h3 {
+  margin-bottom: 4px;
+}
+
+.ap-modal-x {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #EDE8E8;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.ap-modal-x:hover {
+  background: rgba(204, 31, 31, 0.18);
+}
+
+.ap-history-loading {
+  display: grid;
+  place-items: center;
+  min-height: 160px;
+  color: #8A7070;
+}
+
+.ap-history-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.ap-history-summary div {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 13px;
+}
+
+.ap-history-summary span,
+.ap-history-tx-grid span,
+.ap-history-hash span {
+  display: block;
+  color: #6A5555;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.ap-history-summary strong,
+.ap-history-tx-grid strong {
+  display: block;
+  color: #EDE8E8;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.ap-history-summary small,
+.ap-history-tx-grid small {
+  display: block;
+  color: #6A5555;
+  font-size: 11px;
+  margin-top: 3px;
+}
+
+.ap-history-transactions h4 {
+  margin: 0 0 12px;
+  color: #EDE8E8;
+}
+
+.ap-history-tx {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.ap-history-tx-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.ap-history-tx-top span {
+  color: #CC1F1F;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.ap-history-tx-top strong {
+  color: #EDE8E8;
+  font-size: 13px;
+}
+
+.ap-history-tx-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.ap-history-tx-grid div {
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.ap-history-hash {
+  margin-top: 12px;
+  background: rgba(251, 191, 36, 0.07);
+  border: 1px solid rgba(251, 191, 36, 0.16);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.ap-history-hash code {
+  display: block;
+  color: #FBBF24;
+  font-size: 11px;
+  word-break: break-all;
+  margin-bottom: 8px;
+}
+
+.ap-history-hash a {
+  color: #EDE8E8;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.ap-history-hash a:hover {
+  color: #FBBF24;
+  text-decoration: underline;
+}
+
+@media (max-width: 820px) {
+  .ap-history-summary,
+  .ap-history-tx-grid,
+  .ap-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .ap-history-tx-top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

@@ -44,11 +44,14 @@ const GENEROS = [
 const toDateInput = (val) => {
   if (!val) return ''
   if (/^\d{4}-\d{2}-\d{2}$/.test(String(val))) return String(val)
+
   const d = new Date(val)
   if (isNaN(d)) return ''
+
   const y = d.getFullYear()
   const m = String(d.getMonth() + 1).padStart(2, '0')
   const day = String(d.getDate()).padStart(2, '0')
+
   return `${y}-${m}-${day}`
 }
 
@@ -63,23 +66,25 @@ const FORM_INICIAL = {
   direccion: '',
   bio: '',
   avatar: '',
+  wallet: '',
 }
 
 export default function Profile() {
   const navigate = useNavigate()
   const fileRef = useRef(null)
 
-  const [user, setUser]               = useState(null)
-  const [form, setForm]               = useState(FORM_INICIAL)
+  const [user, setUser] = useState(null)
+  const [form, setForm] = useState(FORM_INICIAL)
   const [avatarPreview, setAvatarPreview] = useState('')
-  const [avatarRemoved, setAvatarRemoved]   = useState(false)
-  const [loading, setLoading]               = useState(false)
-  const [status, setStatus]                 = useState(null) // 'ok' | 'err'
-  const [statusMsg, setStatusMsg]           = useState('')
-  const [memberSince, setMemberSince]       = useState('')
+  const [avatarRemoved, setAvatarRemoved] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [loadingWallet, setLoadingWallet] = useState(false)
+  const [status, setStatus] = useState(null)
+  const [statusMsg, setStatusMsg] = useState('')
+  const [memberSince, setMemberSince] = useState('')
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-  const [pendingNavPath, setPendingNavPath]         = useState(null)
+  const [pendingNavPath, setPendingNavPath] = useState(null)
 
   const guardedNavigate = (path) => {
     if (hasUnsavedChanges) {
@@ -91,60 +96,85 @@ export default function Profile() {
 
   useEffect(() => {
     const token = localStorage.getItem('token')
+
     if (!token) {
       navigate('/login')
       return
     }
 
-    // Decode JWT payload immediately for name/email
     try {
       const payload = JSON.parse(
         atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))
       )
-      setUser({ nombre: payload.nombre, email: payload.email, avatar: '' })
-      setForm(f => ({ ...f, nombre: payload.nombre || '' }))
 
-      // Member since from token iat if available
+      setUser({
+        nombre: payload.nombre,
+        email: payload.email,
+        avatar: '',
+      })
+
+      setForm(f => ({
+        ...f,
+        nombre: payload.nombre || '',
+      }))
+
       if (payload.iat) {
         const d = new Date(payload.iat * 1000)
+
         setMemberSince(
-          d.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
+          d.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })
         )
       }
     } catch (_) {}
 
-    // Fetch full profile from server
     authService.me()
       .then(data => {
         if (data?.usuario) {
           const u = data.usuario
 
-          // Separar prefijo y número si el teléfono guardado incluye el prefijo
           let prefijoCargado = u.prefijo || '+34'
           let telefonoCargado = u.telefono || ''
+
           if (!u.prefijo && telefonoCargado.startsWith('+')) {
             const m = telefonoCargado.match(/^(\+\d{1,4})\s*(\d*)$/)
-            if (m) { prefijoCargado = m[1]; telefonoCargado = m[2] }
+
+            if (m) {
+              prefijoCargado = m[1]
+              telefonoCargado = m[2]
+            }
           }
 
           setUser(u)
+
           setForm({
-            nombre:           u.nombre          || '',
-            prefijo:          prefijoCargado,
-            telefono:         telefonoCargado.replace(/\D/g, ''),
-            genero:           u.genero           || '',
+            nombre: u.nombre || '',
+            prefijo: prefijoCargado,
+            telefono: telefonoCargado.replace(/\D/g, ''),
+            genero: u.genero || '',
             fecha_nacimiento: toDateInput(u.fecha_nacimiento),
-            pais:             u.pais             || '',
-            ciudad:           u.ciudad           || '',
-            direccion:        u.direccion        || '',
-            bio:              u.bio              || '',
-            avatar:           u.avatar           || '',
+            pais: u.pais || '',
+            ciudad: u.ciudad || '',
+            direccion: u.direccion || '',
+            bio: u.bio || '',
+            avatar: u.avatar || '',
+            wallet: u.wallet || '',
           })
+
           if (u.avatar) setAvatarPreview(u.avatar)
+
           if (u.created_at) {
             const d = new Date(u.created_at)
+
             setMemberSince(
-              d.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
+              d.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })
             )
           }
         }
@@ -154,13 +184,23 @@ export default function Profile() {
 
   const handleField = (e) => {
     const { name, value } = e.target
-    setForm(f => ({ ...f, [name]: value }))
+
+    setForm(f => ({
+      ...f,
+      [name]: value,
+    }))
+
     setHasUnsavedChanges(true)
   }
 
   const handleTelefono = (e) => {
     const value = e.target.value.replace(/\D/g, '').slice(0, 15)
-    setForm(f => ({ ...f, telefono: value }))
+
+    setForm(f => ({
+      ...f,
+      telefono: value,
+    }))
+
     setHasUnsavedChanges(true)
   }
 
@@ -174,30 +214,45 @@ export default function Profile() {
 
     const img = new Image()
     const url = URL.createObjectURL(file)
+
     img.onload = () => {
       const MAX = 200
       let { width, height } = img
+
       if (width > height) {
-        if (width > MAX) { height = Math.round(height * MAX / width); width = MAX }
+        if (width > MAX) {
+          height = Math.round(height * MAX / width)
+          width = MAX
+        }
       } else {
-        if (height > MAX) { width = Math.round(width * MAX / height); height = MAX }
+        if (height > MAX) {
+          width = Math.round(width * MAX / height)
+          height = MAX
+        }
       }
 
       const canvas = document.createElement('canvas')
-      canvas.width  = width
+      canvas.width = width
       canvas.height = height
+
       const ctx = canvas.getContext('2d')
       ctx.drawImage(img, 0, 0, width, height)
+
       URL.revokeObjectURL(url)
 
       const dataUrl = canvas.toDataURL('image/jpeg', 0.85)
+
       setAvatarPreview(dataUrl)
       setAvatarRemoved(false)
       setHasUnsavedChanges(true)
-      setForm(f => ({ ...f, avatar: dataUrl }))
+
+      setForm(f => ({
+        ...f,
+        avatar: dataUrl,
+      }))
     }
+
     img.src = url
-    // Reset input so the same file can be selected again
     e.target.value = ''
   }
 
@@ -206,7 +261,65 @@ export default function Profile() {
     setAvatarPreview('')
     setAvatarRemoved(true)
     setHasUnsavedChanges(true)
-    setForm(f => ({ ...f, avatar: '' }))
+
+    setForm(f => ({
+      ...f,
+      avatar: '',
+    }))
+  }
+
+  const conectarMetaMask = async () => {
+    setStatus(null)
+    setStatusMsg('')
+    setLoadingWallet(true)
+
+    try {
+      if (!window.ethereum) {
+        setStatus('err')
+        setStatusMsg('No tienes MetaMask instalado en este navegador.')
+        return
+      }
+
+      const cuentas = await window.ethereum.request({
+        method: 'eth_requestAccounts',
+      })
+
+      if (!cuentas || cuentas.length === 0) {
+        setStatus('err')
+        setStatusMsg('No se pudo obtener ninguna cuenta de MetaMask.')
+        return
+      }
+
+      const wallet = cuentas[0].toLowerCase()
+
+      const data = await authService.updateMe({
+        wallet,
+      })
+
+      if (data?.usuario) {
+        setUser(data.usuario)
+
+        setForm(prev => ({
+          ...prev,
+          wallet,
+        }))
+      }
+
+      setHasUnsavedChanges(false)
+      setStatus('ok')
+      setStatusMsg('Wallet de MetaMask conectada correctamente.')
+      setTimeout(() => setStatus(null), 3500)
+    } catch (err) {
+      if (err.code === 4001) {
+        setStatus('err')
+        setStatusMsg('Has cancelado la conexión con MetaMask.')
+      } else {
+        setStatus('err')
+        setStatusMsg(err.message || 'Error al conectar MetaMask.')
+      }
+    } finally {
+      setLoadingWallet(false)
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -220,8 +333,20 @@ export default function Profile() {
         ...form,
         telefono: form.telefono ? `${form.prefijo} ${form.telefono}` : '',
       }
-      await authService.updateMe(payload)
-      setUser(u => ({ ...u, nombre: form.nombre, avatar: form.avatar || u?.avatar || '' }))
+
+      const data = await authService.updateMe(payload)
+
+      if (data?.usuario) {
+        setUser(data.usuario)
+      } else {
+        setUser(u => ({
+          ...u,
+          nombre: form.nombre,
+          avatar: form.avatar || u?.avatar || '',
+          wallet: form.wallet || u?.wallet || '',
+        }))
+      }
+
       setHasUnsavedChanges(false)
       setAvatarRemoved(false)
       setStatus('ok')
@@ -243,7 +368,11 @@ export default function Profile() {
 
   return (
     <div className="profile-root">
-      <Navbar user={user ? { ...user, avatar: displayAvatar } : null} activePage="perfil" onNavigate={guardedNavigate} />
+      <Navbar
+        user={user ? { ...user, avatar: displayAvatar } : null}
+        activePage="perfil"
+        onNavigate={guardedNavigate}
+      />
 
       {pendingNavPath && (
         <div className="modal-backdrop">
@@ -255,22 +384,38 @@ export default function Profile() {
                 <line x1="12" y1="17" x2="12.01" y2="17"/>
               </svg>
             </div>
+
             <h3>¿Deseas guardar los cambios?</h3>
             <p>Tienes cambios sin guardar que se perderán si sales ahora.</p>
+
             <div className="modal-actions">
-              <button type="button" className="btn-confirm-no" onClick={() => {
-                setPendingNavPath(null)
-                navigate(pendingNavPath)
-              }}>
+              <button
+                type="button"
+                className="btn-confirm-no"
+                onClick={() => {
+                  setPendingNavPath(null)
+                  navigate(pendingNavPath)
+                }}
+              >
                 No, salir
               </button>
-              <button type="button" className="btn-confirm-yes" onClick={async () => {
-                try {
-                  const payload = { ...form, telefono: form.telefono ? `${form.prefijo} ${form.telefono}` : '' }
-                  await authService.updateMe(payload)
-                } catch (_) {}
-                navigate(pendingNavPath)
-              }}>
+
+              <button
+                type="button"
+                className="btn-confirm-yes"
+                onClick={async () => {
+                  try {
+                    const payload = {
+                      ...form,
+                      telefono: form.telefono ? `${form.prefijo} ${form.telefono}` : '',
+                    }
+
+                    await authService.updateMe(payload)
+                  } catch (_) {}
+
+                  navigate(pendingNavPath)
+                }}
+              >
                 Sí, guardar
               </button>
             </div>
@@ -288,13 +433,24 @@ export default function Profile() {
                 <line x1="12" y1="16" x2="12.01" y2="16"/>
               </svg>
             </div>
+
             <h3>¿Eliminar foto de perfil?</h3>
             <p>Los cambios se guardarán al pulsar <strong>Guardar cambios</strong>.</p>
+
             <div className="modal-actions">
-              <button type="button" className="btn-confirm-no" onClick={() => setShowRemoveConfirm(false)}>
+              <button
+                type="button"
+                className="btn-confirm-no"
+                onClick={() => setShowRemoveConfirm(false)}
+              >
                 Cancelar
               </button>
-              <button type="button" className="btn-confirm-yes" onClick={handleRemoveAvatar}>
+
+              <button
+                type="button"
+                className="btn-confirm-yes"
+                onClick={handleRemoveAvatar}
+              >
                 Sí, quitar
               </button>
             </div>
@@ -305,7 +461,6 @@ export default function Profile() {
       <main className="profile-main">
         <div className="profile-container">
 
-          {/* Header card */}
           <div className="profile-header">
             <div className="profile-avatar-col">
               <div className="profile-avatar-wrap" onClick={handleAvatarClick} title="Cambiar foto">
@@ -314,12 +469,14 @@ export default function Profile() {
                 ) : (
                   <div className="profile-avatar-circle">{initials}</div>
                 )}
+
                 <div className="profile-avatar-overlay">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
                     <circle cx="12" cy="13" r="4"/>
                   </svg>
                 </div>
+
                 <input
                   ref={fileRef}
                   type="file"
@@ -330,7 +487,11 @@ export default function Profile() {
               </div>
 
               {displayAvatar && (
-                <button type="button" className="btn-remove-avatar" onClick={() => setShowRemoveConfirm(true)}>
+                <button
+                  type="button"
+                  className="btn-remove-avatar"
+                  onClick={() => setShowRemoveConfirm(true)}
+                >
                   Quitar foto
                 </button>
               )}
@@ -339,16 +500,21 @@ export default function Profile() {
             <div className="profile-header-info">
               <h1>{user?.nombre || 'Usuario'}</h1>
               <p className="profile-header-email">{user?.email || ''}</p>
+
               {memberSince && (
                 <p className="profile-header-meta">Miembro desde {memberSince}</p>
+              )}
+
+              {form.wallet && (
+                <p className="profile-wallet-small">
+                  Wallet conectada: {form.wallet.slice(0, 6)}...{form.wallet.slice(-4)}
+                </p>
               )}
             </div>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit}>
 
-            {/* Sección 1: Información personal */}
             <div className="profile-section">
               <h2 className="profile-section-title">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -375,6 +541,7 @@ export default function Profile() {
 
                 <div className="profile-field">
                   <label htmlFor="telefono">Teléfono</label>
+
                   <div className="phone-input-group">
                     <select
                       name="prefijo"
@@ -389,6 +556,7 @@ export default function Profile() {
                         </option>
                       ))}
                     </select>
+
                     <input
                       id="telefono"
                       name="telefono"
@@ -405,6 +573,7 @@ export default function Profile() {
 
                 <div className="profile-field">
                   <label htmlFor="genero">Género</label>
+
                   <select
                     id="genero"
                     name="genero"
@@ -413,6 +582,7 @@ export default function Profile() {
                     onChange={handleField}
                   >
                     <option value="">Selecciona...</option>
+
                     {GENEROS.map(g => (
                       <option key={g} value={g}>{g}</option>
                     ))}
@@ -421,6 +591,7 @@ export default function Profile() {
 
                 <div className="profile-field">
                   <label htmlFor="fecha_nacimiento">Fecha de nacimiento</label>
+
                   <input
                     id="fecha_nacimiento"
                     name="fecha_nacimiento"
@@ -433,7 +604,53 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Sección 2: Ubicación */}
+            <div className="profile-section" style={{ marginTop: '16px' }}>
+              <h2 className="profile-section-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                Wallet MetaMask
+              </h2>
+
+              <div className="profile-field">
+                <label htmlFor="wallet">Wallet conectada</label>
+
+                <div className="profile-wallet-row">
+                  <input
+                    id="wallet"
+                    name="wallet"
+                    type="text"
+                    className="profile-input"
+                    value={form.wallet || ''}
+                    placeholder="0x..."
+                    readOnly
+                  />
+
+                  <button
+                    type="button"
+                    className="profile-wallet-btn"
+                    onClick={conectarMetaMask}
+                    disabled={loadingWallet}
+                  >
+                    {loadingWallet ? (
+                      <>
+                        <span className="profile-spinner" />
+                        Conectando...
+                      </>
+                    ) : form.wallet ? (
+                      'Cambiar MetaMask'
+                    ) : (
+                      'Conectar MetaMask'
+                    )}
+                  </button>
+                </div>
+
+                <p className="profile-wallet-help">
+                  Pulsa el botón, acepta en MetaMask y la wallet se guardará automáticamente en tu cuenta.
+                </p>
+              </div>
+            </div>
+
             <div className="profile-section" style={{ marginTop: '16px' }}>
               <h2 className="profile-section-title">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -446,6 +663,7 @@ export default function Profile() {
               <div className="profile-grid">
                 <div className="profile-field">
                   <label htmlFor="pais">País</label>
+
                   <select
                     id="pais"
                     name="pais"
@@ -454,6 +672,7 @@ export default function Profile() {
                     onChange={handleField}
                   >
                     <option value="">Selecciona tu país...</option>
+
                     {PAISES.map(p => (
                       <option key={p} value={p}>{p}</option>
                     ))}
@@ -462,6 +681,7 @@ export default function Profile() {
 
                 <div className="profile-field">
                   <label htmlFor="ciudad">Ciudad</label>
+
                   <input
                     id="ciudad"
                     name="ciudad"
@@ -475,6 +695,7 @@ export default function Profile() {
 
                 <div className="profile-field" style={{ gridColumn: '1 / -1' }}>
                   <label htmlFor="direccion">Dirección</label>
+
                   <input
                     id="direccion"
                     name="direccion"
@@ -488,7 +709,6 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Sección 3: Sobre ti */}
             <div className="profile-section" style={{ marginTop: '16px' }}>
               <h2 className="profile-section-title">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -499,6 +719,7 @@ export default function Profile() {
 
               <div className="profile-field">
                 <label htmlFor="bio">Biografía</label>
+
                 <textarea
                   id="bio"
                   name="bio"
@@ -508,11 +729,11 @@ export default function Profile() {
                   value={form.bio}
                   onChange={handleField}
                 />
+
                 <span className="bio-counter">{form.bio.length} / 300</span>
               </div>
             </div>
 
-            {/* Actions */}
             <div className="profile-actions">
               <button
                 type="submit"
@@ -522,12 +743,14 @@ export default function Profile() {
                 {loading ? (
                   <span className="profile-spinner" />
                 ) : null}
+
                 {loading ? 'Guardando...' : 'Guardar cambios'}
               </button>
 
               {status === 'ok' && (
                 <span className="save-status--ok">{statusMsg}</span>
               )}
+
               {status === 'err' && (
                 <span className="save-status--err">{statusMsg}</span>
               )}

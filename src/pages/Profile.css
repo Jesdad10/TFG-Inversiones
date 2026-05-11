@@ -557,3 +557,65 @@
     font-size: 20px;
   }
 }
+.profile-wallet-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.profile-wallet-row input {
+  flex: 1;
+}
+
+.profile-wallet-btn {
+  border: none;
+  border-radius: 10px;
+  background: #CC1F1F;
+  color: white;
+  font-weight: 700;
+  padding: 12px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s;
+  font-family: 'Inter', system-ui, sans-serif;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+}
+
+.profile-wallet-btn:hover:not(:disabled) {
+  background: #B01A1A;
+  transform: translateY(-1px);
+}
+
+.profile-wallet-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.profile-wallet-help {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #8A7070;
+  line-height: 1.5;
+}
+
+.profile-wallet-small {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #CC1F1F;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .profile-wallet-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .profile-wallet-btn {
+    width: 100%;
+  }
+}

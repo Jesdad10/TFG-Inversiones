@@ -6,6 +6,7 @@ import Profile from './pages/Profile'
 import Vender from './pages/Vender'
 import MisProductos from './pages/MisProductos'
 import AdminPanel from './pages/AdminPanel'
+import Armeria from './pages/Armeria'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/perfil" element={<Profile />} />
         <Route path="/vender" element={<Vender />} />
         <Route path="/mis-productos" element={<MisProductos />} />
+        <Route path="/armeria" element={<Armeria />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

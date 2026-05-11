@@ -4,24 +4,28 @@ const BASE_NOTIF = 'http://localhost:3001/api/notificaciones'
 
 async function peticion(endpoint, body) {
   const res = await fetch(`${BASE}${endpoint}`, {
-    method:  'POST',
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(body),
+    body: JSON.stringify(body),
   })
+
   const data = await res.json()
+
   if (!res.ok) {
     const err = new Error(data.error || 'Error desconocido')
     err.data = data
     throw err
   }
+
   return data
 }
 
 function authHeaders() {
   const token = localStorage.getItem('token')
+
   return {
     'Content-Type': 'application/json',
-    Authorization:  `Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
   }
 }
 
@@ -30,13 +34,17 @@ async function apiFetch(url, options = {}) {
     headers: authHeaders(),
     ...options,
   })
+
   const data = await res.json()
-  if (!res.ok) throw new Error(data.error || 'Error desconocido')
+
+  if (!res.ok) {
+    throw new Error(data.error || 'Error desconocido')
+  }
+
   return data
 }
 
 export const authService = {
-  // ── Auth ───────────────────────────────────────────────────────────────
   register: (nombre, email, password, fecha_nacimiento) =>
     peticion('/register', { nombre, email, password, fecha_nacimiento }),
 
@@ -48,14 +56,16 @@ export const authService = {
 
   logout: () => {
     const token = localStorage.getItem('token')
+
     return fetch(`${BASE}/logout`, {
-      method:  'POST',
+      method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
     }).finally(() => localStorage.removeItem('token'))
   },
 
   me: () => {
     const token = localStorage.getItem('token')
+
     return fetch(`${BASE}/me`, {
       headers: { Authorization: `Bearer ${token}` },
     }).then((r) => r.json())
@@ -63,11 +73,12 @@ export const authService = {
 
   updateMe: (datos) => {
     const token = localStorage.getItem('token')
+
     return fetch(`${BASE}/me`, {
-      method:  'PUT',
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        Authorization:  `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(datos),
     }).then(async (r) => {
@@ -78,10 +89,9 @@ export const authService = {
   },
 
   guardarSesion: (token) => localStorage.setItem('token', token),
-  borrarSesion:  ()      => localStorage.removeItem('token'),
-  estaLogueado:  ()      => !!localStorage.getItem('token'),
+  borrarSesion: () => localStorage.removeItem('token'),
+  estaLogueado: () => !!localStorage.getItem('token'),
 
-  // ── Notificaciones ──────────────────────────────────────────────────────
   getNotificaciones: () =>
     apiFetch(BASE_NOTIF),
 
@@ -91,16 +101,17 @@ export const authService = {
   marcarTodasLeidas: () =>
     apiFetch(`${BASE_NOTIF}/leer-todas`, { method: 'PUT' }),
 
-  // ── Admin: stats ────────────────────────────────────────────────────────
   adminGetStats: () =>
     apiFetch(`${BASE_ADMIN}/stats`),
 
-  // ── Admin: usuarios ─────────────────────────────────────────────────────
   adminGetUsuarios: () =>
     apiFetch(`${BASE_ADMIN}/usuarios`),
 
   adminCrearUsuario: (datos) =>
-    apiFetch(`${BASE_ADMIN}/usuarios`, { method: 'POST', body: JSON.stringify(datos) }),
+    apiFetch(`${BASE_ADMIN}/usuarios`, {
+      method: 'POST',
+      body: JSON.stringify(datos),
+    }),
 
   adminBloquearUsuario: (id, motivo) =>
     apiFetch(`${BASE_ADMIN}/usuarios/${id}/bloquear`, {
@@ -120,7 +131,6 @@ export const authService = {
   adminEliminarUsuario: (id) =>
     apiFetch(`${BASE_ADMIN}/usuarios/${id}`, { method: 'DELETE' }),
 
-  // ── Admin: artículos ────────────────────────────────────────────────────
   adminGetArticulos: () =>
     apiFetch(`${BASE_ADMIN}/articulos`),
 
@@ -130,7 +140,18 @@ export const authService = {
       body: JSON.stringify({ motivo }),
     }),
 
-  // ── Admin: historial ────────────────────────────────────────────────────
   adminGetHistorial: () =>
     apiFetch(`${BASE_ADMIN}/historial`),
+
+  adminGetHistorialArmas: () =>
+    apiFetch(`${BASE_ADMIN}/historial-armas`),
+
+  adminGetHistorialArma: (id) =>
+    apiFetch(`${BASE_ADMIN}/historial-armas/${id}`),
+
+  adminReconstruirHistorialArmas: () =>
+    apiFetch(`${BASE_ADMIN}/historial-armas/reconstruir`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }),
 }

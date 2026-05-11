@@ -1,8 +1,15 @@
 const jwt = require('jsonwebtoken')
-const pool = require('../db')
+const { db } = require('../db')
+
+function toDate(value) {
+  if (!value) return null
+  if (typeof value.toDate === 'function') return value.toDate()
+  return new Date(value)
+}
 
 async function authMiddleware(req, res, next) {
   const header = req.headers.authorization
+
   if (!header || !header.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Token no proporcionado' })
   }
@@ -12,18 +19,52 @@ async function authMiddleware(req, res, next) {
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET)
 
-    // Comprueba que el token sigue activo en la tabla sesiones
-    const [rows] = await pool.query(
-      'SELECT id FROM sesiones WHERE token = ? AND expira_en > NOW()',
-      [token]
-    )
-    if (rows.length === 0) {
+    const sesionesSnap = await db
+      .collection('sesiones')
+      .where('token', '==', token)
+      .limit(1)
+      .get()
+
+    if (sesionesSnap.empty) {
       return res.status(401).json({ error: 'Sesión expirada o inválida' })
     }
 
-    req.usuario = payload
+    const sesion = sesionesSnap.docs[0].data()
+    const expiraEn = toDate(sesion.expira_en)
+
+    if (!expiraEn || expiraEn <= new Date()) {
+      await sesionesSnap.docs[0].ref.delete()
+      return res.status(401).json({ error: 'Sesión expirada o inválida' })
+    }
+
+    const usuarioDoc = await db.collection('usuarios').doc(payload.id).get()
+
+    if (!usuarioDoc.exists) {
+      return res.status(401).json({ error: 'Usuario no encontrado' })
+    }
+
+    const usuario = usuarioDoc.data()
+
+    if (!usuario.activo) {
+      return res.status(403).json({ error: 'Cuenta desactivada' })
+    }
+
+    if (usuario.bloqueado) {
+      return res.status(403).json({
+        error: 'bloqueado',
+        motivo: usuario.motivo_bloqueo || null,
+      })
+    }
+
+    req.usuario = {
+      id: usuarioDoc.id,
+      nombre: usuario.nombre,
+      email: usuario.email,
+      rol: usuario.rol,
+    }
+
     next()
-  } catch {
+  } catch (err) {
     return res.status(401).json({ error: 'Token inválido' })
   }
 }
