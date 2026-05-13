@@ -48,6 +48,39 @@ router.get('/', async (req, res) => {
   }
 })
 
+// ─── POST /api/notificaciones ─────────────────────────────────────────────
+
+router.post('/', async (req, res) => {
+  try {
+    const { usuario_id, tipo, titulo, mensaje } = req.body
+
+    if (!tipo || !titulo || !mensaje) {
+      return res.status(400).json({ error: 'Faltan datos de la notificación' })
+    }
+
+    const destino = usuario_id || req.usuario.id
+    const ref = db.collection('notificaciones').doc()
+
+    await ref.set({
+      id: ref.id,
+      usuario_id: destino,
+      tipo,
+      titulo,
+      mensaje,
+      leida: false,
+      created_at: admin.firestore.FieldValue.serverTimestamp(),
+    })
+
+    return res.status(201).json({
+      mensaje: 'Notificación creada correctamente',
+      id: ref.id,
+    })
+  } catch (err) {
+    console.error('[notificaciones post]', err)
+    return res.status(500).json({ error: 'Error al crear la notificación' })
+  }
+})
+
 // ─── PUT /api/notificaciones/:id/leer ────────────────────────────────────
 
 router.put('/:id/leer', async (req, res) => {

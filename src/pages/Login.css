@@ -492,7 +492,9 @@
 /* ─── RESPONSIVE ──────────────────────────── */
 
 @media (max-width: 900px) {
-  .login-root { flex-direction: column; }
+  .login-root {
+    flex-direction: column;
+  }
 
   .login-left {
     flex: none;
@@ -500,7 +502,9 @@
     min-height: auto;
   }
 
-  .login-left__headline h1 { font-size: 32px; }
+  .login-left__headline h1 {
+    font-size: 32px;
+  }
 
   .login-right {
     border-left: none;
@@ -510,12 +514,22 @@
 }
 
 @media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr 1fr; }
-  .stat:last-child { grid-column: 1 / -1; }
-  .login-left { padding: 32px 20px 28px; }
-  .login-card__header h2 { font-size: 24px; }
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .stat:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .login-left {
+    padding: 32px 20px 28px;
+  }
+
+  .login-card__header h2 {
+    font-size: 24px;
+  }
 }
-<<<<<<< HEAD
 
 /* ─── MODAL USUARIO BLOQUEADO ──────────────── */
 
@@ -570,5 +584,13 @@
   color: #EDE8E8;
   text-align: left;
 }
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
+.metamask-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+}

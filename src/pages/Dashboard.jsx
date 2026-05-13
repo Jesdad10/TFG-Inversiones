@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-<<<<<<< HEAD
 import { ethers } from 'ethers'
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
 import { authService } from '../services/auth'
 import { articulosService } from '../services/articulos'
 import Navbar from '../components/Navbar'
@@ -14,19 +11,12 @@ const CATEGORIES = [
   { label: 'Rifles AEG', icon: '🎯' },
   { label: 'Pistolas GBB', icon: '🔫' },
   { label: 'Sniper', icon: '🎯' },
-<<<<<<< HEAD
   { label: 'Francotirador', icon: '🎯' },
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
   { label: 'Accesorios', icon: '⚙️' },
   { label: 'Equipamiento', icon: '🪖' },
   { label: 'Piezas', icon: '🔧' },
 ]
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
 export default function Dashboard() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
@@ -35,11 +25,8 @@ export default function Dashboard() {
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('Todos')
   const [filters, setFilters] = useState({ precio: '', condicion: '', orden: '' })
-<<<<<<< HEAD
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [tick, setTick] = useState(Date.now())
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
 
   useEffect(() => {
     if (!authService.estaLogueado()) {
@@ -50,20 +37,23 @@ export default function Dashboard() {
     try {
       const token = localStorage.getItem('token')
       const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
-      setUser({ nombre: payload.nombre, email: payload.email })
+      setUser({ nombre: payload.nombre, email: payload.email, rol: payload.rol })
     } catch (_) {}
 
     authService.me()
-      .then(data => { if (data?.usuario) setUser(data.usuario) })
+      .then(data => {
+        if (data?.usuario) setUser(data.usuario)
+      })
       .catch(() => {})
 
     articulosService.listar()
-      .then(data => { if (data?.articulos) setProducts(data.articulos) })
+      .then(data => {
+        if (data?.articulos) setProducts(data.articulos)
+      })
       .catch(() => {})
       .finally(() => setLoadingProducts(false))
   }, [navigate])
 
-<<<<<<< HEAD
   useEffect(() => {
     const interval = setInterval(() => {
       setTick(Date.now())
@@ -72,34 +62,26 @@ export default function Dashboard() {
     return () => clearInterval(interval)
   }, [])
 
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
   const filtered = products.filter(p => {
     if (activeCategory !== 'Todos' && p.categoria !== activeCategory) return false
-    if (search && !p.titulo.toLowerCase().includes(search.toLowerCase()) && !p.categoria.toLowerCase().includes(search.toLowerCase())) return false
-    if (filters.condicion && p.condicion !== filters.condicion) return false
-<<<<<<< HEAD
 
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
+    const texto = `${p.titulo || ''} ${p.categoria || ''} ${p.descripcion || ''}`.toLowerCase()
+
+    if (search && !texto.includes(search.toLowerCase())) return false
+    if (filters.condicion && p.condicion !== filters.condicion) return false
+
     const eur = parseFloat(p.precio_eur) || 0
+
     if (filters.precio === '<100' && eur >= 100) return false
     if (filters.precio === '100-250' && (eur < 100 || eur > 250)) return false
     if (filters.precio === '250-500' && (eur < 250 || eur > 500)) return false
     if (filters.precio === '>500' && eur <= 500) return false
-<<<<<<< HEAD
 
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
     return true
   }).sort((a, b) => {
     if (filters.orden === 'precio_asc') return (parseFloat(a.precio_eur) || 0) - (parseFloat(b.precio_eur) || 0)
     if (filters.orden === 'precio_desc') return (parseFloat(b.precio_eur) || 0) - (parseFloat(a.precio_eur) || 0)
-<<<<<<< HEAD
     if (filters.orden === 'reciente') return new Date(b.created_at || 0) - new Date(a.created_at || 0)
-=======
-    if (filters.orden === 'reciente') return new Date(b.created_at) - new Date(a.created_at)
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
     return 0
   })
 
@@ -107,40 +89,24 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-root">
-<<<<<<< HEAD
       <Navbar user={user} activePage="inicio" />
 
       <main className="dash-main">
-=======
-
-      <Navbar user={user} activePage="inicio" />
-
-      {/* ── MAIN ── */}
-      <main className="dash-main">
-
-        {/* SEARCH HERO */}
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
         <section className="search-hero">
           <div className="search-hero__inner">
             <p className="hero-welcome">
               Bienvenido de nuevo, <span>{user?.nombre?.split(' ')[0] || 'Operador'}</span>
             </p>
+
             <h1 className="hero-title">Encuentra tu próxima réplica</h1>
-<<<<<<< HEAD
             <p className="hero-sub">Compra y vende réplicas de airsoft pagando con ETH de prueba en Sepolia.</p>
-=======
-            <p className="hero-sub">+500 artículos de airsoft. Paga con ETH, recibe en 24h.</p>
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
 
             <div className="search-bar">
               <svg className="search-bar__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"/>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
-<<<<<<< HEAD
 
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
               <input
                 className="search-bar__input"
                 type="text"
@@ -148,44 +114,31 @@ export default function Dashboard() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
-<<<<<<< HEAD
 
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
               {search && (
                 <button className="search-bar__clear" onClick={() => setSearch('')}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <line x1="18" y1="6" x2="6" y2="18"/>
-                    <line x1="6" y1="6" x2="18" y2="18"/>
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
                   </svg>
                 </button>
               )}
-<<<<<<< HEAD
 
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
               <button className="search-bar__btn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="11" cy="11" r="8"/>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
                 Buscar
               </button>
             </div>
           </div>
-<<<<<<< HEAD
 
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
           <div className="hero-orb hero-orb--1" />
           <div className="hero-orb hero-orb--2" />
           <div className="hero-grid" />
         </section>
 
-<<<<<<< HEAD
-=======
-        {/* CATEGORIES */}
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
         <section className="categories-section">
           <div className="categories-scroll">
             {CATEGORIES.map(({ label }) => (
@@ -200,18 +153,14 @@ export default function Dashboard() {
           </div>
         </section>
 
-<<<<<<< HEAD
-=======
-        {/* FILTERS BAR */}
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
         <section className="filters-section">
           <div className="filters-bar">
             <div className="filters-left">
               <div className="filters-label">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="4" y1="6" x2="20" y2="6"/>
-                  <line x1="8" y1="12" x2="16" y2="12"/>
-                  <line x1="11" y1="18" x2="13" y2="18"/>
+                  <line x1="4" y1="6" x2="20" y2="6" />
+                  <line x1="8" y1="12" x2="16" y2="12" />
+                  <line x1="11" y1="18" x2="13" y2="18" />
                 </svg>
                 Filtros
                 {activeFiltersCount > 0 && <span className="filters-count">{activeFiltersCount}</span>}
@@ -255,10 +204,7 @@ export default function Dashboard() {
               <span className="results-count">
                 <strong>{filtered.length}</strong> {filtered.length === 1 ? 'artículo' : 'artículos'}
               </span>
-<<<<<<< HEAD
 
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
               <select
                 className="filter-select"
                 value={filters.orden}
@@ -273,10 +219,6 @@ export default function Dashboard() {
           </div>
         </section>
 
-<<<<<<< HEAD
-=======
-        {/* PRODUCTS */}
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
         <section className="products-section">
           {loadingProducts ? (
             <div className="empty-state">
@@ -286,10 +228,9 @@ export default function Dashboard() {
           ) : filtered.length === 0 ? (
             <div className="empty-state">
               <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#5A4545" strokeWidth="1.2">
-                <circle cx="11" cy="11" r="8"/>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
-<<<<<<< HEAD
 
               <p>{products.length === 0 ? 'Aún no hay artículos publicados' : 'Sin resultados'}</p>
               <span>{products.length === 0 ? 'Sé el primero en publicar una réplica' : 'Prueba otros términos o quita los filtros'}</span>
@@ -303,19 +244,12 @@ export default function Dashboard() {
                     setFilters({ precio: '', condicion: '', orden: '' })
                   }}
                 >
-=======
-              <p>{products.length === 0 ? 'Aún no hay artículos publicados' : 'Sin resultados'}</p>
-              <span>{products.length === 0 ? 'Sé el primero en publicar una réplica' : 'Prueba otros términos o quita los filtros'}</span>
-              {products.length > 0 && (
-                <button className="empty-reset" onClick={() => { setSearch(''); setActiveCategory('Todos'); setFilters({ precio: '', condicion: '', orden: '' }) }}>
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
                   Restablecer búsqueda
                 </button>
               )}
             </div>
           ) : (
             <div className="products-grid">
-<<<<<<< HEAD
               {filtered.map(p => (
                 <ProductCard
                   key={p.id}
@@ -336,19 +270,10 @@ export default function Dashboard() {
           onClose={() => setSelectedProduct(null)}
         />
       )}
-=======
-              {filtered.map(p => <ProductCard key={p.id} product={p} />)}
-            </div>
-          )}
-        </section>
-
-      </main>
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
     </div>
   )
 }
 
-<<<<<<< HEAD
 function tiempoRestante(fechaExpira) {
   if (!fechaExpira) return null
 
@@ -464,16 +389,6 @@ function ProductCard({ product, tick, onOpen }) {
 
   return (
     <article className="product-card" onClick={onOpen}>
-=======
-/* ── PRODUCT CARD ── */
-function ProductCard({ product }) {
-  const cryptoSym = product.crypto === 'BTC' ? '₿' : 'Ξ'
-  const precioStr = parseFloat(product.precio_crypto).toString()
-  const eurStr    = parseFloat(product.precio_eur).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
-
-  return (
-    <article className="product-card">
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
       <div className="product-img">
         {product.foto_principal ? (
           <img src={product.foto_principal} alt={product.titulo} className="product-photo" />
@@ -482,7 +397,6 @@ function ProductCard({ product }) {
             <CategorySVG category={product.categoria} />
           </div>
         )}
-<<<<<<< HEAD
 
         {productoReventa && restante && (
           <span className="product-countdown">
@@ -490,8 +404,6 @@ function ProductCard({ product }) {
           </span>
         )}
 
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
         <span className="product-cat-tag">{product.categoria}</span>
       </div>
 
@@ -499,31 +411,25 @@ function ProductCard({ product }) {
         <h3 className="product-name">{product.titulo}</h3>
 
         <div className="product-meta">
-<<<<<<< HEAD
           <span className={`product-cond${productoReventa ? ' used' : product.condicion === 'Nuevo' ? ' new' : ' used'}`}>
             {productoReventa ? 'Reventa' : product.condicion}
           </span>
 
           <span className="product-owners-chip">
             {product.numero_duenos || 1} dueño{Number(product.numero_duenos || 1) === 1 ? '' : 's'}
-=======
-          <span className={`product-cond${product.condicion === 'Nuevo' ? ' new' : ' used'}`}>
-            {product.condicion}
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
           </span>
         </div>
 
         <p className="product-seller">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
           </svg>
           {product.seller}
         </p>
 
         <div className="product-footer">
           <div className="product-price">
-<<<<<<< HEAD
             <p className="price-eth">{precioStr} {cryptoSym}</p>
             <p className="price-eur">= {eurStr}€</p>
           </div>
@@ -542,19 +448,12 @@ function ProductCard({ product }) {
           >
             Comprar
           </button>
-=======
-            <p className="price-eth">{precioStr} ETH</p>
-            <p className="price-eur">= {eurStr}€</p>
-          </div>
-          <button className="btn-buy">Comprar</button>
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
         </div>
       </div>
     </article>
   )
 }
 
-<<<<<<< HEAD
 function ProductModal({ product, tick, onClose }) {
   const cryptoSym = product.crypto === 'BTC' ? '₿' : 'Ξ'
   const restante = tiempoRestante(product.venta_expira_en)
@@ -733,81 +632,58 @@ function ProductModal({ product, tick, onClose }) {
   )
 }
 
-=======
-/* ── CATEGORY SVGs ── */
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
 function CategorySVG({ category }) {
   if (category === 'Pistolas GBB') return (
     <svg width="54" height="40" viewBox="0 0 54 40" fill="none">
-      <rect x="8" y="11" width="26" height="13" rx="2" fill="white" opacity="0.3"/>
-      <rect x="34" y="14" width="16" height="4.5" rx="1" fill="white" opacity="0.3"/>
-      <rect x="48" y="12" width="2" height="9" rx="0.5" fill="white" opacity="0.3"/>
-      <path d="M24,24 L28,24 L27,36 Q25.5,38 24,36 L24,24Z" fill="white" opacity="0.25"/>
-      <rect x="10" y="24" width="12" height="4" rx="1" fill="white" opacity="0.15"/>
+      <rect x="8" y="11" width="26" height="13" rx="2" fill="white" opacity="0.3" />
+      <rect x="34" y="14" width="16" height="4.5" rx="1" fill="white" opacity="0.3" />
+      <rect x="48" y="12" width="2" height="9" rx="0.5" fill="white" opacity="0.3" />
+      <path d="M24,24 L28,24 L27,36 Q25.5,38 24,36 L24,24Z" fill="white" opacity="0.25" />
+      <rect x="10" y="24" width="12" height="4" rx="1" fill="white" opacity="0.15" />
     </svg>
   )
-<<<<<<< HEAD
 
   if (category === 'Sniper' || category === 'Francotirador') return (
-=======
-  if (category === 'Sniper') return (
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
     <svg width="80" height="26" viewBox="0 0 80 26" fill="none">
-      <rect x="5" y="10" width="28" height="8" rx="1.5" fill="white" opacity="0.3"/>
-      <rect x="33" y="11" width="42" height="4" rx="1" fill="white" opacity="0.3"/>
-      <rect x="73" y="9" width="2.5" height="9" rx="0.5" fill="white" opacity="0.3"/>
-      <rect x="14" y="6" width="10" height="4" rx="1" fill="white" opacity="0.2"/>
-      <path d="M2,23 L2,16 L6,14 L6,10" stroke="white" strokeWidth="1.8" strokeLinecap="round" opacity="0.3"/>
-      <path d="M2,23 L7,23 L8,19 L8,10" stroke="white" strokeWidth="1.8" strokeLinecap="round" opacity="0.3"/>
-      <path d="M19,18 L24,18 L23,25 Q21.5,26.5 20,25Z" fill="white" opacity="0.2"/>
+      <rect x="5" y="10" width="28" height="8" rx="1.5" fill="white" opacity="0.3" />
+      <rect x="33" y="11" width="42" height="4" rx="1" fill="white" opacity="0.3" />
+      <rect x="73" y="9" width="2.5" height="9" rx="0.5" fill="white" opacity="0.3" />
+      <rect x="14" y="6" width="10" height="4" rx="1" fill="white" opacity="0.2" />
+      <path d="M2,23 L2,16 L6,14 L6,10" stroke="white" strokeWidth="1.8" strokeLinecap="round" opacity="0.3" />
+      <path d="M2,23 L7,23 L8,19 L8,10" stroke="white" strokeWidth="1.8" strokeLinecap="round" opacity="0.3" />
+      <path d="M19,18 L24,18 L23,25 Q21.5,26.5 20,25Z" fill="white" opacity="0.2" />
     </svg>
   )
-<<<<<<< HEAD
 
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
   if (category === 'Accesorios') return (
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.2" opacity="0.3">
-      <circle cx="12" cy="12" r="3"/>
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
     </svg>
   )
-<<<<<<< HEAD
 
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
   if (category === 'Equipamiento') return (
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.2" opacity="0.3">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     </svg>
   )
-<<<<<<< HEAD
 
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
   if (category === 'Piezas') return (
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.2" opacity="0.3">
-      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
     </svg>
   )
-<<<<<<< HEAD
 
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
   return (
     <svg width="72" height="30" viewBox="0 0 72 30" fill="none">
-      <rect x="10" y="11" width="20" height="10" rx="2" fill="white" opacity="0.3"/>
-      <rect x="18" y="8" width="16" height="3" rx="1" fill="white" opacity="0.25"/>
-      <rect x="30" y="12" width="28" height="4" rx="1" fill="white" opacity="0.3"/>
-      <rect x="56" y="10" width="2.5" height="10" rx="0.5" fill="white" opacity="0.3"/>
-      <path d="M3,26 L3,19 L7,17 L7,11" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.3"/>
-      <path d="M3,26 L8.5,26 L9,22 L9,11" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.3"/>
-      <path d="M25,21 L28.5,21 L28,28 Q26.5,29.5 25.5,28Z" fill="white" opacity="0.25"/>
-      <path d="M13,21 L17.5,21 Q18.5,28.5 15.5,29.5 Q12.5,28.5 13,21Z" fill="white" opacity="0.25"/>
+      <rect x="10" y="11" width="20" height="10" rx="2" fill="white" opacity="0.3" />
+      <rect x="18" y="8" width="16" height="3" rx="1" fill="white" opacity="0.25" />
+      <rect x="30" y="12" width="28" height="4" rx="1" fill="white" opacity="0.3" />
+      <rect x="56" y="10" width="2.5" height="10" rx="0.5" fill="white" opacity="0.3" />
+      <path d="M3,26 L3,19 L7,17 L7,11" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.3" />
+      <path d="M3,26 L8.5,26 L9,22 L9,11" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.3" />
+      <path d="M25,21 L28.5,21 L28,28 Q26.5,29.5 25.5,28Z" fill="white" opacity="0.25" />
+      <path d="M13,21 L17.5,21 Q18.5,28.5 15.5,29.5 Q12.5,28.5 13,21Z" fill="white" opacity="0.25" />
     </svg>
   )
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953

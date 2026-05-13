@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../services/auth'
+import { articulosService } from '../services/articulos'
 import Navbar from '../components/Navbar'
 import './AdminPanel.css'
 
 const ACCION_LABELS = {
-  eliminar_usuario:    'Usuario eliminado',
-  bloquear_usuario:    'Usuario bloqueado',
+  eliminar_usuario: 'Usuario eliminado',
+  bloquear_usuario: 'Usuario bloqueado',
   desbloquear_usuario: 'Usuario desbloqueado',
-  eliminar_producto:   'Producto eliminado',
-  crear_usuario:       'Usuario creado',
-  cambiar_rol:         'Rol cambiado',
+  eliminar_producto: 'Producto eliminado',
+  crear_usuario: 'Usuario creado',
+  cambiar_rol: 'Rol cambiado',
 }
 
 export default function AdminPanel() {
@@ -19,16 +20,32 @@ export default function AdminPanel() {
   const [user, setUser] = useState(null)
   const [seccion, setSeccion] = useState('resumen')
   const [loading, setLoading] = useState(false)
+  const [notificacionesKey, setNotificacionesKey] = useState(0)
 
   const [stats, setStats] = useState(null)
 
   const [usuarios, setUsuarios] = useState([])
   const [busqUser, setBusqUser] = useState('')
   const [mostrarEliminados, setMostrarEliminados] = useState(false)
+  const [mostrarCrearUsuario, setMostrarCrearUsuario] = useState(false)
 
   const [articulos, setArticulos] = useState([])
   const [busqArt, setBusqArt] = useState('')
   const [filtroEstado, setFiltroEstado] = useState('todos')
+
+  const [modalReactivarProducto, setModalReactivarProducto] = useState(null)
+  const [reactivarEditando, setReactivarEditando] = useState(false)
+
+  const [reactivarForm, setReactivarForm] = useState({
+    titulo: '',
+    descripcion: '',
+    categoria: '',
+    condicion: '',
+    precio_eur: '',
+    precio_crypto: '',
+    crypto: 'ETH',
+    foto_principal: '',
+  })
 
   const [historial, setHistorial] = useState([])
 
@@ -51,6 +68,8 @@ export default function AdminPanel() {
   const [passwordRol, setPasswordRol] = useState('')
   const [passwordRolError, setPasswordRolError] = useState('')
 
+  const [mensajeAdmin, setMensajeAdmin] = useState(null)
+
   const [crearForm, setCrearForm] = useState({
     nombre: '',
     email: '',
@@ -61,6 +80,10 @@ export default function AdminPanel() {
   const [crearStatus, setCrearStatus] = useState(null)
   const [crearMsg, setCrearMsg] = useState('')
 
+  const refrescarNotificaciones = () => {
+    setNotificacionesKey(prev => prev + 1)
+  }
+
   useEffect(() => {
     const token = localStorage.getItem('token')
 
@@ -70,7 +93,9 @@ export default function AdminPanel() {
     }
 
     try {
-      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
+      const payload = JSON.parse(
+        atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))
+      )
 
       if (payload.rol !== 'admin') {
         navigate('/dashboard')
@@ -78,6 +103,7 @@ export default function AdminPanel() {
       }
 
       setUser({
+        id: payload.id,
         nombre: payload.nombre,
         email: payload.email,
         rol: payload.rol,
@@ -106,6 +132,7 @@ export default function AdminPanel() {
       if (s === 'resumen') {
         const d = await authService.adminGetStats()
         setStats(d)
+        refrescarNotificaciones()
       }
 
       if (s === 'usuarios') {
@@ -116,6 +143,7 @@ export default function AdminPanel() {
       if (s === 'productos') {
         const d = await authService.adminGetArticulos()
         setArticulos(d.articulos || [])
+        refrescarNotificaciones()
       }
 
       if (s === 'historial') {
@@ -137,26 +165,60 @@ export default function AdminPanel() {
   const handleBloquear = async () => {
     if (!modalBloquear) return
 
-    await authService.adminBloquearUsuario(modalBloquear.id, motivoBloqueo).catch(() => {})
+    try {
+      await authService.adminBloquearUsuario(modalBloquear.id, motivoBloqueo)
 
-    setUsuarios(prev => prev.map(u =>
-      u.id === modalBloquear.id
-        ? { ...u, bloqueado: 1, motivo_bloqueo: motivoBloqueo }
-        : u
-    ))
+      setUsuarios(prev => prev.map(u =>
+        u.id === modalBloquear.id
+          ? { ...u, bloqueado: 1, motivo_bloqueo: motivoBloqueo }
+          : u
+      ))
 
-    setModalBloquear(null)
-    setMotivoBloqueo('')
+      setMensajeAdmin({
+        tipo: 'ok',
+        titulo: 'Usuario bloqueado',
+        texto: `El usuario "${modalBloquear.nombre}" ha sido bloqueado correctamente.`,
+      })
+
+      refrescarNotificaciones()
+
+      setModalBloquear(null)
+      setMotivoBloqueo('')
+    } catch (err) {
+      setMensajeAdmin({
+        tipo: 'error',
+        titulo: 'Error al bloquear',
+        texto: err.message || 'No se ha podido bloquear el usuario.',
+      })
+    }
   }
 
   const handleDesbloquear = async (id) => {
-    await authService.adminDesbloquearUsuario(id).catch(() => {})
+    try {
+      await authService.adminDesbloquearUsuario(id)
 
-    setUsuarios(prev => prev.map(u =>
-      u.id === id
-        ? { ...u, bloqueado: 0, motivo_bloqueo: null }
-        : u
-    ))
+      const usuario = usuarios.find(u => u.id === id)
+
+      setUsuarios(prev => prev.map(u =>
+        u.id === id
+          ? { ...u, bloqueado: 0, motivo_bloqueo: null }
+          : u
+      ))
+
+      setMensajeAdmin({
+        tipo: 'ok',
+        titulo: 'Usuario desbloqueado',
+        texto: `El usuario "${usuario?.nombre || 'Usuario'}" ha sido desbloqueado correctamente.`,
+      })
+
+      refrescarNotificaciones()
+    } catch (err) {
+      setMensajeAdmin({
+        tipo: 'error',
+        titulo: 'Error al desbloquear',
+        texto: err.message || 'No se ha podido desbloquear el usuario.',
+      })
+    }
   }
 
   const handleCambiarRol = (u) => {
@@ -186,6 +248,14 @@ export default function AdminPanel() {
           : u
       ))
 
+      setMensajeAdmin({
+        tipo: 'ok',
+        titulo: 'Rol actualizado',
+        texto: `El rol de "${modalCambiarRol.nombre}" se ha cambiado a "${nuevoRol}".`,
+      })
+
+      refrescarNotificaciones()
+
       setModalCambiarRol(null)
       setPasswordRol('')
     } catch (err) {
@@ -196,35 +266,80 @@ export default function AdminPanel() {
   const handleEliminarUsuario = async () => {
     if (!modalElimUser) return
 
-    await authService.adminEliminarUsuario(modalElimUser.id).catch(() => {})
+    try {
+      await authService.adminEliminarUsuario(modalElimUser.id)
 
-    setUsuarios(prev => prev.map(u =>
-      u.id === modalElimUser.id
-        ? { ...u, activo: 0 }
-        : u
-    ))
+      setUsuarios(prev => prev.map(u =>
+        u.id === modalElimUser.id
+          ? { ...u, activo: 0 }
+          : u
+      ))
 
-    setModalElimUser(null)
+      setMensajeAdmin({
+        tipo: 'ok',
+        titulo: 'Usuario eliminado',
+        texto: `El usuario "${modalElimUser.nombre}" ha sido eliminado correctamente.`,
+      })
+
+      refrescarNotificaciones()
+
+      setModalElimUser(null)
+    } catch (err) {
+      setMensajeAdmin({
+        tipo: 'error',
+        titulo: 'Error al eliminar usuario',
+        texto: err.message || 'No se ha podido eliminar el usuario.',
+      })
+    }
   }
 
   const handleEliminarProducto = async () => {
     if (!modalElimProd) return
 
-    await authService.adminEliminarArticulo(modalElimProd.id, motivoElimProd).catch(() => {})
+    try {
+      await authService.adminEliminarArticulo(modalElimProd.id, motivoElimProd)
 
-    setArticulos(prev => prev.map(a =>
-      a.id === modalElimProd.id
-        ? {
+      await authService.crearNotificacion({
+        usuario_id: user.id,
+        tipo: 'producto_eliminado',
+        titulo: 'Producto eliminado',
+        mensaje: `Has eliminado el producto "${modalElimProd.titulo}".`,
+      }).catch(() => {})
+
+      const claveEliminado = claveProductoMercado(modalElimProd)
+
+      setArticulos(prev => prev.map(a => {
+        const mismaClave = claveProductoMercado(a) === claveEliminado
+
+        if (a.id === modalElimProd.id || mismaClave) {
+          return {
             ...a,
             estado: 'eliminado',
             eliminado_por_admin: 1,
             motivo_eliminacion: motivoElimProd,
           }
-        : a
-    ))
+        }
 
-    setModalElimProd(null)
-    setMotivoElimProd('')
+        return a
+      }))
+
+      setMensajeAdmin({
+        tipo: 'ok',
+        titulo: 'Producto eliminado',
+        texto: `El producto "${modalElimProd.titulo}" se ha eliminado correctamente.`,
+      })
+
+      refrescarNotificaciones()
+
+      setModalElimProd(null)
+      setMotivoElimProd('')
+    } catch (err) {
+      setMensajeAdmin({
+        tipo: 'error',
+        titulo: 'Error al eliminar',
+        texto: err.message || 'No se ha podido eliminar el producto.',
+      })
+    }
   }
 
   const handleCrearUsuario = async (e) => {
@@ -238,6 +353,13 @@ export default function AdminPanel() {
 
       setCrearStatus('ok')
       setCrearMsg('Usuario creado correctamente')
+
+      setMensajeAdmin({
+        tipo: 'ok',
+        titulo: 'Usuario creado',
+        texto: `El usuario "${crearForm.nombre}" se ha creado correctamente.`,
+      })
+
       setCrearForm({
         nombre: '',
         email: '',
@@ -245,7 +367,15 @@ export default function AdminPanel() {
         rol: 'user',
       })
 
-      setTimeout(() => setCrearStatus(null), 3000)
+      const d = await authService.adminGetUsuarios()
+      setUsuarios(d.usuarios || [])
+
+      refrescarNotificaciones()
+
+      setTimeout(() => {
+        setCrearStatus(null)
+        setMostrarCrearUsuario(false)
+      }, 1200)
     } catch (err) {
       setCrearStatus('err')
       setCrearMsg(err.message || 'Error al crear usuario')
@@ -275,6 +405,194 @@ export default function AdminPanel() {
     setHistArmaLoading(false)
   }
 
+  const obtenerFotosProducto = (producto) => {
+    if (Array.isArray(producto.fotos) && producto.fotos.length > 0) {
+      return producto.fotos
+    }
+
+    if (producto.foto_principal) {
+      return [producto.foto_principal]
+    }
+
+    if (producto.foto) {
+      return [producto.foto]
+    }
+
+    if (producto.imagen) {
+      return [producto.imagen]
+    }
+
+    return []
+  }
+
+  const abrirModalReactivarProducto = (producto) => {
+    setModalReactivarProducto(producto)
+    setReactivarEditando(false)
+
+    setReactivarForm({
+      titulo: producto.titulo || '',
+      descripcion: producto.descripcion || '',
+      categoria: producto.categoria || '',
+      condicion: producto.condicion || '',
+      precio_eur: producto.precio_eur || '',
+      precio_crypto: producto.precio_crypto || '',
+      crypto: producto.crypto || 'ETH',
+      foto_principal: producto.foto_principal || producto.foto || '',
+    })
+  }
+
+  const volverAAnadirMismoProducto = async () => {
+    if (!modalReactivarProducto) return
+
+    const fotos = obtenerFotosProducto(modalReactivarProducto)
+
+    if (fotos.length === 0) {
+      setMensajeAdmin({
+        tipo: 'error',
+        titulo: 'Falta la foto',
+        texto: 'Este producto caducado no tiene foto guardada. Pulsa "Cambiar características" o vuelve a publicarlo desde "+ Crear producto".',
+      })
+      return
+    }
+
+    try {
+      await articulosService.crear({
+        titulo: modalReactivarProducto.titulo || '',
+        descripcion: modalReactivarProducto.descripcion || '',
+        categoria: modalReactivarProducto.categoria || '',
+        condicion: modalReactivarProducto.condicion || '',
+        precio_eur: modalReactivarProducto.precio_eur || '',
+        precio_crypto: modalReactivarProducto.precio_crypto || '',
+        crypto: modalReactivarProducto.crypto || 'ETH',
+
+        fotos,
+        foto_principal: fotos[0],
+
+        usuario_arma_id: modalReactivarProducto.usuario_arma_id || null,
+        historial_arma_id: modalReactivarProducto.historial_arma_id || null,
+      })
+
+      await authService.crearNotificacion({
+        usuario_id: user.id,
+        tipo: 'producto_reactivado',
+        titulo: 'Producto reactivado',
+        mensaje: `Has vuelto a añadir el producto "${modalReactivarProducto.titulo}" al mercado.`,
+      }).catch(() => {})
+
+      const d = await authService.adminGetArticulos()
+      setArticulos(d.articulos || [])
+
+      setMensajeAdmin({
+        tipo: 'ok',
+        titulo: 'Producto añadido',
+        texto: `El producto "${modalReactivarProducto.titulo}" se ha vuelto a añadir al mercado.`,
+      })
+
+      refrescarNotificaciones()
+
+      setModalReactivarProducto(null)
+      setReactivarEditando(false)
+    } catch (err) {
+      setMensajeAdmin({
+        tipo: 'error',
+        titulo: 'Error al volver a añadir',
+        texto: err.message || 'No se ha podido volver a añadir el producto.',
+      })
+    }
+  }
+
+  const volverAAnadirEditado = async () => {
+    if (!modalReactivarProducto) return
+
+    const fotos = obtenerFotosProducto(modalReactivarProducto)
+
+    if (fotos.length === 0) {
+      setMensajeAdmin({
+        tipo: 'error',
+        titulo: 'Falta la foto',
+        texto: 'Este producto no tiene foto guardada. Vuelve a publicarlo desde "+ Crear producto" para añadir una foto nueva.',
+      })
+      return
+    }
+
+    try {
+      await articulosService.crear({
+        ...reactivarForm,
+
+        fotos,
+        foto_principal: fotos[0],
+
+        usuario_arma_id: modalReactivarProducto.usuario_arma_id || null,
+        historial_arma_id: modalReactivarProducto.historial_arma_id || null,
+      })
+
+      await authService.crearNotificacion({
+        usuario_id: user.id,
+        tipo: 'producto_reactivado',
+        titulo: 'Producto reactivado',
+        mensaje: `Has vuelto a añadir el producto "${reactivarForm.titulo}" al mercado con cambios.`,
+      }).catch(() => {})
+
+      const d = await authService.adminGetArticulos()
+      setArticulos(d.articulos || [])
+
+      setMensajeAdmin({
+        tipo: 'ok',
+        titulo: 'Producto añadido',
+        texto: `El producto "${reactivarForm.titulo}" se ha vuelto a añadir al mercado.`,
+      })
+
+      refrescarNotificaciones()
+
+      setModalReactivarProducto(null)
+      setReactivarEditando(false)
+    } catch (err) {
+      setMensajeAdmin({
+        tipo: 'error',
+        titulo: 'Error al volver a añadir',
+        texto: err.message || 'No se ha podido volver a añadir el producto.',
+      })
+    }
+  }
+
+  const normalizarClave = (valor) => {
+    return String(valor || '')
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+  }
+
+  const claveProductoMercado = (producto) => {
+    return [
+      normalizarClave(producto.titulo),
+      normalizarClave(producto.categoria),
+      normalizarClave(producto.condicion),
+    ].join('|')
+  }
+
+  const quedarseConMasReciente = (lista) => {
+    return Object.values(
+      lista.reduce((acc, a) => {
+        const key = claveProductoMercado(a)
+
+        if (!acc[key]) {
+          acc[key] = a
+          return acc
+        }
+
+        const fechaActual = new Date(a.created_at || a.updated_at || 0).getTime()
+        const fechaGuardada = new Date(acc[key].created_at || acc[key].updated_at || 0).getTime()
+
+        if (fechaActual > fechaGuardada) {
+          acc[key] = a
+        }
+
+        return acc
+      }, {})
+    )
+  }
+
   const usuariosActivos = usuarios.filter(u =>
     u.activo !== 0 &&
     (
@@ -291,15 +609,49 @@ export default function AdminPanel() {
     )
   )
 
-  const articulosFiltrados = articulos.filter(a => {
-    const coincide =
+  const articulosActivos = quedarseConMasReciente(
+    articulos.filter(a => String(a.estado || '').toLowerCase() === 'activo')
+  )
+
+  const clavesProductosActivos = new Set(
+    articulos
+      .filter(a => String(a.estado || '').toLowerCase() === 'activo')
+      .map(a => claveProductoMercado(a))
+  )
+
+  const articulosCaducados = quedarseConMasReciente(
+    articulos.filter(a => {
+      const estado = String(a.estado || '').toLowerCase()
+      return estado === 'expirado' || estado === 'caducado'
+    })
+  )
+
+  const filtrarPorBusquedaProducto = (a) => {
+    return (
       String(a.titulo || '').toLowerCase().includes(busqArt.toLowerCase()) ||
       String(a.usuario_nombre || '').toLowerCase().includes(busqArt.toLowerCase()) ||
-      String(a.usuario_email || '').toLowerCase().includes(busqArt.toLowerCase())
+      String(a.usuario_email || '').toLowerCase().includes(busqArt.toLowerCase()) ||
+      String(a.seller || '').toLowerCase().includes(busqArt.toLowerCase())
+    )
+  }
 
-    if (filtroEstado === 'todos') return coincide
-    return coincide && a.estado === filtroEstado
+  const articulosFiltrados = articulosActivos.filter(a => {
+    if (!filtrarPorBusquedaProducto(a)) return false
+
+    if (filtroEstado === 'todos') return true
+    if (filtroEstado === 'activo') return true
+
+    return false
   })
+
+  const articulosCaducadosFiltrados = articulosCaducados.filter(a => {
+    return filtrarPorBusquedaProducto(a)
+  })
+
+  const productoYaReactivado = (productoCaducado) => {
+    const claveCaducado = claveProductoMercado(productoCaducado)
+    return clavesProductosActivos.has(claveCaducado)
+  }
 
   const historialArmasFiltrado = historialArmas.filter(h => {
     const texto = [
@@ -349,7 +701,12 @@ export default function AdminPanel() {
 
   return (
     <div className="ap-root">
-      <Navbar user={user} activePage="admin" onNavigate={p => navigate(p)} />
+      <Navbar
+        key={notificacionesKey}
+        user={user}
+        activePage="admin"
+        onNavigate={p => navigate(p)}
+      />
 
       <main className="ap-main">
         <div className="ap-container">
@@ -382,8 +739,7 @@ export default function AdminPanel() {
               { id: 'usuarios', label: 'Usuarios' },
               { id: 'productos', label: 'Productos' },
               { id: 'historial-armas', label: 'Historial armas' },
-              { id: 'historial', label: 'Historial admin' },
-              { id: 'crear-usuario', label: 'Crear usuario' },
+              { id: 'historial', label: 'Administrador histórico' },
             ].map(t => (
               <button
                 key={t.id}
@@ -457,8 +813,92 @@ export default function AdminPanel() {
                   onChange={e => setBusqUser(e.target.value)}
                 />
 
+                <button
+                  type="button"
+                  className="ap-btn ap-btn--primary"
+                  onClick={() => setMostrarCrearUsuario(v => !v)}
+                >
+                  + Crear usuario
+                </button>
+
                 <span className="ap-count">{usuariosActivos.length} usuarios activos</span>
               </div>
+
+              {mostrarCrearUsuario && (
+                <div className="ap-form-card ap-form-card--inline">
+                  <h3>Crear usuario</h3>
+
+                  <form className="ap-form" onSubmit={handleCrearUsuario}>
+                    <div className="ap-form-row">
+                      <label>
+                        Nombre
+                        <input
+                          value={crearForm.nombre}
+                          onChange={e => setCrearForm(f => ({ ...f, nombre: e.target.value }))}
+                          placeholder="Nombre del usuario"
+                          required
+                        />
+                      </label>
+
+                      <label>
+                        Email
+                        <input
+                          type="email"
+                          value={crearForm.email}
+                          onChange={e => setCrearForm(f => ({ ...f, email: e.target.value }))}
+                          placeholder="correo@email.com"
+                          required
+                        />
+                      </label>
+                    </div>
+
+                    <div className="ap-form-row">
+                      <label>
+                        Contraseña
+                        <input
+                          type="password"
+                          value={crearForm.password}
+                          onChange={e => setCrearForm(f => ({ ...f, password: e.target.value }))}
+                          placeholder="Mínimo 8 caracteres"
+                          minLength={8}
+                          required
+                        />
+                      </label>
+
+                      <label>
+                        Rol
+                        <select
+                          value={crearForm.rol}
+                          onChange={e => setCrearForm(f => ({ ...f, rol: e.target.value }))}
+                        >
+                          <option value="user">Usuario</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </label>
+                    </div>
+
+                    {crearStatus && (
+                      <p className={crearStatus === 'ok' ? 'ap-status-ok' : 'ap-status-err'}>
+                        {crearMsg}
+                      </p>
+                    )}
+
+                    <div className="ap-form-actions">
+                      <button className="ap-btn ap-btn--primary" type="submit">
+                        Crear usuario
+                      </button>
+
+                      <button
+                        type="button"
+                        className="ap-btn ap-btn--outline"
+                        onClick={() => setMostrarCrearUsuario(false)}
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
 
               {loading ? (
                 <div className="ap-spinner" />
@@ -626,11 +1066,15 @@ export default function AdminPanel() {
                 >
                   <option value="todos">Todos</option>
                   <option value="activo">Activos</option>
-                  <option value="vendido">Vendidos</option>
-                  <option value="retirado">Retirados</option>
-                  <option value="expirado">Expirados</option>
-                  <option value="eliminado">Eliminados</option>
                 </select>
+
+                <button
+                  type="button"
+                  className="ap-btn ap-btn--primary"
+                  onClick={() => navigate('/vender')}
+                >
+                  + Crear producto
+                </button>
 
                 <span className="ap-count">{articulosFiltrados.length} productos</span>
               </div>
@@ -638,129 +1082,224 @@ export default function AdminPanel() {
               {loading ? (
                 <div className="ap-spinner" />
               ) : (
-                <div className="ap-table-wrap">
-                  <table className="ap-table">
-                    <thead>
-                      <tr>
-                        <th>Producto</th>
-                        <th>Vendedor</th>
-                        <th>Comprador</th>
-                        <th>Precio</th>
-                        <th>Dueños</th>
-                        <th>Tx</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                      </tr>
-                    </thead>
+                <>
+                  <div className="ap-table-wrap">
+                    <table className="ap-table">
+                      <thead>
+                        <tr>
+                          <th>Producto</th>
+                          <th>Vendedor</th>
+                          <th>Precio</th>
+                          <th>Dueños</th>
+                          <th>Tx</th>
+                          <th>Estado</th>
+                          <th>Acciones</th>
+                        </tr>
+                      </thead>
 
-                    <tbody>
-                      {articulosFiltrados.map(a => (
-                        <tr key={a.id}>
-                          <td>
-                            <div className="ap-prod-cell">
-                              {a.foto && <img className="ap-prod-img" src={a.foto} alt={a.titulo} />}
+                      <tbody>
+                        {articulosFiltrados.map(a => (
+                          <tr key={a.id}>
+                            <td>
+                              <div className="ap-prod-cell">
+                                {(a.foto || a.foto_principal) && (
+                                  <img
+                                    className="ap-prod-img"
+                                    src={a.foto || a.foto_principal}
+                                    alt={a.titulo}
+                                  />
+                                )}
 
-                              <div>
-                                <p className="ap-prod-title">{a.titulo}</p>
-                                <p className="ap-prod-cat">{a.categoria}</p>
+                                <div>
+                                  <p className="ap-prod-title">{a.titulo}</p>
+                                  <p className="ap-prod-cat">{a.categoria}</p>
 
-                                {a.motivo_eliminacion && (
-                                  <p className="ap-prod-motivo">
-                                    Motivo: {a.motivo_eliminacion}
-                                  </p>
+                                  {a.motivo_eliminacion && (
+                                    <p className="ap-prod-motivo">
+                                      Motivo: {a.motivo_eliminacion}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+
+                            <td>
+                              <p className="ap-user-name">{a.usuario_nombre || a.seller || 'Usuario'}</p>
+                              <p className="ap-user-email">{a.usuario_email || ''}</p>
+                            </td>
+
+                            <td className="ap-price">
+                              {a.precio_crypto} {a.crypto}
+                              <br />
+                              ≈ {Number(a.precio_eur || 0).toLocaleString('es-ES')}€
+                            </td>
+
+                            <td>
+                              <span className="ap-badge ap-badge--accion">
+                                {a.numero_duenos || 1}
+                              </span>
+                            </td>
+
+                            <td>
+                              {a.tx_hash ? (
+                                <a
+                                  className="ap-hash-link"
+                                  href={a.etherscan_url || `https://sepolia.etherscan.io/tx/${a.tx_hash}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  {cortarHash(a.tx_hash)}
+                                </a>
+                              ) : (
+                                <span className="ap-date">—</span>
+                              )}
+                            </td>
+
+                            <td>
+                              <span className={`ap-badge ap-badge--${a.estado}`}>
+                                {a.estado}
+                              </span>
+
+                              {a.eliminado_por_admin ? (
+                                <span className="ap-badge ap-badge--admin-del">
+                                  Admin
+                                </span>
+                              ) : null}
+                            </td>
+
+                            <td>
+                              <div className="ap-actions">
+                                {a.historial_arma_id && (
+                                  <button
+                                    className="ap-btn ap-btn--outline"
+                                    onClick={() => abrirHistorialArma({
+                                      id: a.historial_arma_id,
+                                      arma_nombre: a.titulo,
+                                    })}
+                                  >
+                                    Historial
+                                  </button>
+                                )}
+
+                                {a.estado !== 'eliminado' && (
+                                  <button
+                                    className="ap-btn ap-btn--danger"
+                                    onClick={() => { setModalElimProd(a); setMotivoElimProd('') }}
+                                  >
+                                    Eliminar
+                                  </button>
                                 )}
                               </div>
-                            </div>
-                          </td>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
 
-                          <td>
-                            <p className="ap-user-name">{a.usuario_nombre || 'Usuario'}</p>
-                            <p className="ap-user-email">{a.usuario_email || ''}</p>
-                          </td>
+                    {articulosFiltrados.length === 0 && (
+                      <p className="ap-empty">No hay productos en el mercado que coincidan con la búsqueda.</p>
+                    )}
+                  </div>
 
-                          <td>
-                            {a.comprador_id ? (
-                              <>
-                                <p className="ap-user-name">{a.comprador_nombre || 'Usuario'}</p>
-                                <p className="ap-user-email">{a.comprador_email || ''}</p>
-                              </>
-                            ) : (
-                              <span className="ap-date">Sin comprador</span>
-                            )}
-                          </td>
+                  <div className="ap-expired-products">
+                    <div className="ap-expired-head">
+                      <h3>Productos caducados</h3>
+                      <span className="ap-count">{articulosCaducadosFiltrados.length} caducados</span>
+                    </div>
 
-                          <td className="ap-price">
-                            {a.precio_crypto} {a.crypto}
-                            <br />
-                            ≈ {Number(a.precio_eur || 0).toLocaleString('es-ES')}€
-                          </td>
+                    <div className="ap-table-wrap">
+                      <table className="ap-table">
+                        <thead>
+                          <tr>
+                            <th>Producto</th>
+                            <th>Vendedor</th>
+                            <th>Precio</th>
+                            <th>Dueños</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                          </tr>
+                        </thead>
 
-                          <td>
-                            <span className="ap-badge ap-badge--accion">
-                              {a.numero_duenos || 1}
-                            </span>
-                          </td>
+                        <tbody>
+                          {articulosCaducadosFiltrados.map(a => (
+                            <tr key={a.id}>
+                              <td>
+                                <div className="ap-prod-cell">
+                                  {(a.foto || a.foto_principal) && (
+                                    <img
+                                      className="ap-prod-img"
+                                      src={a.foto || a.foto_principal}
+                                      alt={a.titulo}
+                                    />
+                                  )}
 
-                          <td>
-                            {a.tx_hash ? (
-                              <a
-                                className="ap-hash-link"
-                                href={a.etherscan_url || `https://sepolia.etherscan.io/tx/${a.tx_hash}`}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                {cortarHash(a.tx_hash)}
-                              </a>
-                            ) : (
-                              <span className="ap-date">—</span>
-                            )}
-                          </td>
+                                  <div>
+                                    <p className="ap-prod-title">{a.titulo}</p>
+                                    <p className="ap-prod-cat">{a.categoria}</p>
+                                  </div>
+                                </div>
+                              </td>
 
-                          <td>
-                            <span className={`ap-badge ap-badge--${a.estado}`}>
-                              {a.estado}
-                            </span>
+                              <td>
+                                <p className="ap-user-name">{a.usuario_nombre || a.seller || 'Usuario'}</p>
+                                <p className="ap-user-email">{a.usuario_email || ''}</p>
+                              </td>
 
-                            {a.eliminado_por_admin ? (
-                              <span className="ap-badge ap-badge--admin-del">
-                                Admin
-                              </span>
-                            ) : null}
-                          </td>
+                              <td className="ap-price">
+                                {a.precio_crypto} {a.crypto}
+                                <br />
+                                ≈ {Number(a.precio_eur || 0).toLocaleString('es-ES')}€
+                              </td>
 
-                          <td>
-                            <div className="ap-actions">
-                              {a.historial_arma_id && (
-                                <button
-                                  className="ap-btn ap-btn--outline"
-                                  onClick={() => abrirHistorialArma({
-                                    id: a.historial_arma_id,
-                                    arma_nombre: a.titulo,
-                                  })}
-                                >
-                                  Historial
-                                </button>
-                              )}
+                              <td>
+                                <span className="ap-badge ap-badge--accion">
+                                  {a.numero_duenos || 1}
+                                </span>
+                              </td>
 
-                              {a.estado !== 'eliminado' && (
-                                <button
-                                  className="ap-btn ap-btn--danger"
-                                  onClick={() => { setModalElimProd(a); setMotivoElimProd('') }}
-                                >
-                                  Eliminar
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                              <td>
+                                <span className={`ap-badge ap-badge--${a.estado}`}>
+                                  {a.estado}
+                                </span>
+                              </td>
 
-                  {articulosFiltrados.length === 0 && (
-                    <p className="ap-empty">No hay productos que coincidan con la búsqueda.</p>
-                  )}
-                </div>
+                              <td>
+                                <div className="ap-actions">
+                                  {productoYaReactivado(a) ? (
+                                    <span className="ap-badge ap-badge--activo">
+                                      Ya añadido
+                                    </span>
+                                  ) : (
+                                    <button
+                                      className="ap-btn ap-btn--primary"
+                                      onClick={() => abrirModalReactivarProducto(a)}
+                                    >
+                                      Volver a añadir
+                                    </button>
+                                  )}
+
+                                  <button
+                                    className="ap-btn ap-btn--danger"
+                                    onClick={() => {
+                                      setModalElimProd(a)
+                                      setMotivoElimProd('')
+                                    }}
+                                  >
+                                    Eliminar
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+
+                      {articulosCaducadosFiltrados.length === 0 && (
+                        <p className="ap-empty">No hay productos caducados.</p>
+                      )}
+                    </div>
+                  </div>
+                </>
               )}
             </div>
           )}
@@ -909,70 +1448,6 @@ export default function AdminPanel() {
               )}
             </div>
           )}
-
-          {seccion === 'crear-usuario' && (
-            <div className="ap-section">
-              <form className="ap-form-card" onSubmit={handleCrearUsuario}>
-                <h3>Crear usuario</h3>
-
-                <div className="ap-form-row">
-                  <label>
-                    Nombre
-                    <input
-                      value={crearForm.nombre}
-                      onChange={e => setCrearForm(f => ({ ...f, nombre: e.target.value }))}
-                      placeholder="Nombre del usuario"
-                    />
-                  </label>
-
-                  <label>
-                    Email
-                    <input
-                      type="email"
-                      value={crearForm.email}
-                      onChange={e => setCrearForm(f => ({ ...f, email: e.target.value }))}
-                      placeholder="correo@email.com"
-                    />
-                  </label>
-                </div>
-
-                <div className="ap-form-row">
-                  <label>
-                    Contraseña
-                    <input
-                      type="password"
-                      value={crearForm.password}
-                      onChange={e => setCrearForm(f => ({ ...f, password: e.target.value }))}
-                      placeholder="Mínimo 8 caracteres"
-                    />
-                  </label>
-
-                  <label>
-                    Rol
-                    <select
-                      value={crearForm.rol}
-                      onChange={e => setCrearForm(f => ({ ...f, rol: e.target.value }))}
-                    >
-                      <option value="user">Usuario</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  </label>
-                </div>
-
-                {crearStatus && (
-                  <p className={crearStatus === 'ok' ? 'ap-status-ok' : 'ap-status-err'}>
-                    {crearMsg}
-                  </p>
-                )}
-
-                <div className="ap-form-actions">
-                  <button className="ap-btn ap-btn--primary" type="submit">
-                    Crear usuario
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
         </div>
       </main>
 
@@ -1050,6 +1525,178 @@ export default function AdminPanel() {
           error={histArmaError}
           onClose={cerrarHistorialArma}
         />
+      )}
+
+      {modalReactivarProducto && (
+        <div className="ap-modal-backdrop">
+          <div className="ap-modal ap-modal--wide">
+            <h3>Volver a añadir producto</h3>
+
+            <p>
+              ¿Quieres volver a añadir <strong>{modalReactivarProducto.titulo}</strong> al mercado?
+            </p>
+
+            {!reactivarEditando ? (
+              <>
+                <p className="ap-user-email">
+                  Puedes publicarlo con las mismas características o cambiarlas antes.
+                </p>
+
+                <div className="ap-modal-actions">
+                  <button
+                    className="ap-btn ap-btn--outline"
+                    onClick={() => setModalReactivarProducto(null)}
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    className="ap-btn ap-btn--outline"
+                    onClick={() => setReactivarEditando(true)}
+                  >
+                    Cambiar características
+                  </button>
+
+                  <button
+                    className="ap-btn ap-btn--primary"
+                    onClick={volverAAnadirMismoProducto}
+                  >
+                    Mismas características
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="ap-form">
+                  <div className="ap-form-row">
+                    <label>
+                      Título
+                      <input
+                        value={reactivarForm.titulo}
+                        onChange={e => setReactivarForm(f => ({ ...f, titulo: e.target.value }))}
+                      />
+                    </label>
+
+                    <label>
+                      Categoría
+                      <input
+                        value={reactivarForm.categoria}
+                        onChange={e => setReactivarForm(f => ({ ...f, categoria: e.target.value }))}
+                      />
+                    </label>
+                  </div>
+
+                  <div className="ap-form-row">
+                    <label>
+                      Condición
+                      <input
+                        value={reactivarForm.condicion}
+                        onChange={e => setReactivarForm(f => ({ ...f, condicion: e.target.value }))}
+                      />
+                    </label>
+
+                    <label>
+                      Crypto
+                      <select
+                        value={reactivarForm.crypto}
+                        onChange={e => setReactivarForm(f => ({ ...f, crypto: e.target.value }))}
+                      >
+                        <option value="ETH">ETH</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  <div className="ap-form-row">
+                    <label>
+                      Precio EUR
+                      <input
+                        type="number"
+                        value={reactivarForm.precio_eur}
+                        onChange={e => setReactivarForm(f => ({ ...f, precio_eur: e.target.value }))}
+                      />
+                    </label>
+
+                    <label>
+                      Precio ETH
+                      <input
+                        type="number"
+                        step="0.000001"
+                        value={reactivarForm.precio_crypto}
+                        onChange={e => setReactivarForm(f => ({ ...f, precio_crypto: e.target.value }))}
+                      />
+                    </label>
+                  </div>
+
+                  <label className="ap-form-field ap-form-field--full">
+                    <span>Descripción</span>
+
+                    <textarea
+                      rows={5}
+                      value={reactivarForm.descripcion}
+                      onChange={e => setReactivarForm(f => ({ ...f, descripcion: e.target.value }))}
+                      placeholder="Descripción del producto..."
+                    />
+                  </label>
+                </div>
+
+                <div className="ap-modal-actions">
+                  <button
+                    className="ap-btn ap-btn--outline"
+                    onClick={() => setReactivarEditando(false)}
+                  >
+                    Volver
+                  </button>
+
+                  <button
+                    className="ap-btn ap-btn--outline"
+                    onClick={() => setModalReactivarProducto(null)}
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    className="ap-btn ap-btn--primary"
+                    onClick={volverAAnadirEditado}
+                  >
+                    Publicar cambiado
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {mensajeAdmin && (
+        <div className="ap-modal-backdrop">
+          <div className="ap-modal">
+            <div className="ap-modal-icon">
+              {mensajeAdmin.tipo === 'ok' ? (
+                <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              ) : (
+                <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#CC1F1F" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+              )}
+            </div>
+
+            <h3>{mensajeAdmin.titulo}</h3>
+            <p>{mensajeAdmin.texto}</p>
+
+            <div className="ap-modal-actions">
+              <button
+                className="ap-btn ap-btn--primary"
+                onClick={() => setMensajeAdmin(null)}
+              >
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

@@ -944,3 +944,49 @@
     flex-direction: column;
   }
 }
+
+.ap-form-field--full {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.ap-form-field--full span {
+  font-size: 12px;
+  font-weight: 700;
+  color: #8A7070;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.ap-form-field--full textarea {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: #EDE8E8;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  outline: none;
+}
+
+.ap-form-field--full textarea:focus {
+  border-color: rgba(204, 31, 31, 0.5);
+  background: rgba(204, 31, 31, 0.05);
+  box-shadow: 0 0 0 3px rgba(204, 31, 31, 0.08);
+}
+
+.ap-form-field--full textarea::placeholder {
+  color: #5A4545;
+}
+.ap-modal-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}

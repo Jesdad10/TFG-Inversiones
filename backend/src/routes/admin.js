@@ -178,6 +178,29 @@ async function crearNotificacion(usuarioId, tipo, titulo, mensaje) {
   })
 }
 
+async function crearNotificacionAdminActual(req, tipo, titulo, mensaje) {
+  await crearNotificacion(req.usuario.id, tipo, titulo, mensaje).catch(() => {})
+}
+
+async function crearNotificacionAdmins(tipo, titulo, mensaje, usuarioIdOmitido = null) {
+  const snap = await db
+    .collection('usuarios')
+    .where('rol', '==', 'admin')
+    .get()
+
+  const promesas = []
+
+  snap.docs.forEach(doc => {
+    if (usuarioIdOmitido && doc.id === usuarioIdOmitido) return
+
+    promesas.push(
+      crearNotificacion(doc.id, tipo, titulo, mensaje).catch(() => {})
+    )
+  })
+
+  await Promise.all(promesas)
+}
+
 async function borrarSesionesUsuario(usuarioId) {
   const snap = await db.collection('sesiones').where('usuario_id', '==', usuarioId).get()
   const batch = db.batch()
@@ -229,7 +252,7 @@ async function caducarProductosAdmin() {
   for (const doc of snap.docs) {
     const data = doc.data()
 
-    if (!data.admin_publicacion) continue
+    if (!data.admin_publicacion && !data.creado_por_admin) continue
     if (!data.venta_expira_en) continue
 
     const expira = typeof data.venta_expira_en.toDate === 'function'
@@ -237,10 +260,28 @@ async function caducarProductosAdmin() {
       : new Date(data.venta_expira_en)
 
     if (expira <= new Date()) {
-      promesas.push(doc.ref.update({
-        estado: 'expirado',
-        updated_at: admin.firestore.FieldValue.serverTimestamp(),
-      }))
+      promesas.push((async () => {
+        await doc.ref.update({
+          estado: 'expirado',
+          updated_at: admin.firestore.FieldValue.serverTimestamp(),
+        })
+
+        const titulo = data.titulo || 'Producto'
+
+        await crearNotificacion(
+          data.usuario_id,
+          'producto_caducado',
+          'Producto caducado',
+          `Tu producto "${titulo}" ha caducado.`
+        ).catch(() => {})
+
+        await crearNotificacionAdmins(
+          'producto_caducado',
+          'Producto caducado',
+          `El producto "${titulo}" ha caducado.`,
+          data.usuario_id
+        ).catch(() => {})
+      })())
     }
   }
 
@@ -337,7 +378,7 @@ async function reconstruirHistorialCompra(compraDoc) {
 
   const armasSnap = await db
     .collection('usuario_armas')
-    .where('compra_id', '==', compraDoc.id)
+        .where('compra_id', '==', compraDoc.id)
     .get()
 
   const batch = db.batch()
@@ -492,6 +533,20 @@ router.post(
         `Creado por admin: ${nombre} (${email}) con rol ${rol}`
       )
 
+      await crearNotificacionAdminActual(
+        req,
+        'usuario_creado',
+        'Usuario creado',
+        `Has creado el usuario "${nombre}" con rol "${rol}".`
+      )
+
+      await crearNotificacion(
+        ref.id,
+        'cuenta_creada',
+        'Cuenta creada',
+        `Tu cuenta ha sido creada por un administrador. Rol asignado: ${rol}.`
+      ).catch(() => {})
+
       return res.status(201).json({
         mensaje: 'Usuario creado correctamente',
         id: ref.id,
@@ -533,6 +588,13 @@ router.put('/usuarios/:id/bloquear', async (req, res) => {
         : 'Tu cuenta ha sido bloqueada temporalmente. Contacta con soporte para más información.'
     )
 
+    await crearNotificacionAdminActual(
+      req,
+      'usuario_bloqueado',
+      'Usuario bloqueado',
+      `Has bloqueado al usuario "${doc.data().nombre || 'Usuario'}".`
+    )
+
     await registrarHistorial(
       req.usuario.id,
       'bloquear_usuario',
@@ -565,6 +627,20 @@ router.put('/usuarios/:id/desbloquear', async (req, res) => {
       bloqueado_en: null,
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     })
+
+    await crearNotificacion(
+      id,
+      'cuenta_desbloqueada',
+      'Cuenta desbloqueada',
+      'Tu cuenta ha sido desbloqueada. Ya puedes volver a iniciar sesión.'
+    ).catch(() => {})
+
+    await crearNotificacionAdminActual(
+      req,
+      'usuario_desbloqueado',
+      'Usuario desbloqueado',
+      `Has desbloqueado al usuario "${doc.data().nombre || 'Usuario'}".`
+    )
 
     await registrarHistorial(req.usuario.id, 'desbloquear_usuario', 'usuario', id, null)
 
@@ -618,6 +694,20 @@ router.put(
         updated_at: admin.firestore.FieldValue.serverTimestamp(),
       })
 
+      await crearNotificacion(
+        id,
+        'rol_actualizado',
+        'Rol actualizado',
+        `Tu rol ha sido actualizado a "${rol}".`
+      ).catch(() => {})
+
+      await crearNotificacionAdminActual(
+        req,
+        'rol_actualizado',
+        'Rol actualizado',
+        `Has cambiado el rol de "${userDoc.data().nombre || 'Usuario'}" a "${rol}".`
+      )
+
       await registrarHistorial(req.usuario.id, 'cambiar_rol', 'usuario', id, `Nuevo rol: ${rol}`)
 
       return res.json({ mensaje: 'Rol actualizado correctamente' })
@@ -650,6 +740,20 @@ router.delete('/usuarios/:id', async (req, res) => {
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     })
 
+    await crearNotificacion(
+      id,
+      'cuenta_eliminada',
+      'Cuenta eliminada',
+      'Tu cuenta ha sido eliminada por un administrador.'
+    ).catch(() => {})
+
+    await crearNotificacionAdminActual(
+      req,
+      'usuario_eliminado',
+      'Usuario eliminado',
+      `Has eliminado al usuario "${doc.data().nombre || 'Usuario'}".`
+    )
+
     await registrarHistorial(req.usuario.id, 'eliminar_usuario', 'usuario', id, null)
 
     return res.json({ mensaje: 'Usuario eliminado correctamente' })
@@ -658,7 +762,6 @@ router.delete('/usuarios/:id', async (req, res) => {
     return res.status(500).json({ error: 'Error interno del servidor' })
   }
 })
-
 router.get('/articulos', async (req, res) => {
   try {
     await caducarProductosAdmin()
@@ -689,8 +792,10 @@ router.get('/articulos', async (req, res) => {
           const u = userDoc.data()
           usuario_nombre = u.nombre || 'Usuario'
           usuario_email = u.email || ''
-          propietario_es_admin = u.rol === 'admin'
+          propietario_es_admin = data.admin_publicacion === true || data.creado_por_admin === true || u.rol === 'admin'
         }
+      } else {
+        propietario_es_admin = data.admin_publicacion === true || data.creado_por_admin === true
       }
 
       if (data.comprador_id) {
@@ -744,9 +849,9 @@ router.delete('/articulos/:id', async (req, res) => {
     const usuarioId = articulo.usuario_id
     const titulo = articulo.titulo || 'Producto'
 
-    let propietarioEsAdmin = false
+    let propietarioEsAdmin = articulo.admin_publicacion === true || articulo.creado_por_admin === true
 
-    if (usuarioId) {
+    if (!propietarioEsAdmin && usuarioId) {
       const userDoc = await db.collection('usuarios').doc(usuarioId).get()
       propietarioEsAdmin = userDoc.exists && userDoc.data().rol === 'admin'
     }
@@ -767,6 +872,24 @@ router.delete('/articulos/:id', async (req, res) => {
         'producto',
         id,
         motivo ? `Producto admin eliminado. Motivo: ${motivo} | Producto: ${titulo}` : `Producto admin eliminado: ${titulo}`
+      )
+
+      if (usuarioId && usuarioId !== req.usuario.id) {
+        await crearNotificacion(
+          usuarioId,
+          'producto_eliminado',
+          'Producto eliminado',
+          motivo
+            ? `Tu producto "${titulo}" ha sido eliminado por un administrador. Motivo: ${motivo}.`
+            : `Tu producto "${titulo}" ha sido eliminado por un administrador.`
+        ).catch(() => {})
+      }
+
+      await crearNotificacionAdminActual(
+        req,
+        'producto_eliminado',
+        'Producto eliminado',
+        `Has eliminado el producto "${titulo}".`
       )
 
       return res.json({
@@ -801,6 +924,13 @@ router.delete('/articulos/:id', async (req, res) => {
       motivo
         ? `Tu producto "${titulo}" ha sido retirado del mercado por un administrador. Motivo: ${motivo}.`
         : `Tu producto "${titulo}" ha sido retirado del mercado por un administrador.`
+    )
+
+    await crearNotificacionAdminActual(
+      req,
+      'producto_retirado',
+      'Producto retirado del mercado',
+      `Has retirado el producto "${titulo}" del mercado.`
     )
 
     await registrarHistorial(

@@ -359,7 +359,6 @@
   color: #EDE8E8;
 }
 
-<<<<<<< HEAD
 /* ─── PHONE INPUT ─────────────────────────── */
 
 .phone-input-group {
@@ -376,8 +375,6 @@
   flex: 1;
 }
 
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
 /* Date input calendar icon color fix */
 .profile-input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.4) sepia(1) saturate(3) hue-rotate(330deg);
@@ -560,7 +557,7 @@
     font-size: 20px;
   }
 }
-<<<<<<< HEAD
+
 .profile-wallet-row {
   display: flex;
   gap: 10px;
@@ -623,5 +620,3 @@
     width: 100%;
   }
 }
-=======
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953

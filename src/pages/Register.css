@@ -670,3 +670,44 @@
   .reg-left { padding: 32px 20px 28px; }
   .reg-card__header h2 { font-size: 24px; }
 }
+
+.reg-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.reg-info-modal {
+  background: #1A1212;
+  border: 1px solid rgba(204, 31, 31, 0.3);
+  border-radius: 16px;
+  padding: 38px 32px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+}
+
+.reg-info-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.reg-info-modal h3 {
+  color: #EDE8E8;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+
+.reg-info-modal p {
+  color: #7A6565;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 18px;
+}

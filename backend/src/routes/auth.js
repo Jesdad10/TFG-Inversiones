@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const router = require('express').Router()
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
@@ -65,6 +64,7 @@ async function buscarUsuarioPorEmail(email) {
   if (snap.empty) return null
 
   const doc = snap.docs[0]
+
   return {
     id: doc.id,
     ...doc.data(),
@@ -83,6 +83,7 @@ async function buscarUsuarioPorWallet(wallet) {
   if (snap.empty) return null
 
   const doc = snap.docs[0]
+
   return {
     id: doc.id,
     ...doc.data(),
@@ -112,7 +113,7 @@ function respuestaUsuario(usuario) {
   }
 }
 
-// ─── POST /api/auth/register ───────────────────────────────────────────────
+// ─── POST /api/auth/register ─────────────────────────────────────────────
 
 router.post(
   '/register',
@@ -139,17 +140,23 @@ router.post(
     let edad = hoy.getFullYear() - nacimiento.getFullYear()
     const m = hoy.getMonth() - nacimiento.getMonth()
 
-    if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) edad--
+    if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) {
+      edad--
+    }
 
     if (edad < 18) {
-      return res.status(403).json({ error: 'Debes ser mayor de 18 años para registrarte' })
+      return res.status(403).json({
+        error: 'Debes ser mayor de 18 años para registrarte',
+      })
     }
 
     try {
       const existeEmail = await buscarUsuarioPorEmail(email)
 
       if (existeEmail) {
-        return res.status(409).json({ error: 'El email ya está registrado' })
+        return res.status(409).json({
+          error: 'El email ya está registrado',
+        })
       }
 
       const walletNormalizada = normalizarWallet(wallet)
@@ -158,7 +165,9 @@ router.post(
         const existeWallet = await buscarUsuarioPorWallet(walletNormalizada)
 
         if (existeWallet) {
-          return res.status(409).json({ error: 'Esta wallet ya está registrada' })
+          return res.status(409).json({
+            error: 'Esta wallet ya está registrada',
+          })
         }
       }
 
@@ -214,12 +223,14 @@ router.post(
       })
     } catch (err) {
       console.error('[register]', err)
-      return res.status(500).json({ error: 'Error interno del servidor' })
+      return res.status(500).json({
+        error: 'Error interno del servidor',
+      })
     }
   }
 )
 
-// ─── POST /api/auth/login ──────────────────────────────────────────────────
+// ─── POST /api/auth/login ────────────────────────────────────────────────
 
 router.post(
   '/login',
@@ -236,11 +247,15 @@ router.post(
       const usuario = await buscarUsuarioPorEmail(email)
 
       if (!usuario) {
-        return res.status(401).json({ error: 'Credenciales incorrectas' })
+        return res.status(401).json({
+          error: 'Credenciales incorrectas',
+        })
       }
 
       if (usuario.activo === false) {
-        return res.status(403).json({ error: 'Cuenta desactivada' })
+        return res.status(403).json({
+          error: 'Cuenta desactivada',
+        })
       }
 
       if (usuario.bloqueado === true) {
@@ -259,7 +274,9 @@ router.post(
       const coincide = await bcrypt.compare(password, hashLogin)
 
       if (!coincide) {
-        return res.status(401).json({ error: 'Credenciales incorrectas' })
+        return res.status(401).json({
+          error: 'Credenciales incorrectas',
+        })
       }
 
       const token = generarToken({
@@ -283,12 +300,14 @@ router.post(
       })
     } catch (err) {
       console.error('[login]', err)
-      return res.status(500).json({ error: 'Error interno del servidor' })
+      return res.status(500).json({
+        error: 'Error interno del servidor',
+      })
     }
   }
 )
 
-// ─── POST /api/auth/login-wallet ───────────────────────────────────────────
+// ─── POST /api/auth/login-wallet ─────────────────────────────────────────
 
 router.post(
   '/login-wallet',
@@ -307,11 +326,15 @@ router.post(
       const usuario = await buscarUsuarioPorWallet(wallet)
 
       if (!usuario) {
-        return res.status(404).json({ error: 'Wallet no registrada' })
+        return res.status(404).json({
+          error: 'Wallet no registrada',
+        })
       }
 
       if (usuario.activo === false) {
-        return res.status(403).json({ error: 'Cuenta desactivada' })
+        return res.status(403).json({
+          error: 'Cuenta desactivada',
+        })
       }
 
       if (usuario.bloqueado === true) {
@@ -343,19 +366,23 @@ router.post(
       })
     } catch (err) {
       console.error('[login-wallet]', err)
-      return res.status(500).json({ error: 'Error interno del servidor' })
+      return res.status(500).json({
+        error: 'Error interno del servidor',
+      })
     }
   }
 )
 
-// ─── POST /api/auth/logout ─────────────────────────────────────────────────
+// ─── POST /api/auth/logout ───────────────────────────────────────────────
 
 router.post('/logout', authMiddleware, async (req, res) => {
   const header = req.headers.authorization || ''
   const token = header.startsWith('Bearer ') ? header.split(' ')[1] : null
 
   if (!token) {
-    return res.status(400).json({ error: 'Token no proporcionado' })
+    return res.status(400).json({
+      error: 'Token no proporcionado',
+    })
   }
 
   try {
@@ -372,21 +399,27 @@ router.post('/logout', authMiddleware, async (req, res) => {
 
     await batch.commit()
 
-    return res.json({ mensaje: 'Sesión cerrada correctamente' })
+    return res.json({
+      mensaje: 'Sesión cerrada correctamente',
+    })
   } catch (err) {
     console.error('[logout]', err)
-    return res.status(500).json({ error: 'Error interno del servidor' })
+    return res.status(500).json({
+      error: 'Error interno del servidor',
+    })
   }
 })
 
-// ─── GET /api/auth/me ──────────────────────────────────────────────────────
+// ─── GET /api/auth/me ────────────────────────────────────────────────────
 
 router.get('/me', authMiddleware, async (req, res) => {
   try {
     const doc = await db.collection('usuarios').doc(req.usuario.id).get()
 
     if (!doc.exists) {
-      return res.status(404).json({ error: 'Usuario no encontrado' })
+      return res.status(404).json({
+        error: 'Usuario no encontrado',
+      })
     }
 
     const usuario = {
@@ -399,11 +432,13 @@ router.get('/me', authMiddleware, async (req, res) => {
     })
   } catch (err) {
     console.error('[me]', err)
-    return res.status(500).json({ error: 'Error interno del servidor' })
+    return res.status(500).json({
+      error: 'Error interno del servidor',
+    })
   }
 })
 
-// ─── PUT /api/auth/me ──────────────────────────────────────────────────────
+// ─── PUT /api/auth/me ────────────────────────────────────────────────────
 
 router.put(
   '/me',
@@ -412,11 +447,17 @@ router.put(
     body('nombre').optional({ checkFalsy: true }).trim(),
     body('telefono').optional({ checkFalsy: true }).trim(),
     body('genero').optional({ checkFalsy: true }).trim(),
-    body('fecha_nacimiento').optional({ checkFalsy: true }).isISO8601().withMessage('Formato de fecha no válido'),
+    body('fecha_nacimiento')
+      .optional({ checkFalsy: true })
+      .isISO8601()
+      .withMessage('Formato de fecha no válido'),
     body('pais').optional({ checkFalsy: true }).trim(),
     body('ciudad').optional({ checkFalsy: true }).trim(),
     body('direccion').optional({ checkFalsy: true }).trim(),
-    body('bio').optional({ checkFalsy: true }).isLength({ max: 300 }).withMessage('La bio no puede superar 300 caracteres'),
+    body('bio')
+      .optional({ checkFalsy: true })
+      .isLength({ max: 300 })
+      .withMessage('La bio no puede superar 300 caracteres'),
     body('wallet').optional({ checkFalsy: true }).trim(),
   ],
   async (req, res) => {
@@ -427,7 +468,9 @@ router.put(
       const userDoc = await userRef.get()
 
       if (!userDoc.exists) {
-        return res.status(404).json({ error: 'Usuario no encontrado' })
+        return res.status(404).json({
+          error: 'Usuario no encontrado',
+        })
       }
 
       const actual = userDoc.data()
@@ -466,7 +509,9 @@ router.put(
           const existeWallet = await buscarUsuarioPorWallet(walletNormalizada)
 
           if (existeWallet && existeWallet.id !== req.usuario.id) {
-            return res.status(409).json({ error: 'Esta wallet ya está registrada' })
+            return res.status(409).json({
+              error: 'Esta wallet ya está registrada',
+            })
           }
         }
 
@@ -476,6 +521,7 @@ router.put(
       await userRef.update(datos)
 
       const actualizadoDoc = await userRef.get()
+
       const actualizado = {
         id: actualizadoDoc.id,
         ...actual,
@@ -488,238 +534,11 @@ router.put(
       })
     } catch (err) {
       console.error('[updateMe]', err)
-      return res.status(500).json({ error: 'Error al actualizar el perfil' })
+      return res.status(500).json({
+        error: 'Error al actualizar el perfil',
+      })
     }
   }
 )
 
 module.exports = router
-=======
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  updateProfile,
-  onAuthStateChanged,
-} from 'firebase/auth'
-
-import {
-  doc,
-  setDoc,
-  getDoc,
-  updateDoc,
-  serverTimestamp,
-} from 'firebase/firestore'
-
-import { auth, db } from '../firebase'
-
-function esperarUsuario() {
-  return new Promise((resolve) => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      unsub()
-      resolve(user)
-    })
-  })
-}
-
-async function usuarioActual() {
-  return auth.currentUser || await esperarUsuario()
-}
-
-function limpiarTexto(valor) {
-  return String(valor || '').trim()
-}
-
-function limpiarWallet(wallet) {
-  return String(wallet || '').trim()
-}
-
-export const authService = {
-  register: async (nombre, email, password, wallet) => {
-    const nombreLimpio = limpiarTexto(nombre)
-    const emailLimpio = limpiarTexto(email).toLowerCase()
-    const walletLimpia = limpiarWallet(wallet)
-
-    if (!nombreLimpio) {
-      throw new Error('El nombre es obligatorio')
-    }
-
-    if (!emailLimpio) {
-      throw new Error('El email es obligatorio')
-    }
-
-    if (!walletLimpia) {
-      throw new Error('La wallet es obligatoria')
-    }
-
-    if (!password || password.length < 8) {
-      throw new Error('La contraseña debe tener al menos 8 caracteres')
-    }
-
-    const cred = await createUserWithEmailAndPassword(
-      auth,
-      emailLimpio,
-      password
-    )
-
-    const user = cred.user
-
-    await updateProfile(user, {
-      displayName: nombreLimpio,
-    })
-
-    const usuario = {
-      email: emailLimpio,
-      fechaRegistro: new Date().toISOString(),
-      nombre: nombreLimpio,
-      rol: 'usuario',
-      wallet: walletLimpia,
-    }
-
-    await setDoc(doc(db, 'usuarios', user.uid), {
-      ...usuario,
-      fechaRegistroServidor: serverTimestamp(),
-    })
-
-    const token = await user.getIdToken()
-
-    localStorage.setItem('token', token)
-    localStorage.setItem('uid', user.uid)
-
-    return {
-      mensaje: 'Usuario registrado correctamente',
-      token,
-      usuario: {
-        id: user.uid,
-        ...usuario,
-      },
-    }
-  },
-
-  login: async (email, password) => {
-    const emailLimpio = limpiarTexto(email).toLowerCase()
-
-    if (!emailLimpio) {
-      throw new Error('El email es obligatorio')
-    }
-
-    if (!password) {
-      throw new Error('La contraseña es obligatoria')
-    }
-
-    const cred = await signInWithEmailAndPassword(
-      auth,
-      emailLimpio,
-      password
-    )
-
-    const user = cred.user
-
-    const snap = await getDoc(doc(db, 'usuarios', user.uid))
-
-    if (!snap.exists()) {
-      throw new Error('El usuario existe en Firebase Auth, pero no tiene perfil en Firestore')
-    }
-
-    const token = await user.getIdToken()
-
-    localStorage.setItem('token', token)
-    localStorage.setItem('uid', user.uid)
-
-    return {
-      mensaje: 'Login correcto',
-      token,
-      usuario: {
-        id: user.uid,
-        ...snap.data(),
-      },
-    }
-  },
-
-  logout: async () => {
-    await signOut(auth)
-    localStorage.removeItem('token')
-    localStorage.removeItem('uid')
-  },
-
-  me: async () => {
-    const user = await usuarioActual()
-
-    if (!user) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('uid')
-      return null
-    }
-
-    const snap = await getDoc(doc(db, 'usuarios', user.uid))
-
-    if (!snap.exists()) {
-      return null
-    }
-
-    const token = await user.getIdToken()
-
-    localStorage.setItem('token', token)
-    localStorage.setItem('uid', user.uid)
-
-    return {
-      token,
-      usuario: {
-        id: user.uid,
-        ...snap.data(),
-      },
-    }
-  },
-
-  updateMe: async (datos) => {
-    const user = await usuarioActual()
-
-    if (!user) {
-      throw new Error('No hay sesión activa')
-    }
-
-    const datosActualizados = {}
-
-    if (typeof datos.nombre !== 'undefined') {
-      datosActualizados.nombre = limpiarTexto(datos.nombre)
-    }
-
-    if (typeof datos.wallet !== 'undefined') {
-      datosActualizados.wallet = limpiarWallet(datos.wallet)
-    }
-
-    await updateDoc(doc(db, 'usuarios', user.uid), datosActualizados)
-
-    if (datosActualizados.nombre) {
-      await updateProfile(user, {
-        displayName: datosActualizados.nombre,
-      })
-    }
-
-    const snap = await getDoc(doc(db, 'usuarios', user.uid))
-
-    return {
-      mensaje: 'Perfil actualizado correctamente',
-      usuario: {
-        id: user.uid,
-        ...snap.data(),
-      },
-    }
-  },
-
-  guardarSesion: (token) => {
-    if (token) {
-      localStorage.setItem('token', token)
-    }
-  },
-
-  borrarSesion: () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('uid')
-  },
-
-  estaLogueado: () => {
-    return !!localStorage.getItem('token') || !!auth.currentUser
-  },
-}
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953

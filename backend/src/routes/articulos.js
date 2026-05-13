@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const router = require('express').Router()
 const { body, validationResult } = require('express-validator')
 const { ethers } = require('ethers')
@@ -41,44 +40,10 @@ function normalizarArticulo(id, data, extra = {}) {
     historial_arma_id: data.historial_arma_id || null,
     numero_duenos: numero(data.numero_duenos || 1, 1),
 
-=======
-import {
-  collection,
-  addDoc,
-  getDocs,
-  getDoc,
-  doc,
-  deleteDoc,
-  query,
-  where,
-  orderBy,
-  serverTimestamp,
-} from 'firebase/firestore'
-
-import { auth, db } from '../firebase'
-
-function esperarUsuario() {
-  return new Promise((resolve) => {
-    const unsub = auth.onAuthStateChanged((user) => {
-      unsub()
-      resolve(user)
-    })
-  })
-}
-
-async function usuarioActual() {
-  return auth.currentUser || await esperarUsuario()
-}
-
-function normalizarArticulo(id, data) {
-  return {
-    id,
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
     titulo: data.titulo || '',
     descripcion: data.descripcion || '',
     categoria: data.categoria || '',
     condicion: data.condicion || '',
-<<<<<<< HEAD
 
     crypto: data.crypto || 'ETH',
     precio_crypto: Number(data.precio_crypto || 0),
@@ -99,12 +64,20 @@ function normalizarArticulo(id, data) {
     foto_principal: data.foto_principal || fotos[0] || null,
 
     observacion_venta: data.observacion_venta || null,
-
     comprador_id: data.comprador_id || null,
+
+    admin_publicacion: data.admin_publicacion === true,
+    creado_por_admin: data.creado_por_admin === true,
+
     eliminado_por_admin: data.eliminado_por_admin === true,
+    retirado_por_admin: data.retirado_por_admin === true,
+
     motivo_eliminacion: data.motivo_eliminacion || null,
+    motivo_retirada: data.motivo_retirada || null,
+
     admin_eliminador_id: data.admin_eliminador_id || null,
     eliminado_admin_en: fecha(data.eliminado_admin_en),
+    retirado_admin_en: fecha(data.retirado_admin_en),
 
     tx_hash: data.tx_hash || null,
     red: data.red || null,
@@ -232,7 +205,6 @@ function fechaExpiracionVenta() {
 
 function estaVentaExpirada(data) {
   if (!data) return false
-  if (!data.usuario_arma_id) return false
   if (data.estado !== 'activo') return false
   if (!data.venta_expira_en) return false
 
@@ -420,8 +392,6 @@ async function obtenerHistorialPublico(historialArmaId) {
     .sort((a, b) => Number(a.orden || 0) - Number(b.orden || 0))
 }
 
-// ─── POST /api/articulos ─────────────────────────────────────────────────
-
 router.post(
   '/',
   authMiddleware,
@@ -456,6 +426,10 @@ router.post(
     try {
       const ref = db.collection('articulos').doc()
 
+      const usuarioDoc = await db.collection('usuarios').doc(req.usuario.id).get()
+      const esAdmin = usuarioDoc.exists && usuarioDoc.data().rol === 'admin'
+      const ventaExpiraEn = esAdmin ? fechaExpiracionVenta() : null
+
       await ref.set({
         id: ref.id,
         usuario_id: req.usuario.id,
@@ -484,8 +458,8 @@ router.post(
 
         estado: 'activo',
 
-        fecha_venta_inicio: null,
-        venta_expira_en: null,
+        fecha_venta_inicio: esAdmin ? admin.firestore.FieldValue.serverTimestamp() : null,
+        venta_expira_en: ventaExpiraEn,
 
         fotos,
         foto_principal: fotos[0] || null,
@@ -493,18 +467,29 @@ router.post(
         observacion_venta: null,
         comprador_id: null,
 
+        admin_publicacion: esAdmin,
+        creado_por_admin: esAdmin,
+
         eliminado_por_admin: false,
+        retirado_por_admin: false,
+
         motivo_eliminacion: null,
+        motivo_retirada: null,
+
         admin_eliminador_id: null,
         eliminado_admin_en: null,
+        retirado_admin_en: null,
 
         created_at: admin.firestore.FieldValue.serverTimestamp(),
         updated_at: admin.firestore.FieldValue.serverTimestamp(),
       })
 
       return res.status(201).json({
-        mensaje: 'Artículo publicado correctamente',
+        mensaje: esAdmin
+          ? 'Artículo publicado correctamente. Caducará en 24 horas.'
+          : 'Artículo publicado correctamente',
         id: ref.id,
+        venta_expira_en: ventaExpiraEn,
       })
     } catch (err) {
       console.error('[POST /articulos]', err)
@@ -512,8 +497,6 @@ router.post(
     }
   }
 )
-
-// ─── GET /api/articulos/armeria ──────────────────────────────────────────
 
 router.get('/armeria', authMiddleware, async (req, res) => {
   try {
@@ -535,8 +518,6 @@ router.get('/armeria', authMiddleware, async (req, res) => {
     return res.status(500).json({ error: 'Error al obtener tu armería' })
   }
 })
-
-// ─── GET /api/articulos/armeria/:id/historial ────────────────────────────
 
 router.get('/armeria/:id/historial', authMiddleware, async (req, res) => {
   const { id } = req.params
@@ -575,8 +556,6 @@ router.get('/armeria/:id/historial', authMiddleware, async (req, res) => {
     return res.status(500).json({ error: 'Error al obtener el historial del arma' })
   }
 })
-
-// ─── POST /api/articulos/armeria/:id/vender ──────────────────────────────
 
 router.post('/armeria/:id/vender', authMiddleware, async (req, res) => {
   const { id } = req.params
@@ -652,10 +631,18 @@ router.post('/armeria/:id/vender', authMiddleware, async (req, res) => {
       observacion_venta: observacion || null,
       comprador_id: null,
 
+      admin_publicacion: false,
+      creado_por_admin: false,
+
       eliminado_por_admin: false,
+      retirado_por_admin: false,
+
       motivo_eliminacion: null,
+      motivo_retirada: null,
+
       admin_eliminador_id: null,
       eliminado_admin_en: null,
+      retirado_admin_en: null,
 
       created_at: admin.firestore.FieldValue.serverTimestamp(),
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
@@ -682,8 +669,6 @@ router.post('/armeria/:id/vender', authMiddleware, async (req, res) => {
     return res.status(500).json({ error: 'Error al poner el arma en venta' })
   }
 })
-
-// ─── POST /api/articulos/armeria/:id/quitar-venta ────────────────────────
 
 router.post('/armeria/:id/quitar-venta', authMiddleware, async (req, res) => {
   const { id } = req.params
@@ -736,8 +721,6 @@ router.post('/armeria/:id/quitar-venta', authMiddleware, async (req, res) => {
     return res.status(500).json({ error: 'Error al quitar el arma de venta' })
   }
 })
-
-// ─── POST /api/articulos/:id/comprar ─────────────────────────────────────
 
 router.post('/:id/comprar', authMiddleware, async (req, res) => {
   const { id } = req.params
@@ -992,64 +975,28 @@ router.post('/:id/comprar', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error('[POST /articulos/:id/comprar]', err)
 
-    if (err.message === 'ARTICULO_NO_EXISTE') {
-      return res.status(404).json({ error: 'Artículo no encontrado' })
-    }
-
-    if (err.message === 'ARTICULO_NO_DISPONIBLE') {
-      return res.status(409).json({ error: 'Este artículo ya no está disponible' })
-    }
+    if (err.message === 'ARTICULO_NO_EXISTE') return res.status(404).json({ error: 'Artículo no encontrado' })
+    if (err.message === 'ARTICULO_NO_DISPONIBLE') return res.status(409).json({ error: 'Este artículo ya no está disponible' })
 
     if (err.message === 'VENTA_EXPIRADA') {
       await limpiarVentasExpiradas().catch(() => {})
       return res.status(409).json({ error: 'Esta venta ha expirado' })
     }
 
-    if (err.message === 'COMPRA_PROPIA') {
-      return res.status(400).json({ error: 'No puedes comprar tu propio artículo' })
-    }
-
-    if (err.message === 'SOLO_ETH_SEPOLIA') {
-      return res.status(400).json({ error: 'Solo se pueden comprar artículos en ETH usando Sepolia' })
-    }
-
-    if (err.message === 'TX_YA_USADA') {
-      return res.status(400).json({ error: 'Esta transacción ya se ha usado para otra compra' })
-    }
-
-    if (err.message === 'TX_HASH_OBLIGATORIO') {
-      return res.status(400).json({ error: 'Falta la transacción de Sepolia' })
-    }
-
-    if (err.message === 'RPC_NO_CONFIGURADO') {
-      return res.status(500).json({ error: 'Falta configurar SEPOLIA_RPC_URL en el backend' })
-    }
-
-    if (err.message === 'WALLET_NO_CONFIGURADA') {
-      return res.status(500).json({ error: 'Falta configurar MARKET_WALLET_ADDRESS en el backend' })
-    }
-
-    if (err.message === 'TX_NO_EXISTE') {
-      return res.status(400).json({ error: 'La transacción no existe en Sepolia' })
-    }
-
-    if (err.message === 'TX_NO_CONFIRMADA') {
-      return res.status(400).json({ error: 'La transacción todavía no está confirmada' })
-    }
-
-    if (err.message === 'DESTINO_INCORRECTO') {
-      return res.status(400).json({ error: 'La transacción no fue enviada a la wallet correcta' })
-    }
-
-    if (err.message === 'IMPORTE_INSUFICIENTE') {
-      return res.status(400).json({ error: 'El importe pagado es menor al precio del artículo' })
-    }
+    if (err.message === 'COMPRA_PROPIA') return res.status(400).json({ error: 'No puedes comprar tu propio artículo' })
+    if (err.message === 'SOLO_ETH_SEPOLIA') return res.status(400).json({ error: 'Solo se pueden comprar artículos en ETH usando Sepolia' })
+    if (err.message === 'TX_YA_USADA') return res.status(400).json({ error: 'Esta transacción ya se ha usado para otra compra' })
+    if (err.message === 'TX_HASH_OBLIGATORIO') return res.status(400).json({ error: 'Falta la transacción de Sepolia' })
+    if (err.message === 'RPC_NO_CONFIGURADO') return res.status(500).json({ error: 'Falta configurar SEPOLIA_RPC_URL en el backend' })
+    if (err.message === 'WALLET_NO_CONFIGURADA') return res.status(500).json({ error: 'Falta configurar MARKET_WALLET_ADDRESS en el backend' })
+    if (err.message === 'TX_NO_EXISTE') return res.status(400).json({ error: 'La transacción no existe en Sepolia' })
+    if (err.message === 'TX_NO_CONFIRMADA') return res.status(400).json({ error: 'La transacción todavía no está confirmada' })
+    if (err.message === 'DESTINO_INCORRECTO') return res.status(400).json({ error: 'La transacción no fue enviada a la wallet correcta' })
+    if (err.message === 'IMPORTE_INSUFICIENTE') return res.status(400).json({ error: 'El importe pagado es menor al precio del artículo' })
 
     return res.status(500).json({ error: 'Error al comprar el artículo' })
   }
 })
-
-// ─── GET /api/articulos/mis ──────────────────────────────────────────────
 
 router.get('/mis', authMiddleware, async (req, res) => {
   try {
@@ -1069,8 +1016,6 @@ router.get('/mis', authMiddleware, async (req, res) => {
     return res.status(500).json({ error: 'Error al obtener tus artículos' })
   }
 })
-
-// ─── DELETE /api/articulos/:id ───────────────────────────────────────────
 
 router.delete('/:id', authMiddleware, async (req, res) => {
   const { id } = req.params
@@ -1106,8 +1051,6 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     return res.status(500).json({ error: 'Error al eliminar el artículo' })
   }
 })
-
-// ─── GET /api/articulos ──────────────────────────────────────────────────
 
 router.get('/', authMiddleware, async (req, res) => {
   try {
@@ -1158,114 +1101,3 @@ router.get('/', authMiddleware, async (req, res) => {
 })
 
 module.exports = router
-=======
-    crypto: data.crypto || 'ETH',
-    precio_crypto: data.precio_crypto || '',
-    precio_eur: data.precio_eur || '',
-    peso_tier: data.peso_tier || '',
-    tamano: data.tamano || '',
-    envio_precio: data.envio_precio || 0,
-    comision: data.comision || 0,
-    neto_eur: data.neto_eur || 0,
-    fotos: data.fotos || [],
-    foto_principal: data.foto_principal || data.fotos?.[0] || '',
-    estado: data.estado || 'activo',
-    usuario_id: data.usuario_id || '',
-    created_at: data.created_at || '',
-  }
-}
-
-export const articulosService = {
-  crear: async (datos) => {
-    const user = await usuarioActual()
-
-    if (!user) {
-      throw new Error('Debes iniciar sesión para publicar un artículo')
-    }
-
-    const articulo = {
-      ...datos,
-      usuario_id: user.uid,
-      vendedor_email: user.email,
-      estado: 'activo',
-      foto_principal: datos.fotos?.[0] || '',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      created_at_server: serverTimestamp(),
-      updated_at_server: serverTimestamp(),
-    }
-
-    const ref = await addDoc(collection(db, 'articulos'), articulo)
-
-    return {
-      mensaje: 'Artículo publicado correctamente',
-      id: ref.id,
-    }
-  },
-
-  listar: async () => {
-    const q = query(
-      collection(db, 'articulos'),
-      where('estado', '==', 'activo'),
-      orderBy('created_at', 'desc')
-    )
-
-    const snap = await getDocs(q)
-
-    const articulos = snap.docs.map((d) =>
-      normalizarArticulo(d.id, d.data())
-    )
-
-    return { articulos }
-  },
-
-  misProductos: async () => {
-    const user = await usuarioActual()
-
-    if (!user) {
-      throw new Error('Debes iniciar sesión')
-    }
-
-    const q = query(
-      collection(db, 'articulos'),
-      where('usuario_id', '==', user.uid),
-      orderBy('created_at', 'desc')
-    )
-
-    const snap = await getDocs(q)
-
-    const articulos = snap.docs.map((d) =>
-      normalizarArticulo(d.id, d.data())
-    )
-
-    return { articulos }
-  },
-
-  eliminar: async (id) => {
-    const user = await usuarioActual()
-
-    if (!user) {
-      throw new Error('Debes iniciar sesión')
-    }
-
-    const ref = doc(db, 'articulos', id)
-    const snap = await getDoc(ref)
-
-    if (!snap.exists()) {
-      throw new Error('El artículo no existe')
-    }
-
-    const articulo = snap.data()
-
-    if (articulo.usuario_id !== user.uid) {
-      throw new Error('No puedes eliminar un artículo que no es tuyo')
-    }
-
-    await deleteDoc(ref)
-
-    return {
-      mensaje: 'Artículo eliminado correctamente',
-    }
-  },
-}
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953

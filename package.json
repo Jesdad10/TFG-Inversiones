@@ -11,11 +11,8 @@
   },
   "dependencies": {
     "ethers": "^6.16.0",
-<<<<<<< HEAD
-=======
     "firebase": "^12.12.1",
     "firebase-admin": "^13.8.0",
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.14.2"
