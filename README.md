@@ -1,10 +1,10 @@
-# 🔫 AK-MARKET
+# AK-MARKET
 
 Plataforma web de compraventa de equipamiento de airsoft con pagos en criptomonedas
 
 ---
 
-## 📋 Descripción del Proyecto
+## Descripción del Proyecto
 
 **AK-MARKET** es una armería online especializada en airsoft que permite a los usuarios **comprar, vender y gestionar equipamiento** — réplicas, accesorios y material táctico — utilizando **criptomonedas** como medio de pago e integrando tecnología **Blockchain** para garantizar la **seguridad, transparencia e inmutabilidad** de las transacciones.
 
@@ -12,26 +12,38 @@ El objetivo principal es ofrecer una experiencia **moderna e intuitiva** de comp
 
 ---
 
-## ✨ Funcionalidades Implementadas
+## Funcionalidades Implementadas
 
-<<<<<<< HEAD
-### 🔐 Autenticación y Usuarios
+### Landing Page (Inicio)
+- Página de inicio pública accesible sin cuenta
+- Dos secciones de vídeo con **scroll scrubbing** (el vídeo avanza/retrocede sincronizado con el scroll)
+- Animación de **efecto typewriter** en el hero: escribe "en tus manos" letra a letra, espera 7s y se repite indefinidamente
+- Cursor parpadeante animado junto al texto que se escribe
+- **Contadores animados** de estadísticas (años, productos, clientes, valoraciones) que suben rápidamente al hacer scroll
+- Sección CTA final con degradado de fondo
+- Fundidos entre secciones (degradados superior e inferior en los vídeos)
+- Animaciones de entrada con GSAP (texto del hero, tarjetas de stats, CTA)
+- Indicador de scroll animado
+
+### Autenticación y Usuarios
 - Registro con validación de edad (mayores de 18 años obligatorio)
 - Inicio de sesión con email + contraseña
-- Inicio de sesión con wallet de criptomonedas (MetaMask — estructura lista)
-- Autenticación con tokens JWT (generación, verificación y cierre de sesión)
+- Inicio de sesión con wallet de criptomonedas (**MetaMask**)
+- Autenticación con tokens **JWT** (generación, verificación y cierre de sesión)
 - Sesiones persistidas en base de datos con fecha de expiración
-- Encriptación de contraseñas con bcrypt
+- Encriptación de contraseñas con **bcrypt**
 - Cierre de sesión con invalidación del token en BD
+- Redirección a `/inicio` tras cerrar sesión (sin forzar login)
+- Navbar actualizada en tiempo real al iniciar/cerrar sesión sin recargar la página
 
-### 👤 Perfil de Usuario
+### Perfil de Usuario
 - Foto de perfil: subida, previsualización y eliminación
-- Redimensionado automático de imagen en el cliente (Canvas API) antes de enviarla
+- Redimensionado automático de imagen en el cliente (**Canvas API**) antes de enviarla
 - Edición de datos personales: nombre, teléfono con prefijo internacional, género, fecha de nacimiento, país, ciudad, dirección y biografía
 - El número de teléfono se guarda con el prefijo de país (`+34 600000000`)
 - Aviso de cambios sin guardar al navegar fuera del perfil (modal de confirmación)
 
-### 🛒 Marketplace
+### Marketplace
 - Dashboard con catálogo de artículos reales cargados desde la API
 - Buscador y filtros por categoría, precio y condición
 - Publicación de artículos con múltiples fotos, descripción y precio
@@ -42,7 +54,12 @@ El objetivo principal es ofrecer una experiencia **moderna e intuitiva** de comp
 - Página "Mis productos": listado propio con foto, estado, precio y fecha
 - Eliminación de artículos propios con modal de confirmación
 
-### 🛡️ Panel Administrativo
+### Mi Armería
+- Gestión del inventario personal de réplicas del usuario
+- Historial de cada arma individual
+- Visualización de artículos propios en formato armería
+
+### Panel Administrativo
 Accesible únicamente para usuarios con rol `admin`. Visible en el menú desplegable de la Navbar solo para administradores.
 
 - **Resumen** — estadísticas generales: total de usuarios, bloqueados, admins, productos activos y totales; gráfico de barras con altas de usuarios por mes (últimos 12 meses)
@@ -54,15 +71,15 @@ Accesible únicamente para usuarios con rol `admin`. Visible en el menú despleg
 - **Crear usuario** — el admin crea cuentas nuevas con rol `user` o `admin` directamente desde el panel
 - **Gestión de productos** — el admin ve todos los artículos (activos, vendidos y eliminados), puede filtrar por estado y eliminar cualquier producto con motivo opcional; el vendedor recibe una notificación automática
 - **Historial de acciones** — registro de auditoría de todas las acciones del admin (bloqueos, eliminaciones, cambios de rol, creaciones) con fecha y detalle
-- **Chat de soporte** — botón visible, funcionalidad pendiente de implementar
+- **Chat de soporte** — estructura lista, funcionalidad pendiente de implementar
 
-### 🔔 Notificaciones
-- Sistema de notificaciones en tiempo real en la Navbar (campana con badge de no leídas)
+### Notificaciones
+- Sistema de notificaciones en la Navbar (campana con badge de no leídas)
 - Tipos: producto eliminado por admin, cuenta bloqueada, sistema
 - Marcar como leída individualmente o todas a la vez
 - Desplegable con icono por tipo, mensaje y fecha
 
-### 🔒 Seguridad
+### Seguridad
 - Contraseñas hasheadas con bcrypt (compatibilidad `$2a$` / `$2b$`)
 - Tokens JWT verificados en cada petición contra la tabla de sesiones
 - Middleware de rol: rutas de admin protegidas con verificación `rol === 'admin'`
@@ -70,64 +87,37 @@ Accesible únicamente para usuarios con rol `admin`. Visible en el menú despleg
 - Detección de cuenta bloqueada en el login con mensaje diferenciado
 - Seed automático al arrancar el servidor: crea el primer admin si no existe
 
-### 🌐 Interfaz
-- Navbar compartida con menú desplegable de usuario
-- Diseño responsive adaptado a móvil y escritorio
-- Tema oscuro consistente (negro y rojo)
+---
+
+## En Desarrollo
+
+- Compra de equipamiento pagando con criptomonedas (ETH / BTC)
+- Integración con Blockchain para validar transacciones
+- Conexión completa con wallet MetaMask (actualmente estructura lista)
+- Gestión de pedidos e historial de compras
+- Chat de soporte admin-usuario en tiempo real
 
 ---
 
-## 🚧 Funcionalidades en Desarrollo
+## Tecnologías Utilizadas
 
-- 💰 Compra de equipamiento pagando con criptomonedas (ETH / BTC)
-- 🔗 Integración con Blockchain para validar transacciones
-- 👛 Conexión completa con wallet MetaMask
-- 📦 Gestión de pedidos e historial de compras
-- 💬 Chat de soporte admin-usuario en tiempo real
-=======
-- 🔐 Registro e inicio de sesión de usuarios (email + contraseña)
-- 🎂 Validación de edad en el registro (mayores de 18 años)
-- 🔑 Autenticación con tokens JWT (generación, verificación y cierre de sesión)
-- 🔒 Encriptación de contraseñas con bcrypt
-- 🏠 Dashboard post-login con buscador, filtros por categoría, precio y condición
-- 👤 Página de perfil con foto de perfil (subida, previsualización y eliminación)
-- 📝 Edición de datos personales: nombre, teléfono, género, fecha de nacimiento, país, ciudad, dirección y biografía
-- ⚠️ Aviso de cambios sin guardar al navegar fuera del perfil (modal de confirmación)
-- 🛒 Página de venta: publicación de artículos con fotos, descripción, precio en ETH/BTC con estimación en €, tiers de envío por peso y tamaño, comisión del 3% y resumen de ingresos netos
-- 📦 Guardado de artículos en base de datos con transacciones SQL atómicas
-- 🖼️ Redimensionado de imágenes en el cliente (Canvas API) antes de enviarlas al servidor
-- 📋 Catálogo en el inicio con artículos reales cargados desde la API con foto principal
-- 🧭 Navbar compartida con menú desplegable de usuario y navegación con guardia de cambios
-- 📂 Página "Mis productos": visualización de los artículos propios con foto, estado, precio y fecha
-- 🗑️ Eliminación de artículos propios con modal de confirmación centrado
-- 🌐 Interfaz responsive adaptada a móvil y escritorio
+### Frontend
 
-## 🚧 Funcionalidades en Desarrollo
+| Tecnología          | Versión  | Descripción                                                      |
+|---------------------|----------|------------------------------------------------------------------|
+| React               | 19       | Biblioteca principal para la interfaz                            |
+| Vite                | 8        | Bundler y entorno de desarrollo rápido                           |
+| React Router DOM    | 7        | Navegación entre páginas (SPA)                                   |
+| GSAP                | 3.15     | Animaciones avanzadas: scroll scrubbing, counters, entradas      |
+| GSAP ScrollTrigger  | —        | Plugin de GSAP para animaciones basadas en scroll                |
+| Google Fonts        | —        | Barlow Condensed (titulares) + Barlow (cuerpo)                   |
+| CSS                 | —        | Estilos y diseño responsive (tema oscuro negro y rojo)           |
+| Canvas API          | —        | Redimensionado de imágenes en el cliente antes de subirlas       |
+| JWT (cliente)       | —        | Decodificación del token en el frontend para acceso inmediato    |
+| Firebase            | 12       | Integración con servicios de Google (autenticación/storage)      |
+| ethers.js           | 6        | Interacción con contratos inteligentes y wallets blockchain       |
 
-- 💰 Compra de equipamiento pagando con criptomonedas
-- 🔗 Integración con Blockchain para validar transacciones
-- 👛 Conexión con wallet de criptomonedas (MetaMask)
-- 📦 Gestión de pedidos e historial de compras
-- 📊 Panel de administración
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
-
----
-
-## 🛠️ Tecnologías Utilizadas
-
-### 🎨 Frontend
-
-<<<<<<< HEAD
-| Tecnología    | Descripción                                                   |
-|---------------|---------------------------------------------------------------|
-| React 19      | Biblioteca principal para la interfaz                         |
-| Vite          | Bundler y entorno de desarrollo rápido                        |
-| React Router  | Navegación entre páginas (SPA)                                |
-| CSS           | Estilos y diseño responsive                                   |
-| Canvas API    | Redimensionado de imágenes en el cliente antes de subirlas    |
-| JWT (cliente) | Decodificación del token en el frontend para acceso inmediato |
-
-### ⚙️ Backend & Base de Datos
+### Backend & Base de Datos
 
 | Tecnología        | Descripción                                    |
 |-------------------|------------------------------------------------|
@@ -142,35 +132,55 @@ Accesible únicamente para usuarios con rol `admin`. Visible en el menú despleg
 | cors              | Control de acceso entre frontend y backend     |
 | nodemon           | Reinicio automático del servidor en desarrollo |
 
-### 🧰 Herramientas
+### Blockchain & Web3
 
-| Herramienta     | Descripción                       |
-|-----------------|-----------------------------------|
-| Git             | Control de versiones              |
-| GitHub          | Repositorio remoto y colaboración |
-| MySQL Workbench | Gestión visual de la base de datos|
-| Postman         | Testing de la API                 |
+| Tecnología  | Descripción                                             |
+|-------------|---------------------------------------------------------|
+| MetaMask    | Wallet de navegador para autenticación y pagos          |
+| ethers.js   | Librería para interactuar con la red Ethereum           |
+| Hardhat     | Entorno de desarrollo y testing de contratos inteligentes|
+
+### Herramientas
+
+| Herramienta     | Descripción                        |
+|-----------------|------------------------------------|
+| Git             | Control de versiones               |
+| GitHub          | Repositorio remoto y colaboración  |
+| MySQL Workbench | Gestión visual de la base de datos |
+| Postman         | Testing de la API                  |
+| ffmpeg          | Re-codificación de vídeos con all-keyframes para scroll scrubbing fluido |
 
 ---
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 TFG-Inversiones/
+├── public/
+│   └── videos/
+│       ├── arma_scrub.mp4       (vídeo hero re-codificado para scrubbing)
+│       └── partida_scrub.mp4    (vídeo partida re-codificado para scrubbing)
 ├── src/
 │   ├── pages/
+│   │   ├── Inicio.jsx / Inicio.css      (landing page con scroll animations)
 │   │   ├── Login.jsx / Login.css
 │   │   ├── Register.jsx / Register.css
 │   │   ├── Dashboard.jsx / Dashboard.css
 │   │   ├── Profile.jsx / Profile.css
 │   │   ├── Vender.jsx / Vender.css
-│   │   ├── MisProductos.jsx / MisProductos.css
+│   │   ├── MisProductos.jsx
+│   │   ├── Armeria.jsx / Armeria.css
 │   │   └── AdminPanel.jsx / AdminPanel.css
 │   ├── components/
-│   │   └── Navbar.jsx / Navbar.css
+│   │   ├── Navbar.jsx / Navbar.css
+│   │   └── AdminRoute.jsx
 │   ├── services/
-│   │   ├── auth.js        (auth + admin + notificaciones)
-│   │   └── articulos.js
+│   │   ├── auth.js
+│   │   ├── articulos.js
+│   │   ├── admin.js
+│   │   └── armeria.js
+│   ├── firebase/
+│   │   └── firebase.js
 │   ├── App.jsx
 │   └── main.jsx
 └── backend/
@@ -191,7 +201,7 @@ TFG-Inversiones/
 
 ---
 
-## 🔌 API Endpoints
+## API Endpoints
 
 ### Auth — `/api/auth`
 
@@ -199,7 +209,7 @@ TFG-Inversiones/
 |--------|-----------------|--------------------------------------|------|
 | POST   | `/register`     | Registrar usuario (valida edad ≥ 18) | No   |
 | POST   | `/login`        | Login con email y contraseña         | No   |
-| POST   | `/login-wallet` | Login con wallet blockchain          | No   |
+| POST   | `/login-wallet` | Login con wallet MetaMask            | No   |
 | POST   | `/logout`       | Cerrar sesión e invalidar token      | Sí   |
 | GET    | `/me`           | Obtener perfil del usuario actual    | Sí   |
 | PUT    | `/me`           | Actualizar perfil del usuario actual | Sí   |
@@ -215,129 +225,64 @@ TFG-Inversiones/
 
 ### Admin — `/api/admin` *(requiere rol admin)*
 
-| Método | Ruta                          | Descripción                                    |
-|--------|-------------------------------|------------------------------------------------|
-| GET    | `/stats`                      | Estadísticas y gráfico de altas por mes        |
-| GET    | `/usuarios`                   | Listar todos los usuarios                      |
-| POST   | `/usuarios`                   | Crear nuevo usuario                            |
-| PUT    | `/usuarios/:id/bloquear`      | Bloquear usuario con motivo opcional           |
-| PUT    | `/usuarios/:id/desbloquear`   | Desbloquear usuario                            |
-| PUT    | `/usuarios/:id/rol`           | Cambiar rol (requiere contraseña del admin)    |
-| DELETE | `/usuarios/:id`               | Eliminar usuario (soft-delete)                 |
-| GET    | `/articulos`                  | Listar todos los artículos incluidos eliminados|
-| DELETE | `/articulos/:id`              | Eliminar artículo con motivo + notificación    |
-| GET    | `/historial`                  | Historial de acciones del admin                |
+| Método | Ruta                          | Descripción                                     |
+|--------|-------------------------------|-------------------------------------------------|
+| GET    | `/stats`                      | Estadísticas y gráfico de altas por mes         |
+| GET    | `/usuarios`                   | Listar todos los usuarios                       |
+| POST   | `/usuarios`                   | Crear nuevo usuario                             |
+| PUT    | `/usuarios/:id/bloquear`      | Bloquear usuario con motivo opcional            |
+| PUT    | `/usuarios/:id/desbloquear`   | Desbloquear usuario                             |
+| PUT    | `/usuarios/:id/rol`           | Cambiar rol (requiere contraseña del admin)     |
+| DELETE | `/usuarios/:id`               | Eliminar usuario (soft-delete)                  |
+| GET    | `/articulos`                  | Listar todos los artículos incluidos eliminados |
+| DELETE | `/articulos/:id`              | Eliminar artículo con motivo + notificación     |
+| GET    | `/historial`                  | Historial de acciones del admin                 |
 
 ### Notificaciones — `/api/notificaciones` *(requiere auth)*
 
-| Método | Ruta           | Descripción                              |
-|--------|----------------|------------------------------------------|
-| GET    | `/`            | Obtener notificaciones del usuario       |
-| PUT    | `/:id/leer`    | Marcar notificación como leída           |
-| PUT    | `/leer-todas`  | Marcar todas las notificaciones como leídas |
-=======
-| Tecnología     | Descripción                                                    |
-|----------------|----------------------------------------------------------------|
-| React 19       | Biblioteca principal para la interfaz                          |
-| Vite           | Bundler y entorno de desarrollo rápido                         |
-| React Router   | Navegación entre páginas (SPA)                                 |
-| CSS            | Estilos y diseño responsive                                    |
-| Canvas API     | Redimensionado de imágenes en el cliente antes de subirlas     |
-| JWT (cliente)  | Decodificación del token en el frontend para acceso inmediato  |
+| Método | Ruta           | Descripción                                  |
+|--------|----------------|----------------------------------------------|
+| GET    | `/`            | Obtener notificaciones del usuario           |
+| PUT    | `/:id/leer`    | Marcar notificación como leída               |
+| PUT    | `/leer-todas`  | Marcar todas las notificaciones como leídas  |
 
 ---
 
-### ⚙️ Backend & Base de Datos
-
-| Tecnología         | Descripción                                      |
-|--------------------|--------------------------------------------------|
-| Node.js            | Entorno de ejecución del servidor                |
-| Express            | Framework para la API REST                       |
-| MySQL              | Base de datos relacional                         |
-| mysql2             | Conector de MySQL para Node.js                   |
-| bcryptjs           | Encriptación de contraseñas                      |
-| jsonwebtoken       | Generación y verificación de tokens JWT          |
-| express-validator  | Validación de datos en los endpoints             |
-| dotenv             | Gestión de variables de entorno                  |
-| cors               | Control de acceso entre frontend y backend       |
-| nodemon            | Reinicio automático del servidor en desarrollo   |
-
----
-
-### 🧰 Herramientas
-
-| Herramienta | Descripción                       |
-|-------------|-----------------------------------|
-| Git         | Control de versiones              |
-| GitHub      | Repositorio remoto y colaboración |
-| Postman     | Testing de la API                 |
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
-
----
-
-## 🚀 Instalación y Uso
+## Instalación y Uso
 
 ```bash
 # 1. Clonar el repositorio
 git clone https://github.com/Jesdad10/TFG-Inversiones.git
-
-# 2. Entrar en el directorio
 cd TFG-Inversiones
 ```
 
-### ▶️ Frontend
+### Frontend
 
 ```bash
-<<<<<<< HEAD
 npm install
-=======
-# Instalar dependencias
-npm install
-
-# Iniciar el servidor de desarrollo
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
 npm run dev
 ```
 
-### ▶️ Backend
+### Backend
 
 ```bash
-<<<<<<< HEAD
 cd backend
 npm install
 npm run dev
 ```
 
-> ⚠️ Configura `backend/.env` antes de arrancar el servidor.
+> Configura `backend/.env` antes de arrancar el servidor.
 
-### 📄 Variables de entorno (`backend/.env`)
+### Variables de entorno (`backend/.env`)
 
 ```env
 PORT=3001
 
-=======
-# Entrar en la carpeta backend
-cd backend
-
-# Instalar dependencias
-npm install
-
-# Iniciar el servidor (con reinicio automático)
-npm run dev
-```
-
-> ⚠️ Antes de arrancar el backend, configura el archivo `backend/.env` con tus credenciales de MySQL.
-
-Ejemplo de `backend/.env`:
-
-```env
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=tu_contraseña
-<<<<<<< HEAD
-DB_NAME=nombre_base_de_datos
+DB_NAME=akmarket
 
 JWT_SECRET=una_clave_secreta_larga_y_segura
 JWT_EXPIRES_IN=7d
@@ -348,39 +293,19 @@ ADMIN_PASSWORD="TuContraseñaSegura"
 ADMIN_NOMBRE=Admin
 ```
 
-> El servidor crea automáticamente el usuario admin al arrancar si no existe. Las credenciales se leen del `.env` y nunca se exponen en el código fuente.
+> El servidor crea automáticamente el usuario admin al arrancar si no existe.
 
-=======
-DB_NAME=akmarket
-JWT_SECRET=una_clave_secreta_larga
-JWT_EXPIRES_IN=7d
-PORT=3001
-```
-
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
 ---
 
-## 🗄️ Base de Datos
-
-<<<<<<< HEAD
-### Creación completa desde cero
+## Base de Datos
 
 ```sql
-=======
-### Creación de la base de datos
-
-Ejecuta el siguiente script SQL en tu cliente MySQL (phpMyAdmin, MySQL Workbench, terminal, etc.) para crear la base de datos y todas las tablas necesarias:
-
-```sql
--- Crear base de datos
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
 CREATE DATABASE IF NOT EXISTS akmarket
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
 USE akmarket;
 
--- ── Tabla de usuarios ──────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS usuarios (
   id               INT           NOT NULL AUTO_INCREMENT,
   nombre           VARCHAR(100)  NOT NULL,
@@ -389,16 +314,11 @@ CREATE TABLE IF NOT EXISTS usuarios (
   wallet           VARCHAR(100)  NULL,
   rol              ENUM('user','admin') NOT NULL DEFAULT 'user',
   activo           TINYINT(1)    NOT NULL DEFAULT 1,
-<<<<<<< HEAD
   bloqueado        TINYINT(1)    NOT NULL DEFAULT 0,
   motivo_bloqueo   TEXT          NULL,
   bloqueado_en     TIMESTAMP     NULL,
   fecha_nacimiento DATE          NULL,
   telefono         VARCHAR(30)   NULL,
-=======
-  fecha_nacimiento DATE          NULL,
-  telefono         VARCHAR(20)   NULL,
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
   genero           VARCHAR(50)   NULL,
   pais             VARCHAR(100)  NULL,
   ciudad           VARCHAR(100)  NULL,
@@ -411,7 +331,6 @@ CREATE TABLE IF NOT EXISTS usuarios (
   UNIQUE KEY uq_wallet (wallet)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ── Tabla de sesiones ──────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS sesiones (
   id          INT          NOT NULL AUTO_INCREMENT,
   usuario_id  INT          NOT NULL,
@@ -425,9 +344,7 @@ CREATE TABLE IF NOT EXISTS sesiones (
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ── Tabla de artículos ────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS articulos (
-<<<<<<< HEAD
   id                    INT UNSIGNED      NOT NULL AUTO_INCREMENT,
   usuario_id            INT               NOT NULL,
   titulo                VARCHAR(80)       NOT NULL,
@@ -448,31 +365,12 @@ CREATE TABLE IF NOT EXISTS articulos (
   admin_eliminador_id   INT               NULL,
   eliminado_admin_en    TIMESTAMP         NULL,
   created_at            DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP,
-=======
-  id            INT UNSIGNED      NOT NULL AUTO_INCREMENT,
-  usuario_id    INT UNSIGNED      NOT NULL,
-  titulo        VARCHAR(80)       NOT NULL,
-  descripcion   TEXT              NOT NULL,
-  categoria     VARCHAR(40)       NOT NULL,
-  condicion     VARCHAR(20)       NOT NULL,
-  crypto        ENUM('ETH','BTC') NOT NULL,
-  precio_crypto DECIMAL(18,8)     NOT NULL,
-  precio_eur    DECIMAL(10,2)     DEFAULT NULL,
-  peso_tier     VARCHAR(20)       DEFAULT NULL,
-  tamano        VARCHAR(20)       DEFAULT NULL,
-  envio_precio  DECIMAL(8,2)      DEFAULT NULL,
-  comision      DECIMAL(8,2)      DEFAULT NULL,
-  neto_eur      DECIMAL(10,2)     DEFAULT NULL,
-  estado        ENUM('activo','vendido','eliminado') NOT NULL DEFAULT 'activo',
-  created_at    DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP,
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
   PRIMARY KEY (id),
   KEY idx_estado   (estado),
   KEY idx_usuario  (usuario_id),
   CONSTRAINT fk_art_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ── Tabla de fotos de artículos ───────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS articulo_fotos (
   id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
   articulo_id INT UNSIGNED NOT NULL,
@@ -482,9 +380,7 @@ CREATE TABLE IF NOT EXISTS articulo_fotos (
   KEY idx_articulo (articulo_id),
   CONSTRAINT fk_foto_articulo FOREIGN KEY (articulo_id) REFERENCES articulos(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-<<<<<<< HEAD
 
--- ── Tabla de notificaciones ───────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS notificaciones (
   id          INT          NOT NULL AUTO_INCREMENT,
   usuario_id  INT          NOT NULL,
@@ -499,7 +395,6 @@ CREATE TABLE IF NOT EXISTS notificaciones (
     REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ── Historial de acciones del administrador ───────────────────────────────
 CREATE TABLE IF NOT EXISTS historial_admin (
   id           INT  NOT NULL AUTO_INCREMENT,
   admin_id     INT  NOT NULL,
@@ -521,7 +416,6 @@ CREATE TABLE IF NOT EXISTS historial_admin (
     REFERENCES usuarios(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ── Tabla de chats de soporte (estructura para uso futuro) ────────────────
 CREATE TABLE IF NOT EXISTS chats (
   id          INT  NOT NULL AUTO_INCREMENT,
   admin_id    INT  NOT NULL,
@@ -532,7 +426,6 @@ CREATE TABLE IF NOT EXISTS chats (
   CONSTRAINT fk_chat_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ── Tabla de mensajes de chat ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS mensajes (
   id         INT  NOT NULL AUTO_INCREMENT,
   chat_id    INT  NOT NULL,
@@ -547,57 +440,39 @@ CREATE TABLE IF NOT EXISTS mensajes (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-### Descripción de tablas
+### Tablas
 
-| Tabla            | Descripción                                                        |
-|------------------|--------------------------------------------------------------------|
-| `usuarios`       | Datos de usuario, autenticación, perfil, rol y estado de bloqueo  |
-| `sesiones`       | Tokens JWT activos con IP, user-agent y fecha de expiración        |
-| `articulos`      | Productos publicados con precio crypto, estado y datos de envío    |
-| `articulo_fotos` | Imágenes asociadas a cada artículo (múltiples por artículo)        |
-| `notificaciones` | Avisos al usuario: productos eliminados, bloqueos, sistema         |
-| `historial_admin`| Registro de auditoría de todas las acciones de los administradores |
-| `chats`          | Conversaciones de soporte admin-usuario (pendiente de implementar) |
-| `mensajes`       | Mensajes dentro de cada conversación de soporte                    |
+| Tabla              | Descripción                                                        |
+|--------------------|--------------------------------------------------------------------|
+| `usuarios`         | Datos de usuario, autenticación, perfil, rol y estado de bloqueo  |
+| `sesiones`         | Tokens JWT activos con IP, user-agent y fecha de expiración        |
+| `articulos`        | Productos publicados con precio crypto, estado y datos de envío    |
+| `articulo_fotos`   | Imágenes asociadas a cada artículo (múltiples por artículo)        |
+| `notificaciones`   | Avisos al usuario: productos eliminados, bloqueos, sistema         |
+| `historial_admin`  | Registro de auditoría de todas las acciones de los administradores |
+| `chats`            | Conversaciones de soporte admin-usuario (pendiente de implementar) |
+| `mensajes`         | Mensajes dentro de cada conversación de soporte                    |
 
 ---
 
-## 🔑 Primer Administrador
+## Primer Administrador
 
 Al arrancar el servidor por primera vez, el seed crea automáticamente el usuario admin definido en `.env`. Si el usuario ya existe, no se modifica nada.
 
-Para **promover un usuario registrado** a admin sin tocar el seed:
+Para promover un usuario registrado a admin:
 ```sql
 UPDATE usuarios SET rol = 'admin' WHERE email = 'tu@email.com';
 ```
-=======
-```
-
-> Si ya tienes la tabla `usuarios` creada sin las columnas nuevas de perfil, ejecuta solo esta migración:
->
-> ```sql
-> ALTER TABLE usuarios
->   ADD COLUMN telefono   VARCHAR(20)   NULL,
->   ADD COLUMN pais       VARCHAR(100)  NULL,
->   ADD COLUMN ciudad     VARCHAR(100)  NULL,
->   ADD COLUMN direccion  VARCHAR(255)  NULL,
->   ADD COLUMN genero     VARCHAR(50)   NULL,
->   ADD COLUMN bio        TEXT          NULL,
->   ADD COLUMN avatar     MEDIUMTEXT    NULL;
-> ```
->>>>>>> 6fa8c3bf44ea83c91dd02d55a504c5639964b953
 
 ---
 
-## 👥 Autores
+## Autores
 
 - **Jesús Orellana**
 - **Diego Mancha**
 
-## 📚 Contexto Académico
+## Contexto Académico
 
 - Ciclo Formativo: **Desarrollo de Aplicaciones Web (DAW)**
 - Tipo de trabajo: **Trabajo de Fin de Grado (TFG)**
 - Curso: **2025 / 2026**
-
----

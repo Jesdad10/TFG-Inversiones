@@ -29,30 +29,23 @@ export default function Dashboard() {
   const [tick, setTick] = useState(Date.now())
 
   useEffect(() => {
-    if (!authService.estaLogueado()) {
-      navigate('/login')
-      return
+    if (authService.estaLogueado()) {
+      try {
+        const token = localStorage.getItem('token')
+        const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
+        setUser({ nombre: payload.nombre, email: payload.email, rol: payload.rol })
+      } catch (_) {}
+
+      authService.me()
+        .then(data => { if (data?.usuario) setUser(data.usuario) })
+        .catch(() => {})
     }
 
-    try {
-      const token = localStorage.getItem('token')
-      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
-      setUser({ nombre: payload.nombre, email: payload.email, rol: payload.rol })
-    } catch (_) {}
-
-    authService.me()
-      .then(data => {
-        if (data?.usuario) setUser(data.usuario)
-      })
-      .catch(() => {})
-
     articulosService.listar()
-      .then(data => {
-        if (data?.articulos) setProducts(data.articulos)
-      })
+      .then(data => { if (data?.articulos) setProducts(data.articulos) })
       .catch(() => {})
       .finally(() => setLoadingProducts(false))
-  }, [navigate])
+  }, [])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -89,7 +82,7 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-root">
-      <Navbar user={user} activePage="inicio" />
+      <Navbar user={user} activePage="catalogo" />
 
       <main className="dash-main">
         <section className="search-hero">

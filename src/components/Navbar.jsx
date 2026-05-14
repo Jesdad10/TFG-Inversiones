@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { authService } from '../services/auth'
 import './Navbar.css'
 
-export default function Navbar({ user, activePage, onNavigate }) {
+export default function Navbar({ user, activePage, onNavigate, onLogout }) {
   const navigate = useNavigate()
 
   const [menuOpen, setMenuOpen] = useState(false)
@@ -58,7 +58,8 @@ export default function Navbar({ user, activePage, onNavigate }) {
     } catch (_) {}
 
     authService.borrarSesion()
-    navigate('/login')
+    onLogout?.()
+    navigate('/inicio')
   }
 
   const handleMarcarLeida = async (id) => {
@@ -92,7 +93,7 @@ export default function Navbar({ user, activePage, onNavigate }) {
     <nav className="navbar">
       <a
         className="nav-logo"
-        onClick={() => goTo('/dashboard')}
+        onClick={() => goTo('/inicio')}
         style={{ cursor: 'pointer' }}
       >
         <div className="nav-brand-icon">
@@ -110,7 +111,7 @@ export default function Navbar({ user, activePage, onNavigate }) {
       <div className="nav-links">
         <a
           className={`nav-link${activePage === 'inicio' ? ' active' : ''}`}
-          onClick={() => goTo('/dashboard')}
+          onClick={() => goTo('/inicio')}
         >
           Inicio
         </a>
@@ -131,7 +132,13 @@ export default function Navbar({ user, activePage, onNavigate }) {
       </div>
 
       <div className="nav-right">
-        <div ref={notifRef} style={{ position: 'relative' }}>
+        {!user && (
+          <button className="btn-nav-login" onClick={() => goTo('/login')}>
+            Inicia sesión
+          </button>
+        )}
+
+        <div ref={notifRef} style={{ position: 'relative', display: user ? 'block' : 'none' }}>
           <button
             className="nav-icon-btn"
             title="Notificaciones"
@@ -220,7 +227,7 @@ export default function Navbar({ user, activePage, onNavigate }) {
           )}
         </div>
 
-        <div ref={dropdownRef} style={{ position: 'relative' }}>
+        <div ref={dropdownRef} style={{ position: 'relative', display: user ? 'block' : 'none' }}>
           <button
             className="nav-profile-btn"
             onClick={() => setMenuOpen(v => !v)}

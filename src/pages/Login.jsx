@@ -256,6 +256,17 @@ export default function Login() {
 
       <div className="login-right">
         <div className="login-card">
+          <button
+            type="button"
+            className="btn-back"
+            onClick={() => navigate('/inicio')}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Volver al inicio
+          </button>
+
           <div className="login-card__header">
             <h2>Iniciar sesión</h2>
             <p>Accede a tu cuenta de AK-MARKET</p>

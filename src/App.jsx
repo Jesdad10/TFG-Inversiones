@@ -8,6 +8,7 @@ import Vender from './pages/Vender'
 import MisProductos from './pages/MisProductos'
 import AdminPanel from './pages/AdminPanel'
 import Armeria from './pages/Armeria'
+import Inicio from './pages/Inicio'
 
 import AdminRoute from './components/AdminRoute'
 
@@ -18,6 +19,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
+        <Route path="/inicio" element={<Inicio />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/catalogo" element={<Dashboard />} />
 
@@ -35,7 +37,7 @@ function App() {
           }
         />
 
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/inicio" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

@@ -351,6 +351,24 @@
 }
 
 /* Primary button */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0 0 20px 0;
+  transition: color 0.2s;
+}
+
+.btn-back:hover {
+  color: #ccc;
+}
+
 .btn-primary {
   width: 100%;
   height: 48px;
