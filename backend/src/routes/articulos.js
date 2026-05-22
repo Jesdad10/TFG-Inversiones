@@ -232,6 +232,13 @@ async function quitarVentaAutomatica(articuloDoc) {
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     }).catch(() => {})
   }
+
+  await crearNotificacion(
+    articulo.usuario_id,
+    'producto_expirado',
+    'Producto expirado',
+    `Tu producto "${articulo.titulo || 'sin título'}" ha expirado porque no se ha comprado en 24 horas.`
+  ).catch(() => {})
 }
 
 async function limpiarVentasExpiradas() {
@@ -428,7 +435,7 @@ router.post(
 
       const usuarioDoc = await db.collection('usuarios').doc(req.usuario.id).get()
       const esAdmin = usuarioDoc.exists && usuarioDoc.data().rol === 'admin'
-      const ventaExpiraEn = esAdmin ? fechaExpiracionVenta() : null
+      const ventaExpiraEn = fechaExpiracionVenta()
 
       await ref.set({
         id: ref.id,
@@ -458,7 +465,7 @@ router.post(
 
         estado: 'activo',
 
-        fecha_venta_inicio: esAdmin ? admin.firestore.FieldValue.serverTimestamp() : null,
+        fecha_venta_inicio: admin.firestore.FieldValue.serverTimestamp(),
         venta_expira_en: ventaExpiraEn,
 
         fotos,
@@ -484,10 +491,15 @@ router.post(
         updated_at: admin.firestore.FieldValue.serverTimestamp(),
       })
 
+      await crearNotificacion(
+        req.usuario.id,
+        'producto_creado',
+        'Producto publicado',
+        `Tu producto "${titulo}" se ha publicado correctamente y caducará en 24 horas.`
+      ).catch(() => {})
+
       return res.status(201).json({
-        mensaje: esAdmin
-          ? 'Artículo publicado correctamente. Caducará en 24 horas.'
-          : 'Artículo publicado correctamente',
+        mensaje: 'Artículo publicado correctamente. Caducará en 24 horas.',
         id: ref.id,
         venta_expira_en: ventaExpiraEn,
       })
@@ -659,6 +671,13 @@ router.post('/armeria/:id/vender', authMiddleware, async (req, res) => {
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     })
 
+    await crearNotificacion(
+      req.usuario.id,
+      'producto_reventa',
+      'Producto puesto en venta',
+      `Tu producto "${arma.arma_nombre}" se ha puesto en venta correctamente y caducará en 24 horas.`
+    ).catch(() => {})
+
     return res.status(201).json({
       mensaje: 'Arma puesta en venta correctamente',
       articulo_id: articuloRef.id,
@@ -732,6 +751,8 @@ router.post('/:id/comprar', authMiddleware, async (req, res) => {
 
   try {
     let vendedorId = null
+    let compradorId = req.usuario.id
+    let compradorNombre = req.usuario.nombre || 'Usuario'
     let tituloArticulo = ''
     let historialArmaIdRespuesta = null
     let numeroDuenosRespuesta = 1
@@ -773,6 +794,8 @@ router.post('/:id/comprar', authMiddleware, async (req, res) => {
 
       const vendedor = await obtenerUsuarioBasico(articulo.usuario_id)
       const comprador = await obtenerUsuarioBasico(req.usuario.id)
+
+      compradorNombre = comprador?.nombre || req.usuario.nombre || comprador?.email || 'Usuario'
 
       const numeroDuenosAnterior = numero(articulo.numero_duenos || 1, 1)
       const nuevoNumeroDuenos = numeroDuenosAnterior + 1
@@ -957,15 +980,24 @@ router.post('/:id/comprar', authMiddleware, async (req, res) => {
       }
     })
 
-    await crearNotificacion(
-      vendedorId,
-      'sistema',
-      'Artículo vendido',
-      `Tu artículo "${tituloArticulo}" ha sido comprado.`
-    ).catch(() => {})
+    await Promise.all([
+      crearNotificacion(
+        vendedorId,
+        'producto_vendido',
+        'Producto vendido',
+        `Tu producto "${tituloArticulo}" ha sido comprado por ${compradorNombre}.`
+      ),
+      crearNotificacion(
+        compradorId,
+        'producto_comprado',
+        'Producto comprado',
+        `Has comprado "${tituloArticulo}" correctamente.`
+      ),
+    ]).catch(() => {})
 
     return res.status(201).json({
-      mensaje: 'Compra realizada correctamente',
+      mensaje: `Producto "${tituloArticulo}" comprado correctamente`,
+      titulo: tituloArticulo,
       compra_id: compraRef.id,
       usuario_arma_id: usuarioArmaRef.id,
       historial_arma_id: historialArmaIdRespuesta,
@@ -1044,6 +1076,13 @@ router.delete('/:id', authMiddleware, async (req, res) => {
         updated_at: admin.firestore.FieldValue.serverTimestamp(),
       }).catch(() => {})
     }
+
+    await crearNotificacion(
+      req.usuario.id,
+      'producto_eliminado',
+      'Producto eliminado',
+      `Tu producto "${data.titulo || 'sin título'}" ha sido eliminado correctamente.`
+    ).catch(() => {})
 
     return res.json({ mensaje: 'Artículo eliminado correctamente' })
   } catch (err) {

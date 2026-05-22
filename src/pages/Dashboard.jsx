@@ -27,6 +27,8 @@ export default function Dashboard() {
   const [filters, setFilters] = useState({ precio: '', condicion: '', orden: '' })
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [tick, setTick] = useState(Date.now())
+  const [compraOk, setCompraOk] = useState(null)
+  const [comprandoId, setComprandoId] = useState(null)
 
   useEffect(() => {
     if (authService.estaLogueado()) {
@@ -54,6 +56,37 @@ export default function Dashboard() {
 
     return () => clearInterval(interval)
   }, [])
+
+  const handleComprar = async (product) => {
+    if (comprandoId) return
+
+    setComprandoId(product.id)
+
+    try {
+      const resultado = await comprarProducto(product)
+
+      setSelectedProduct(null)
+
+      setCompraOk({
+        productoId: product.id,
+        titulo: resultado?.titulo || product.titulo,
+        txHash: resultado?.tx_hash || resultado?.txHash || null,
+      })
+    } catch (err) {
+      alert(err.message || 'Error al comprar con MetaMask')
+    } finally {
+      setComprandoId(null)
+    }
+  }
+
+  const aceptarCompra = () => {
+    if (compraOk?.productoId) {
+      setProducts(prev => prev.filter(p => p.id !== compraOk.productoId))
+    }
+
+    setCompraOk(null)
+    navigate('/armeria')
+  }
 
   const filtered = products.filter(p => {
     if (activeCategory !== 'Todos' && p.categoria !== activeCategory) return false
@@ -249,6 +282,8 @@ export default function Dashboard() {
                   product={p}
                   tick={tick}
                   onOpen={() => setSelectedProduct(p)}
+                  onBuy={handleComprar}
+                  buying={comprandoId === p.id}
                 />
               ))}
             </div>
@@ -261,6 +296,15 @@ export default function Dashboard() {
           product={selectedProduct}
           tick={tick}
           onClose={() => setSelectedProduct(null)}
+          onBuy={handleComprar}
+          buying={comprandoId === selectedProduct.id}
+        />
+      )}
+
+      {compraOk && (
+        <CompraOkModal
+          compra={compraOk}
+          onAceptar={aceptarCompra}
         />
       )}
     </div>
@@ -340,36 +384,58 @@ async function pagarConSepolia(product) {
     throw new Error('Falta configurar VITE_MARKET_WALLET_ADDRESS en el .env del frontend.')
   }
 
+  if (!ethers.isAddress(walletDestino)) {
+    throw new Error('La wallet del mercado configurada en el .env no es válida.')
+  }
+
   await cambiarASepolia()
 
-  const provider = new ethers.BrowserProvider(window.ethereum)
-  const signer = await provider.getSigner()
+  const accounts = await window.ethereum.request({
+    method: 'eth_requestAccounts',
+  })
 
-  const precioEth = String(product.precio_crypto || '').trim()
+  const from = accounts?.[0]
+
+  if (!from) {
+    throw new Error('No se ha podido obtener la cuenta de MetaMask.')
+  }
+
+  const precioEth = String(product.precio_crypto || '').replace(',', '.').trim()
 
   if (!precioEth || Number(precioEth) <= 0) {
     throw new Error('El artículo no tiene un precio ETH válido.')
   }
 
-  const value = ethers.parseEther(precioEth)
+  const valueWei = ethers.parseEther(precioEth)
 
-  const tx = await signer.sendTransaction({
-    to: walletDestino,
-    value,
+  const txHash = await window.ethereum.request({
+    method: 'eth_sendTransaction',
+    params: [
+      {
+        from,
+        to: walletDestino,
+        value: ethers.toBeHex(valueWei),
+        gas: '0x5208',
+      },
+    ],
   })
 
-  await tx.wait()
+  const provider = new ethers.BrowserProvider(window.ethereum)
+  const receipt = await provider.waitForTransaction(txHash, 1, 120000)
 
-  return tx.hash
+  if (!receipt || receipt.status !== 1) {
+    throw new Error('La transacción no se ha confirmado correctamente en Sepolia.')
+  }
+
+  return txHash
 }
 
 async function comprarProducto(product) {
   const txHash = await pagarConSepolia(product)
-  await articulosService.comprar(product.id, txHash)
-  window.location.href = '/armeria'
+  return articulosService.comprar(product.id, txHash)
 }
 
-function ProductCard({ product, tick, onOpen }) {
+function ProductCard({ product, tick, onOpen, onBuy, buying }) {
   const cryptoSym = product.crypto === 'BTC' ? '₿' : 'Ξ'
   const restante = tiempoRestante(product.venta_expira_en)
   const productoReventa = esReventa(product)
@@ -391,7 +457,7 @@ function ProductCard({ product, tick, onOpen }) {
           </div>
         )}
 
-        {productoReventa && restante && (
+        {restante && (
           <span className="product-countdown">
             Termina en {restante}
           </span>
@@ -429,17 +495,13 @@ function ProductCard({ product, tick, onOpen }) {
 
           <button
             className="btn-buy"
-            onClick={async (e) => {
+            disabled={buying}
+            onClick={(e) => {
               e.stopPropagation()
-
-              try {
-                await comprarProducto(product)
-              } catch (err) {
-                alert(err.message || 'Error al comprar con MetaMask')
-              }
+              onBuy(product)
             }}
           >
-            Comprar
+            {buying ? 'Comprando...' : 'Comprar'}
           </button>
         </div>
       </div>
@@ -447,7 +509,7 @@ function ProductCard({ product, tick, onOpen }) {
   )
 }
 
-function ProductModal({ product, tick, onClose }) {
+function ProductModal({ product, tick, onClose, onBuy, buying }) {
   const cryptoSym = product.crypto === 'BTC' ? '₿' : 'Ξ'
   const restante = tiempoRestante(product.venta_expira_en)
   const productoReventa = esReventa(product)
@@ -495,7 +557,7 @@ function ProductModal({ product, tick, onClose }) {
             </div>
           )}
 
-          {productoReventa && restante && (
+          {restante && (
             <span className="product-modal-countdown">
               Termina en {restante}
             </span>
@@ -608,18 +670,49 @@ function ProductModal({ product, tick, onClose }) {
 
             <button
               className="product-modal-buy"
-              onClick={async () => {
-                try {
-                  await comprarProducto(product)
-                } catch (err) {
-                  alert(err.message || 'Error al comprar con MetaMask')
-                }
-              }}
+              disabled={buying}
+              onClick={() => onBuy(product)}
             >
-              Comprar con MetaMask
+              {buying ? 'Comprando...' : 'Comprar con MetaMask'}
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function CompraOkModal({ compra, onAceptar }) {
+  return (
+    <div className="product-modal-backdrop">
+      <div className="compra-ok-modal">
+        <div className="compra-ok-icon">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+
+        <h2>Producto comprado</h2>
+
+        <p>
+          Has comprado <strong>{compra.titulo}</strong> correctamente.
+          Al aceptar, el producto desaparecerá del catálogo y aparecerá en tu armería.
+        </p>
+
+        {compra.txHash && (
+          <a
+            href={`https://sepolia.etherscan.io/tx/${compra.txHash}`}
+            target="_blank"
+            rel="noreferrer"
+            className="compra-ok-link"
+          >
+            Ver transacción en Etherscan
+          </a>
+        )}
+
+        <button className="compra-ok-btn" onClick={onAceptar}>
+          Aceptar
+        </button>
       </div>
     </div>
   )

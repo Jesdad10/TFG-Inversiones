@@ -987,3 +987,90 @@
 :root[data-theme='claro'] .search-bar__input::placeholder {
   color: #8a8a94;
 }
+
+.compra-ok-modal {
+  width: min(430px, calc(100vw - 32px));
+  background: var(--ak-bg-card);
+  border: 1px solid var(--ak-border);
+  border-radius: 20px;
+  padding: 34px 30px 28px;
+  text-align: center;
+  box-shadow: var(--ak-shadow-strong);
+  color: var(--ak-text);
+}
+
+.compra-ok-icon {
+  width: 66px;
+  height: 66px;
+  margin: 0 auto 18px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: var(--ak-green-soft);
+  border: 1px solid var(--ak-green-border);
+}
+
+.compra-ok-modal h2 {
+  margin: 0 0 10px;
+  color: var(--ak-text-strong);
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.compra-ok-modal p {
+  margin: 0;
+  color: var(--ak-text-soft);
+  line-height: 1.55;
+  font-size: 14px;
+}
+
+.compra-ok-modal strong {
+  color: var(--ak-text-strong);
+}
+
+.compra-ok-link {
+  display: inline-block;
+  margin-top: 16px;
+  color: var(--ak-yellow);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.compra-ok-link:hover {
+  text-decoration: underline;
+}
+
+.compra-ok-btn {
+  width: 100%;
+  height: 44px;
+  margin-top: 22px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--ak-red), var(--ak-red-dark));
+  color: white;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.btn-buy:disabled,
+.product-modal-buy:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+/* ─── CONTADOR DE EXPIRACIÓN EN NEGRO ───────────────── */
+
+.product-countdown,
+.product-modal-countdown {
+  background: #FDE68A !important;
+  border: 1px solid #F59E0B !important;
+  color: #111111 !important;
+  font-weight: 900 !important;
+}
+
+.product-countdown {
+  text-shadow: none !important;
+}
+
+.product-modal-countdown {
+  text-shadow: none !important;
+}
