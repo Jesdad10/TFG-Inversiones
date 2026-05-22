@@ -90,6 +90,33 @@ async function buscarUsuarioPorWallet(wallet) {
   }
 }
 
+async function notificarAdmins(tipo, titulo, mensaje, usuarioOrigenId = null) {
+  const adminsSnap = await db
+    .collection('usuarios')
+    .where('rol', '==', 'admin')
+    .get()
+
+  const batch = db.batch()
+
+  adminsSnap.docs.forEach(doc => {
+    if (usuarioOrigenId && doc.id === usuarioOrigenId) return
+
+    const notifRef = db.collection('notificaciones').doc()
+
+    batch.set(notifRef, {
+      id: notifRef.id,
+      usuario_id: doc.id,
+      tipo,
+      titulo,
+      mensaje,
+      leida: false,
+      created_at: admin.firestore.FieldValue.serverTimestamp(),
+    })
+  })
+
+  await batch.commit()
+}
+
 function respuestaUsuario(usuario) {
   return {
     id: usuario.id,
@@ -108,6 +135,11 @@ function respuestaUsuario(usuario) {
     bio: usuario.bio || null,
     avatar: usuario.avatar || null,
     fecha_nacimiento: usuario.fecha_nacimiento || null,
+    avisos_producto_nuevo: usuario.avisos_producto_nuevo !== false,
+    tema: usuario.tema || 'oscuro',
+    baja_motivo: usuario.baja_motivo || null,
+    baja_detalle: usuario.baja_detalle || null,
+    baja_en: fecha(usuario.baja_en),
     created_at: fecha(usuario.created_at),
     updated_at: fecha(usuario.updated_at),
   }
@@ -195,6 +227,12 @@ router.post(
         direccion: null,
         bio: null,
         avatar: null,
+
+        avisos_producto_nuevo: true,
+        tema: 'oscuro',
+        baja_motivo: null,
+        baja_detalle: null,
+        baja_en: null,
 
         created_at: admin.firestore.FieldValue.serverTimestamp(),
         updated_at: admin.firestore.FieldValue.serverTimestamp(),
@@ -486,6 +524,8 @@ router.put(
         bio,
         avatar,
         wallet,
+        avisos_producto_nuevo,
+        tema,
       } = req.body
 
       const datos = {
@@ -501,6 +541,8 @@ router.put(
       if (direccion !== undefined) datos.direccion = direccion || null
       if (bio !== undefined) datos.bio = bio || null
       if (avatar !== undefined) datos.avatar = avatar || null
+      if (avisos_producto_nuevo !== undefined) datos.avisos_producto_nuevo = avisos_producto_nuevo === true
+      if (tema !== undefined && ['oscuro', 'claro'].includes(String(tema))) datos.tema = tema
 
       if (wallet !== undefined) {
         const walletNormalizada = normalizarWallet(wallet)
@@ -537,6 +579,224 @@ router.put(
       return res.status(500).json({
         error: 'Error al actualizar el perfil',
       })
+    }
+  }
+)
+
+// ─── PUT /api/auth/password ───────────────────────────────────────────────
+
+router.put(
+  '/password',
+  authMiddleware,
+  [
+    body('password_actual').notEmpty().withMessage('La contraseña actual es obligatoria'),
+    body('password_nueva')
+      .isLength({ min: 8 })
+      .withMessage('La nueva contraseña debe tener al menos 8 caracteres'),
+  ],
+  async (req, res) => {
+    if (!validarInput(req, res)) return
+
+    const { password_actual, password_nueva } = req.body
+
+    try {
+      const userRef = db.collection('usuarios').doc(req.usuario.id)
+      const userDoc = await userRef.get()
+
+      if (!userDoc.exists) {
+        return res.status(404).json({ error: 'Usuario no encontrado' })
+      }
+
+      const usuario = userDoc.data()
+      let hashActual = usuario.password_hash || ''
+
+      if (hashActual.startsWith('$2b$')) {
+        hashActual = '$2a$' + hashActual.slice(4)
+      }
+
+      const coincide = await bcrypt.compare(password_actual, hashActual)
+
+      if (!coincide) {
+        return res.status(401).json({ error: 'La contraseña actual no es correcta' })
+      }
+
+      const nuevoHash = await bcrypt.hash(password_nueva, 12)
+
+      await userRef.update({
+        password_hash: nuevoHash,
+        updated_at: admin.firestore.FieldValue.serverTimestamp(),
+      })
+
+      const notifRef = db.collection('notificaciones').doc()
+
+      await notifRef.set({
+        id: notifRef.id,
+        usuario_id: req.usuario.id,
+        tipo: 'seguridad',
+        titulo: 'Contraseña actualizada',
+        mensaje: 'Tu contraseña se ha cambiado correctamente.',
+        leida: false,
+        created_at: admin.firestore.FieldValue.serverTimestamp(),
+      })
+
+      await notificarAdmins(
+        'seguridad_usuario',
+        'Un usuario ha cambiado su contraseña',
+        `${req.usuario.nombre || 'Un usuario'} (${req.usuario.email || 'sin email'}) ha cambiado su contraseña.`,
+        req.usuario.id
+      )
+
+      return res.json({ mensaje: 'Contraseña actualizada correctamente' })
+    } catch (err) {
+      console.error('[password]', err)
+      return res.status(500).json({ error: 'Error al cambiar la contraseña' })
+    }
+  }
+)
+
+// ─── POST /api/auth/baja ─────────────────────────────────────────────────
+
+router.post(
+  '/baja',
+  authMiddleware,
+  [
+    body('motivo').trim().notEmpty().withMessage('El motivo es obligatorio'),
+    body('detalle').optional({ checkFalsy: true }).trim(),
+  ],
+  async (req, res) => {
+    if (!validarInput(req, res)) return
+
+    const { motivo, detalle } = req.body
+
+    try {
+      const userRef = db.collection('usuarios').doc(req.usuario.id)
+      const userDoc = await userRef.get()
+
+      if (!userDoc.exists) {
+        return res.status(404).json({ error: 'Usuario no encontrado' })
+      }
+
+      await userRef.update({
+        activo: false,
+        baja_motivo: motivo,
+        baja_detalle: detalle || null,
+        baja_en: admin.firestore.FieldValue.serverTimestamp(),
+        updated_at: admin.firestore.FieldValue.serverTimestamp(),
+      })
+
+      const sesiones = await db
+        .collection('sesiones')
+        .where('usuario_id', '==', req.usuario.id)
+        .get()
+
+      const batch = db.batch()
+
+      sesiones.docs.forEach(doc => {
+        batch.delete(doc.ref)
+      })
+
+      const bajaRef = db.collection('bajas_cuenta').doc()
+
+      batch.set(bajaRef, {
+        id: bajaRef.id,
+        usuario_id: req.usuario.id,
+        usuario_nombre: req.usuario.nombre || '',
+        usuario_email: req.usuario.email || '',
+        motivo,
+        detalle: detalle || null,
+        created_at: admin.firestore.FieldValue.serverTimestamp(),
+      })
+
+      const adminsSnap = await db
+        .collection('usuarios')
+        .where('rol', '==', 'admin')
+        .get()
+
+      adminsSnap.docs.forEach(doc => {
+        if (doc.id === req.usuario.id) return
+
+        const notifRef = db.collection('notificaciones').doc()
+
+        batch.set(notifRef, {
+          id: notifRef.id,
+          usuario_id: doc.id,
+          tipo: 'baja_cuenta',
+          titulo: 'Usuario dado de baja',
+          mensaje: `${req.usuario.nombre || 'Un usuario'} (${req.usuario.email || 'sin email'}) se ha dado de baja. Motivo: ${motivo}.`,
+          leida: false,
+          created_at: admin.firestore.FieldValue.serverTimestamp(),
+        })
+      })
+
+      await batch.commit()
+
+      return res.json({ mensaje: 'Cuenta dada de baja correctamente' })
+    } catch (err) {
+      console.error('[baja]', err)
+      return res.status(500).json({ error: 'Error al dar de baja la cuenta' })
+    }
+  }
+)
+
+// ─── POST /api/auth/incidencias ──────────────────────────────────────────
+
+router.post(
+  '/incidencias',
+  authMiddleware,
+  [
+    body('asunto').trim().notEmpty().withMessage('El asunto es obligatorio'),
+    body('descripcion').trim().notEmpty().withMessage('La descripción es obligatoria'),
+  ],
+  async (req, res) => {
+    if (!validarInput(req, res)) return
+
+    const { asunto, descripcion } = req.body
+
+    try {
+      const incidenciaRef = db.collection('incidencias').doc()
+
+      await incidenciaRef.set({
+        id: incidenciaRef.id,
+        usuario_id: req.usuario.id,
+        usuario_nombre: req.usuario.nombre || '',
+        usuario_email: req.usuario.email || '',
+        asunto,
+        descripcion,
+        estado: 'abierta',
+        created_at: admin.firestore.FieldValue.serverTimestamp(),
+        updated_at: admin.firestore.FieldValue.serverTimestamp(),
+      })
+
+      const adminsSnap = await db
+        .collection('usuarios')
+        .where('rol', '==', 'admin')
+        .get()
+
+      const batch = db.batch()
+
+      adminsSnap.docs.forEach(doc => {
+        const notifRef = db.collection('notificaciones').doc()
+
+        batch.set(notifRef, {
+          id: notifRef.id,
+          usuario_id: doc.id,
+          tipo: 'incidencia',
+          titulo: 'Nueva incidencia',
+          mensaje: `${req.usuario.nombre || 'Un usuario'} ha reportado: ${asunto}`,
+          leida: false,
+          created_at: admin.firestore.FieldValue.serverTimestamp(),
+        })
+      })
+
+      await batch.commit()
+
+      return res.status(201).json({
+        mensaje: 'Incidencia registrada correctamente',
+        id: incidenciaRef.id,
+      })
+    } catch (err) {
+      console.error('[incidencias]', err)
+      return res.status(500).json({ error: 'Error al reportar la incidencia' })
     }
   }
 )

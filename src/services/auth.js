@@ -156,6 +156,24 @@ export const authService = {
       method: 'PUT',
     }),
 
+  cambiarPassword: (datos) =>
+    apiFetch(`${BASE}/password`, {
+      method: 'PUT',
+      body: JSON.stringify(datos),
+    }),
+
+  bajaCuenta: (datos) =>
+    apiFetch(`${BASE}/baja`, {
+      method: 'POST',
+      body: JSON.stringify(datos),
+    }),
+
+  reportarIncidencia: (datos) =>
+    apiFetch(`${BASE}/incidencias`, {
+      method: 'POST',
+      body: JSON.stringify(datos),
+    }),
+
   adminGetStats: () =>
     apiFetch(`${BASE_ADMIN}/stats`),
 

@@ -1,0 +1,929 @@
+/* =============================================
+   CONFIGURACIÓN — AK-MARKET
+   Panel usuario profesional
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root[data-theme='claro'] body {
+  background: #f5f2f2;
+}
+
+/* ─── ROOT ────────────────────────────────── */
+
+.config-root {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(204, 31, 31, 0.12), transparent 26%),
+    radial-gradient(circle at 82% 4%, rgba(204, 31, 31, 0.08), transparent 28%),
+    #080808;
+  color: #EDE8E8;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+:root[data-theme='claro'] .config-root {
+  background:
+    radial-gradient(circle at 12% 10%, rgba(204, 31, 31, 0.10), transparent 28%),
+    #f5f2f2;
+  color: #191414;
+}
+
+/* ─── MAIN ────────────────────────────────── */
+
+.config-main {
+  padding: 96px 32px 56px;
+}
+
+.config-container {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+/* ─── HEADER ──────────────────────────────── */
+
+.config-header {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(204, 31, 31, 0.13), rgba(204, 31, 31, 0.02)),
+    #0F0B0B;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 24px;
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 24px 70px rgba(0,0,0,0.34);
+}
+
+.config-header::after {
+  content: '';
+  position: absolute;
+  right: -120px;
+  top: -120px;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: rgba(204, 31, 31, 0.12);
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+:root[data-theme='claro'] .config-header {
+  background:
+    linear-gradient(135deg, rgba(204, 31, 31, 0.08), rgba(255, 255, 255, 0.86)),
+    #ffffff;
+  border-color: rgba(20, 15, 15, 0.09);
+  box-shadow: 0 18px 45px rgba(25, 20, 20, 0.08);
+}
+
+.config-kicker {
+  color: #CC1F1F;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 1.4px;
+}
+
+.config-header h1 {
+  margin: 7px 0 8px;
+  font-size: clamp(32px, 4vw, 48px);
+  letter-spacing: -1.4px;
+  line-height: 1;
+  color: #F3EEEE;
+}
+
+:root[data-theme='claro'] .config-header h1 {
+  color: #191414;
+}
+
+.config-header p {
+  margin: 0;
+  color: #9A8585;
+  font-size: 14px;
+  line-height: 1.7;
+  max-width: 650px;
+}
+
+:root[data-theme='claro'] .config-header p {
+  color: #6E5B5B;
+}
+
+/* ─── USER CARD ───────────────────────────── */
+
+.config-user-card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 13px 15px;
+  min-width: 245px;
+  backdrop-filter: blur(10px);
+}
+
+:root[data-theme='claro'] .config-user-card {
+  background: #ffffff;
+  border-color: rgba(20,15,15,0.10);
+}
+
+.config-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #CC1F1F, #8B0000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 10px 26px rgba(204,31,31,0.28);
+  flex-shrink: 0;
+}
+
+.config-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.config-avatar span {
+  color: #fff;
+  font-weight: 900;
+  font-size: 17px;
+}
+
+.config-user-card strong {
+  display: block;
+  color: #EDE8E8;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+:root[data-theme='claro'] .config-user-card strong {
+  color: #191414;
+}
+
+.config-user-card small {
+  display: block;
+  color: #927E7E;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* ─── GRID ────────────────────────────────── */
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+/* ─── CARD ────────────────────────────────── */
+
+.config-card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.012)),
+    #0F0B0B;
+  border: 1px solid rgba(255,255,255,0.075);
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 18px 46px rgba(0,0,0,0.28);
+}
+
+:root[data-theme='claro'] .config-card {
+  background: #ffffff;
+  border-color: rgba(20,15,15,0.09);
+  box-shadow: 0 16px 42px rgba(25,20,20,0.08);
+}
+
+.config-card--wide {
+  grid-column: span 2;
+}
+
+.config-card--wallet {
+  border-color: rgba(204, 31, 31, 0.18);
+  background:
+    radial-gradient(circle at top left, rgba(204,31,31,0.11), transparent 34%),
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.012)),
+    #0F0B0B;
+}
+
+.config-card--danger {
+  border-color: rgba(204, 31, 31, 0.28);
+  background:
+    radial-gradient(circle at top right, rgba(204, 31, 31, 0.11), transparent 36%),
+    #0F0B0B;
+}
+
+:root[data-theme='claro'] .config-card--wallet,
+:root[data-theme='claro'] .config-card--danger {
+  background:
+    radial-gradient(circle at top right, rgba(204, 31, 31, 0.07), transparent 36%),
+    #ffffff;
+}
+
+/* ─── CARD HEAD ───────────────────────────── */
+
+.config-card-head {
+  margin-bottom: 20px;
+}
+
+.config-card-head--row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.config-section-pill {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(204,31,31,0.12);
+  border: 1px solid rgba(204,31,31,0.22);
+  color: #EF4444;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.config-section-pill--danger {
+  background: rgba(204,31,31,0.18);
+  border-color: rgba(204,31,31,0.32);
+}
+
+.config-card h2 {
+  margin: 0 0 8px;
+  font-size: 19px;
+  color: #F0EAEA;
+  letter-spacing: -0.4px;
+}
+
+:root[data-theme='claro'] .config-card h2 {
+  color: #191414;
+}
+
+.config-card p {
+  margin: 0;
+  color: #8D7777;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+/* ─── FORMS ───────────────────────────────── */
+
+.config-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.config-form label,
+.wallet-input-zone label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #C6B5B5;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+:root[data-theme='claro'] .config-form label,
+:root[data-theme='claro'] .wallet-input-zone label {
+  color: #4A3838;
+}
+
+.config-form input,
+.config-form textarea,
+.config-form select,
+.wallet-input-zone input {
+  width: 100%;
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.085);
+  color: #EDE8E8;
+  border-radius: 14px;
+  padding: 14px 15px;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  transition: border-color .18s, box-shadow .18s, background .18s;
+}
+
+.config-form textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+.config-form select {
+  appearance: none;
+}
+
+:root[data-theme='claro'] .config-form input,
+:root[data-theme='claro'] .config-form textarea,
+:root[data-theme='claro'] .config-form select,
+:root[data-theme='claro'] .wallet-input-zone input {
+  background: #f7f4f4;
+  border-color: rgba(25,20,20,0.12);
+  color: #191414;
+}
+
+.config-form input:focus,
+.config-form textarea:focus,
+.config-form select:focus,
+.wallet-input-zone input:focus {
+  border-color: rgba(204,31,31,0.58);
+  box-shadow: 0 0 0 4px rgba(204,31,31,0.09);
+  background: rgba(255,255,255,0.06);
+}
+
+:root[data-theme='claro'] .config-form input:focus,
+:root[data-theme='claro'] .config-form textarea:focus,
+:root[data-theme='claro'] .config-form select:focus,
+:root[data-theme='claro'] .wallet-input-zone input:focus {
+  background: #fff;
+}
+
+/* ─── BUTTONS ─────────────────────────────── */
+
+.config-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.config-btn {
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 13px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  transition: transform .16s, opacity .16s, background .16s, border-color .16s;
+}
+
+.config-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.config-btn:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.config-btn--primary {
+  background: linear-gradient(135deg, #CC1F1F, #8B0000);
+  color: white;
+  box-shadow: 0 12px 30px rgba(204,31,31,0.25);
+}
+
+.config-btn--primary:hover:not(:disabled) {
+  box-shadow: 0 14px 36px rgba(204,31,31,0.33);
+}
+
+.config-btn--outline {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.11);
+  color: #EDE8E8;
+}
+
+.config-btn--outline:hover:not(:disabled) {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(204,31,31,0.35);
+}
+
+.config-btn--ghost {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.10);
+  color: #A99595;
+}
+
+.config-btn--ghost:hover:not(:disabled) {
+  background: rgba(255,255,255,0.05);
+  color: #EDE8E8;
+}
+
+.config-btn--danger {
+  background: linear-gradient(135deg, #CC1F1F, #740000);
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(204,31,31,0.22);
+}
+
+:root[data-theme='claro'] .config-btn--outline,
+:root[data-theme='claro'] .config-btn--ghost {
+  background: #f7f4f4;
+  border-color: rgba(25,20,20,0.12);
+  color: #191414;
+}
+
+/* ─── WALLET ──────────────────────────────── */
+
+.wallet-status {
+  min-width: 190px;
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 13px 14px;
+}
+
+:root[data-theme='claro'] .wallet-status {
+  background: #f8f5f5;
+  border-color: rgba(20,15,15,0.10);
+}
+
+.wallet-status span {
+  display: block;
+  color: #8D7777;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  margin-bottom: 4px;
+}
+
+.wallet-status strong {
+  color: #EDE8E8;
+  font-size: 14px;
+  word-break: break-all;
+}
+
+:root[data-theme='claro'] .wallet-status strong {
+  color: #191414;
+}
+
+.wallet-panel {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 16px;
+}
+
+.wallet-info-box {
+  background:
+    linear-gradient(145deg, rgba(204,31,31,0.14), rgba(255,255,255,0.035));
+  border: 1px solid rgba(204,31,31,0.22);
+  border-radius: 18px;
+  padding: 18px;
+  min-height: 145px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+:root[data-theme='claro'] .wallet-info-box {
+  background:
+    linear-gradient(145deg, rgba(204,31,31,0.08), #faf7f7);
+  border-color: rgba(204,31,31,0.20);
+}
+
+.wallet-info-box span {
+  display: block;
+  color: #9B8585;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  margin-bottom: 8px;
+}
+
+.wallet-info-box strong {
+  color: #F3EEEE;
+  font-size: 18px;
+  word-break: break-all;
+  line-height: 1.35;
+}
+
+:root[data-theme='claro'] .wallet-info-box strong {
+  color: #191414;
+}
+
+.wallet-info-box a {
+  display: inline-block;
+  color: #EF4444;
+  margin-top: 12px;
+  font-size: 13px;
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.wallet-info-box a:hover {
+  text-decoration: underline;
+}
+
+.wallet-input-zone {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px;
+  padding: 18px;
+}
+
+:root[data-theme='claro'] .wallet-input-zone {
+  background: #faf7f7;
+  border-color: rgba(20,15,15,0.08);
+}
+
+.wallet-input-zone .config-actions {
+  margin-top: 14px;
+}
+
+/* ─── SWITCH ──────────────────────────────── */
+
+.config-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  background: rgba(255,255,255,0.028);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 17px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+:root[data-theme='claro'] .config-switch-row {
+  background: #faf7f7;
+  border-color: rgba(20,15,15,0.08);
+}
+
+.config-switch-row strong {
+  display: block;
+  color: #EDE8E8;
+  font-size: 15px;
+  margin-bottom: 5px;
+}
+
+:root[data-theme='claro'] .config-switch-row strong {
+  color: #191414;
+}
+
+.config-switch-row span {
+  display: block;
+  color: #8D7777;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.config-switch {
+  width: 60px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.08);
+  padding: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background .2s, border-color .2s;
+}
+
+.config-switch span {
+  width: 24px;
+  height: 24px;
+  display: block;
+  border-radius: 999px;
+  background: #8D7777;
+  transition: transform .2s, background .2s;
+}
+
+.config-switch--on {
+  background: rgba(204,31,31,0.24);
+  border-color: rgba(204,31,31,0.44);
+}
+
+.config-switch--on span {
+  transform: translateX(26px);
+  background: #CC1F1F;
+}
+
+/* ─── THEME ───────────────────────────────── */
+
+.theme-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.theme-option {
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: #B9A8A8;
+  border-radius: 15px;
+  padding: 15px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background .16s, border-color .16s, color .16s, transform .16s;
+}
+
+.theme-option:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(204,31,31,0.32);
+}
+
+.theme-option--active {
+  color: #fff;
+  background: rgba(204,31,31,0.18);
+  border-color: rgba(204,31,31,0.45);
+}
+
+:root[data-theme='claro'] .theme-option {
+  background: #f7f4f4;
+  border-color: rgba(25,20,20,0.10);
+  color: #191414;
+}
+
+:root[data-theme='claro'] .theme-option--active {
+  color: #CC1F1F;
+  background: rgba(204,31,31,0.09);
+  border-color: rgba(204,31,31,0.34);
+}
+
+.theme-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.theme-dot--dark {
+  background: #080808;
+  border: 2px solid #CC1F1F;
+}
+
+.theme-dot--light {
+  background: #fff;
+  border: 2px solid #CC1F1F;
+}
+
+/* ─── MOTIVOS BAJA ────────────────────────── */
+
+.motivos-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.motivo-chip {
+  min-height: 48px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: #B9A8A8;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+  transition: background .16s, border-color .16s, color .16s, transform .16s;
+}
+
+.motivo-chip:hover {
+  transform: translateY(-1px);
+  border-color: rgba(204,31,31,0.35);
+  color: #EDE8E8;
+}
+
+.motivo-chip--active {
+  background: rgba(204,31,31,0.18);
+  border-color: rgba(204,31,31,0.52);
+  color: #fff;
+  box-shadow: 0 10px 26px rgba(204,31,31,0.16);
+}
+
+:root[data-theme='claro'] .motivo-chip {
+  background: #f7f4f4;
+  border-color: rgba(25,20,20,0.10);
+  color: #4A3838;
+}
+
+:root[data-theme='claro'] .motivo-chip--active {
+  background: rgba(204,31,31,0.10);
+  border-color: rgba(204,31,31,0.42);
+  color: #CC1F1F;
+}
+
+/* ─── CHECK ───────────────────────────────── */
+
+.config-check {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 10px !important;
+  color: #B9A8A8;
+  background: rgba(204,31,31,0.055);
+  border: 1px solid rgba(204,31,31,0.16);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.config-check input {
+  width: auto;
+  accent-color: #CC1F1F;
+}
+
+.config-check span {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* ─── MODAL ───────────────────────────────── */
+
+.config-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(0,0,0,0.76);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  animation: configFade .16s ease;
+}
+
+@keyframes configFade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.config-modal {
+  width: min(430px, 100%);
+  background:
+    radial-gradient(circle at top, rgba(204,31,31,0.10), transparent 38%),
+    #151010;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 22px;
+  padding: 34px 28px;
+  text-align: center;
+  box-shadow: 0 30px 90px rgba(0,0,0,0.70);
+  animation: configSlide .18s ease;
+}
+
+@keyframes configSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.config-modal-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  border-radius: 19px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.config-modal-icon--ok {
+  color: #22C55E;
+  background: rgba(34,197,94,0.10);
+  border: 1px solid rgba(34,197,94,0.24);
+}
+
+.config-modal-icon--error {
+  color: #CC1F1F;
+  background: rgba(204,31,31,0.10);
+  border: 1px solid rgba(204,31,31,0.24);
+}
+
+.config-modal h3 {
+  margin: 0 0 10px;
+  color: #F3EEEE;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.config-modal p {
+  margin: 0 0 22px;
+  color: #9A8585;
+  line-height: 1.65;
+  font-size: 14px;
+}
+
+/* ─── LOADING ─────────────────────────────── */
+
+.config-loading {
+  max-width: 420px;
+  margin: 120px auto;
+  text-align: center;
+  color: #8D7777;
+  background: #0F0B0B;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 18px;
+  padding: 26px;
+}
+
+/* ─── RESPONSIVE ──────────────────────────── */
+
+@media (max-width: 980px) {
+  .wallet-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .motivos-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 850px) {
+  .config-main {
+    padding: 86px 18px 40px;
+  }
+
+  .config-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px;
+  }
+
+  .config-user-card {
+    width: 100%;
+  }
+
+  .config-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .config-card--wide {
+    grid-column: span 1;
+  }
+
+  .config-card-head--row {
+    flex-direction: column;
+  }
+
+  .wallet-status {
+    width: 100%;
+  }
+
+  .theme-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 540px) {
+  .config-main {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .config-header,
+  .config-card {
+    border-radius: 18px;
+    padding: 20px;
+  }
+
+  .config-header h1 {
+    font-size: 32px;
+  }
+
+  .motivos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .config-actions {
+    flex-direction: column;
+  }
+
+  .config-btn {
+    width: 100%;
+  }
+
+  .config-switch-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

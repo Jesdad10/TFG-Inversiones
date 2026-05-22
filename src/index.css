@@ -1,14 +1,315 @@
-*, *::before, *::after {
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  background: #050A14;
+/* =====================================================
+   TEMA GLOBAL AK-MARKET
+   Login y Register quedan fuera del tema.
+   ===================================================== */
+
+:root {
+  --ak-bg: #080808;
+  --ak-bg-soft: #0F0B0B;
+  --ak-bg-card: #151010;
+  --ak-bg-card-2: #1A1414;
+  --ak-bg-navbar: rgba(8, 8, 8, 0.96);
+  --ak-bg-input: rgba(255, 255, 255, 0.045);
+  --ak-bg-hover: rgba(255, 255, 255, 0.055);
+
+  --ak-text: #EDE8E8;
+  --ak-text-strong: #F3EEEE;
+  --ak-text-soft: #A89898;
+  --ak-text-muted: #7A6565;
+  --ak-text-faint: #5A4545;
+
+  --ak-border: rgba(255, 255, 255, 0.08);
+  --ak-border-soft: rgba(255, 255, 255, 0.06);
+  --ak-border-strong: rgba(255, 255, 255, 0.14);
+
+  --ak-red: #CC1F1F;
+  --ak-red-hover: #E53535;
+  --ak-red-dark: #8B0000;
+  --ak-red-soft: rgba(204, 31, 31, 0.12);
+  --ak-red-border: rgba(204, 31, 31, 0.32);
+
+  --ak-green: #4ADE80;
+  --ak-green-soft: rgba(74, 222, 128, 0.14);
+  --ak-green-border: rgba(74, 222, 128, 0.25);
+
+  --ak-yellow: #FBBF24;
+  --ak-yellow-soft: rgba(251, 191, 36, 0.12);
+  --ak-yellow-border: rgba(251, 191, 36, 0.28);
+
+  --ak-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  --ak-shadow-strong: 0 32px 80px rgba(0, 0, 0, 0.75);
+
+  --ak-radius-sm: 8px;
+  --ak-radius-md: 10px;
+  --ak-radius-lg: 16px;
+  --ak-radius-xl: 20px;
 }
 
+:root[data-theme='claro'] {
+  --ak-bg: #F4F4F6;
+  --ak-bg-soft: #FFFFFF;
+  --ak-bg-card: #FFFFFF;
+  --ak-bg-card-2: #F7F7FA;
+  --ak-bg-navbar: rgba(255, 255, 255, 0.96);
+  --ak-bg-input: #F3F4F6;
+  --ak-bg-hover: rgba(0, 0, 0, 0.045);
+
+  --ak-text: #171717;
+  --ak-text-strong: #0F0F0F;
+  --ak-text-soft: #555560;
+  --ak-text-muted: #777783;
+  --ak-text-faint: #9A9AA4;
+
+  --ak-border: rgba(0, 0, 0, 0.09);
+  --ak-border-soft: rgba(0, 0, 0, 0.065);
+  --ak-border-strong: rgba(0, 0, 0, 0.15);
+
+  --ak-red: #CC1F1F;
+  --ak-red-hover: #E53535;
+  --ak-red-dark: #8B0000;
+  --ak-red-soft: rgba(204, 31, 31, 0.10);
+  --ak-red-border: rgba(204, 31, 31, 0.28);
+
+  --ak-green: #15803D;
+  --ak-green-soft: rgba(21, 128, 61, 0.11);
+  --ak-green-border: rgba(21, 128, 61, 0.24);
+
+  --ak-yellow: #B45309;
+  --ak-yellow-soft: rgba(180, 83, 9, 0.11);
+  --ak-yellow-border: rgba(180, 83, 9, 0.24);
+
+  --ak-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  --ak-shadow-strong: 0 22px 60px rgba(0, 0, 0, 0.18);
+}
+
+html,
+body,
 #root {
   width: 100%;
-  min-height: 100vh;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--ak-bg);
+  color: var(--ak-text);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body {
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* =====================================================
+   INPUTS DEL TEMA
+   IMPORTANTE:
+   No se aplica a login ni registro.
+   ===================================================== */
+
+.dashboard-root input,
+.dashboard-root textarea,
+.dashboard-root select,
+.profile-root input,
+.profile-root textarea,
+.profile-root select,
+.vender-root input,
+.vender-root textarea,
+.vender-root select,
+.mis-root input,
+.mis-root textarea,
+.mis-root select,
+.ar-root input,
+.ar-root textarea,
+.ar-root select,
+.armeria-root input,
+.armeria-root textarea,
+.armeria-root select,
+.ap-root input,
+.ap-root textarea,
+.ap-root select,
+.config-root input,
+.config-root textarea,
+.config-root select {
+  background: var(--ak-bg-input);
+  color: var(--ak-text);
+  border-color: var(--ak-border);
+}
+
+.dashboard-root input::placeholder,
+.dashboard-root textarea::placeholder,
+.profile-root input::placeholder,
+.profile-root textarea::placeholder,
+.vender-root input::placeholder,
+.vender-root textarea::placeholder,
+.mis-root input::placeholder,
+.mis-root textarea::placeholder,
+.ar-root input::placeholder,
+.ar-root textarea::placeholder,
+.armeria-root input::placeholder,
+.armeria-root textarea::placeholder,
+.ap-root input::placeholder,
+.ap-root textarea::placeholder,
+.config-root input::placeholder,
+.config-root textarea::placeholder {
+  color: var(--ak-text-faint);
+}
+
+.dashboard-root select option,
+.profile-root select option,
+.vender-root select option,
+.mis-root select option,
+.ar-root select option,
+.armeria-root select option,
+.ap-root select option,
+.config-root select option {
+  background: var(--ak-bg-card);
+  color: var(--ak-text);
+}
+
+/* =====================================================
+   FONDOS PRINCIPALES CON TEMA
+   Login y Register NO están aquí.
+   ===================================================== */
+
+.dashboard-root,
+.profile-root,
+.vender-root,
+.mis-root,
+.ar-root,
+.armeria-root,
+.ap-root,
+.config-root {
+  background: var(--ak-bg);
+  color: var(--ak-text);
+}
+
+/* =====================================================
+   TARJETAS COMUNES CON TEMA
+   Login-card y reg-card NO están aquí.
+   ===================================================== */
+
+.product-card,
+.profile-header,
+.profile-section,
+.ap-card,
+.ap-table-wrap,
+.config-card,
+.config-header,
+.ar-card,
+.ar-modal,
+.modal-card {
+  background: var(--ak-bg-card);
+  color: var(--ak-text);
+  border-color: var(--ak-border);
+}
+
+/* =====================================================
+   TEXTOS SECUNDARIOS CON TEMA
+   No se aplica globalmente a todos los p/small.
+   ===================================================== */
+
+.profile-header-email,
+.profile-header-meta,
+.profile-wallet-help,
+.ar-header span,
+.ar-info p,
+.ar-obs,
+.ar-modal > p,
+.ap-subtitle,
+.ap-date,
+.ap-user-email,
+.config-card p,
+.config-header p,
+.product-seller,
+.price-eur {
+  color: var(--ak-text-soft);
+}
+
+/* =====================================================
+   NAVBAR GLOBAL CON TEMA
+   ===================================================== */
+
+.navbar {
+  background: var(--ak-bg-navbar);
+  color: var(--ak-text);
+  border-color: var(--ak-border);
+}
+
+/* =====================================================
+   MODALES CON TEMA
+   Login-blocked-modal y reg-info-modal NO están aquí.
+   ===================================================== */
+
+.ar-modal-backdrop,
+.config-modal-backdrop {
+  background: rgba(0, 0, 0, 0.72);
+}
+
+:root[data-theme='claro'] .ar-modal-backdrop,
+:root[data-theme='claro'] .config-modal-backdrop {
+  background: rgba(0, 0, 0, 0.42);
+}
+
+/* =====================================================
+   LOGIN / REGISTER
+   Se quedan con su propio CSS original.
+   Este bloque solo evita fugas visuales.
+   ===================================================== */
+
+.login-root,
+.reg-root {
+  background: #080808;
+  color: #EDE8E8;
+}
+
+.login-root input,
+.reg-root input {
+  background: rgba(255, 255, 255, 0.04);
+  color: #EDE8E8;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.login-root input::placeholder,
+.reg-root input::placeholder {
+  color: #3A2E2E;
+}
+
+.login-root .input-wrapper input,
+.reg-root .input-wrapper input {
+  background: rgba(255, 255, 255, 0.04);
+  color: #EDE8E8;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.login-root .input-wrapper input:focus,
+.reg-root .input-wrapper input:focus {
+  border-color: rgba(204, 31, 31, 0.5);
+  background: rgba(204, 31, 31, 0.04);
+  box-shadow: 0 0 0 3px rgba(204, 31, 31, 0.08);
+}
+
+.login-root .modal-backdrop {
+  background: rgba(0, 0, 0, 0.75);
 }

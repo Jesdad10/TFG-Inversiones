@@ -1,11 +1,15 @@
 /* =============================================
    PROFILE PAGE — AK-MARKET
-   Black & Red — Elegance & Danger
+   Tema claro / oscuro real
    ============================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-*, *::before, *::after { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 /* ─── ROOT ────────────────────────────────── */
 
@@ -13,8 +17,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #080808;
-  color: #EDE8E8;
+  background: var(--ak-bg);
+  color: var(--ak-text);
   font-family: 'Inter', system-ui, sans-serif;
 }
 
@@ -22,7 +26,7 @@
 
 .profile-main {
   padding-top: 64px;
-  padding: 64px 40px 60px;
+  padding: 96px 40px 60px;
   flex: 1;
 }
 
@@ -36,14 +40,15 @@
 /* ─── HEADER CARD ─────────────────────────── */
 
 .profile-header {
-  background: #0F0B0B;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--ak-bg-card);
+  border: 1px solid var(--ak-border-soft);
   border-radius: 16px;
   padding: 28px;
   display: flex;
   gap: 24px;
   align-items: flex-start;
   margin-bottom: 24px;
+  box-shadow: var(--ak-shadow);
 }
 
 /* ─── AVATAR COLUMN ──────────────────────── */
@@ -71,7 +76,7 @@
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #CC1F1F, #8B0000);
+  background: linear-gradient(135deg, var(--ak-red), var(--ak-red-dark));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,13 +93,14 @@
   border-radius: 50%;
   object-fit: cover;
   display: block;
+  border: 2px solid var(--ak-border);
 }
 
 .profile-avatar-overlay {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.52);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -111,7 +117,7 @@
 .btn-remove-avatar {
   background: none;
   border: none;
-  color: #5A4545;
+  color: var(--ak-text-faint);
   font-size: 11px;
   font-family: 'Inter', system-ui, sans-serif;
   cursor: pointer;
@@ -121,7 +127,7 @@
 }
 
 .btn-remove-avatar:hover {
-  color: #CC1F1F;
+  color: var(--ak-red);
 }
 
 /* ─── MODAL ───────────────────────────────── */
@@ -140,32 +146,44 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-card {
-  background: #131010;
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: var(--ak-bg-card);
+  border: 1px solid var(--ak-border);
   border-radius: 18px;
   padding: 36px 32px 28px;
   width: 340px;
   text-align: center;
-  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(204, 31, 31, 0.08);
+  box-shadow: var(--ak-shadow-strong);
   animation: slideUp 0.18s ease;
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-icon {
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background: rgba(204, 31, 31, 0.08);
-  border: 1px solid rgba(204, 31, 31, 0.2);
+  background: var(--ak-red-soft);
+  border: 1px solid var(--ak-red-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -175,20 +193,20 @@
 .modal-card h3 {
   font-size: 17px;
   font-weight: 700;
-  color: #EDE8E8;
+  color: var(--ak-text-strong);
   margin: 0 0 8px;
   letter-spacing: -0.3px;
 }
 
 .modal-card p {
   font-size: 13px;
-  color: #7A6565;
+  color: var(--ak-text-muted);
   line-height: 1.55;
   margin: 0 0 24px;
 }
 
 .modal-card p strong {
-  color: #A89898;
+  color: var(--ak-text-soft);
   font-weight: 600;
 }
 
@@ -201,7 +219,7 @@
 .btn-confirm-yes {
   height: 40px;
   padding: 0 20px;
-  background: linear-gradient(135deg, #CC1F1F, #8B0000);
+  background: linear-gradient(135deg, var(--ak-red), var(--ak-red-dark));
   border: none;
   border-radius: 10px;
   font-size: 13px;
@@ -220,20 +238,20 @@
 .btn-confirm-no {
   height: 40px;
   padding: 0 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--ak-bg-card-2);
+  border: 1px solid var(--ak-border);
   border-radius: 10px;
   font-size: 13px;
   font-weight: 500;
-  color: #A89898;
+  color: var(--ak-text-soft);
   cursor: pointer;
   font-family: 'Inter', system-ui, sans-serif;
   transition: background 0.2s, color 0.2s;
 }
 
 .btn-confirm-no:hover {
-  background: rgba(255, 255, 255, 0.09);
-  color: #EDE8E8;
+  background: var(--ak-bg-hover);
+  color: var(--ak-text-strong);
 }
 
 /* ─── HEADER INFO ─────────────────────────── */
@@ -249,30 +267,32 @@
 .profile-header-info h1 {
   font-size: 24px;
   font-weight: 700;
-  color: #EDE8E8;
+  color: var(--ak-text-strong);
   margin: 0;
   letter-spacing: -0.5px;
 }
 
 .profile-header-email {
   font-size: 14px;
-  color: #7A6565;
+  color: var(--ak-text-muted);
   margin: 0;
 }
 
 .profile-header-meta {
   font-size: 12px;
-  color: #5A4545;
+  color: var(--ak-text-faint);
   margin: 0;
 }
 
 /* ─── SECTION CARD ────────────────────────── */
 
 .profile-section {
-  background: #0F0B0B;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--ak-bg-card);
+  border: 1px solid var(--ak-border-soft);
   border-radius: 16px;
   padding: 24px 28px 28px;
+  margin-bottom: 16px;
+  box-shadow: var(--ak-shadow);
 }
 
 /* ─── SECTION TITLE ───────────────────────── */
@@ -280,14 +300,14 @@
 .profile-section-title {
   font-size: 13px;
   font-weight: 600;
-  color: #CC1F1F;
+  color: var(--ak-red);
   text-transform: uppercase;
   letter-spacing: 1px;
   margin: 0 0 16px;
   display: flex;
   align-items: center;
   gap: 8px;
-  border-bottom: 1px solid rgba(204, 31, 31, 0.15);
+  border-bottom: 1px solid var(--ak-red-border);
   padding-bottom: 12px;
 }
 
@@ -310,7 +330,7 @@
 .profile-field label {
   font-size: 12px;
   font-weight: 500;
-  color: #A89898;
+  color: var(--ak-text-soft);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -321,11 +341,11 @@
 .profile-select {
   height: 44px;
   padding: 0 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--ak-bg-input);
+  border: 1px solid var(--ak-border);
   border-radius: 10px;
   font-size: 14px;
-  color: #EDE8E8;
+  color: var(--ak-text);
   font-family: 'Inter', system-ui, sans-serif;
   outline: none;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
@@ -336,27 +356,26 @@
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237A6565' strokeWidth='1.5' fill='none' strokeLinecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 14px center;
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: var(--ak-bg-input);
   padding-right: 36px;
 }
 
 .profile-input:focus,
 .profile-select:focus {
-  border-color: rgba(204, 31, 31, 0.5);
-  background: rgba(204, 31, 31, 0.04);
-  box-shadow: 0 0 0 3px rgba(204, 31, 31, 0.08);
+  border-color: var(--ak-red);
+  background: var(--ak-red-soft);
+  box-shadow: 0 0 0 3px var(--ak-red-soft);
 }
 
 .profile-input::placeholder {
-  color: #3A2E2E;
+  color: var(--ak-text-faint);
 }
 
 .profile-select option {
-  background: #111010;
-  color: #EDE8E8;
+  background: var(--ak-bg-card);
+  color: var(--ak-text);
 }
 
 /* ─── PHONE INPUT ─────────────────────────── */
@@ -377,9 +396,8 @@
 
 /* Date input calendar icon color fix */
 .profile-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.4) sepia(1) saturate(3) hue-rotate(330deg);
   cursor: pointer;
-  opacity: 0.6;
+  opacity: 0.65;
 }
 
 /* ─── TEXTAREA ────────────────────────────── */
@@ -388,11 +406,11 @@
   padding: 12px 14px;
   min-height: 100px;
   resize: vertical;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--ak-bg-input);
+  border: 1px solid var(--ak-border);
   border-radius: 10px;
   font-size: 14px;
-  color: #EDE8E8;
+  color: var(--ak-text);
   font-family: 'Inter', system-ui, sans-serif;
   outline: none;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
@@ -401,20 +419,20 @@
 }
 
 .profile-textarea:focus {
-  border-color: rgba(204, 31, 31, 0.5);
-  background: rgba(204, 31, 31, 0.04);
-  box-shadow: 0 0 0 3px rgba(204, 31, 31, 0.08);
+  border-color: var(--ak-red);
+  background: var(--ak-red-soft);
+  box-shadow: 0 0 0 3px var(--ak-red-soft);
 }
 
 .profile-textarea::placeholder {
-  color: #3A2E2E;
+  color: var(--ak-text-faint);
 }
 
 /* ─── BIO COUNTER ─────────────────────────── */
 
 .bio-counter {
   font-size: 11px;
-  color: #5A4545;
+  color: var(--ak-text-faint);
   text-align: right;
   font-family: 'Inter', system-ui, sans-serif;
 }
@@ -433,7 +451,7 @@
 .btn-save {
   height: 44px;
   padding: 0 28px;
-  background: linear-gradient(135deg, #CC1F1F, #8B0000);
+  background: linear-gradient(135deg, var(--ak-red), var(--ak-red-dark));
   border: none;
   border-radius: 10px;
   font-size: 14px;
@@ -478,14 +496,16 @@
 }
 
 @keyframes profileSpin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ─── STATUS MESSAGES ─────────────────────── */
 
 .save-status--ok {
   font-size: 13px;
-  color: #4ADE80;
+  color: var(--ak-green);
   font-family: 'Inter', system-ui, sans-serif;
 }
 
@@ -493,6 +513,60 @@
   font-size: 13px;
   color: #F87171;
   font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ─── WALLET ──────────────────────────────── */
+
+.profile-wallet-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.profile-wallet-row input {
+  flex: 1;
+}
+
+.profile-wallet-btn {
+  border: none;
+  border-radius: 10px;
+  background: var(--ak-red);
+  color: white;
+  font-weight: 700;
+  padding: 12px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s;
+  font-family: 'Inter', system-ui, sans-serif;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+}
+
+.profile-wallet-btn:hover:not(:disabled) {
+  background: var(--ak-red-hover);
+  transform: translateY(-1px);
+}
+
+.profile-wallet-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.profile-wallet-help {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--ak-text-muted);
+  line-height: 1.5;
+}
+
+.profile-wallet-small {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--ak-red);
+  font-weight: 600;
 }
 
 /* ─── RESPONSIVE ──────────────────────────── */
@@ -541,6 +615,17 @@
   }
 }
 
+@media (max-width: 640px) {
+  .profile-wallet-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .profile-wallet-btn {
+    width: 100%;
+  }
+}
+
 @media (max-width: 480px) {
   .profile-avatar-circle,
   .profile-avatar-img,
@@ -555,68 +640,5 @@
 
   .profile-header-info h1 {
     font-size: 20px;
-  }
-}
-
-.profile-wallet-row {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.profile-wallet-row input {
-  flex: 1;
-}
-
-.profile-wallet-btn {
-  border: none;
-  border-radius: 10px;
-  background: #CC1F1F;
-  color: white;
-  font-weight: 700;
-  padding: 12px 16px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: 0.2s;
-  font-family: 'Inter', system-ui, sans-serif;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 44px;
-}
-
-.profile-wallet-btn:hover:not(:disabled) {
-  background: #B01A1A;
-  transform: translateY(-1px);
-}
-
-.profile-wallet-btn:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
-
-.profile-wallet-help {
-  margin: 8px 0 0;
-  font-size: 12px;
-  color: #8A7070;
-  line-height: 1.5;
-}
-
-.profile-wallet-small {
-  margin: 6px 0 0;
-  font-size: 12px;
-  color: #CC1F1F;
-  font-weight: 600;
-}
-
-@media (max-width: 640px) {
-  .profile-wallet-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .profile-wallet-btn {
-    width: 100%;
   }
 }
