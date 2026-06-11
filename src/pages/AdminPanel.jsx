@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../services/auth'
 import { articulosService } from '../services/articulos'
 import Navbar from '../components/Navbar'
+import { chatService } from '../services/chat'
 import './AdminPanel.css'
 
 const ACCION_LABELS = {
@@ -80,6 +81,15 @@ export default function AdminPanel() {
   const [crearStatus, setCrearStatus] = useState(null)
   const [crearMsg, setCrearMsg] = useState('')
 
+  // Chat soporte
+  const [chats, setChats] = useState([])
+  const [chatSeleccionado, setChatSeleccionado] = useState(null)
+  const [chatMensajes, setChatMensajes] = useState([])
+  const [chatTexto, setChatTexto] = useState('')
+  const [chatEnviando, setChatEnviando] = useState(false)
+  const [chatUnreadTotal, setChatUnreadTotal] = useState(0)
+  const chatMensajesEndRef = useRef(null)
+
   const refrescarNotificaciones = () => {
     setNotificacionesKey(prev => prev + 1)
   }
@@ -125,10 +135,68 @@ export default function AdminPanel() {
     cargarSeccion(seccion)
   }, [seccion, user])
 
+  // Polling de fondo: no leídos totales (funciona en cualquier sección)
+  useEffect(() => {
+    if (!user) return
+
+    let mounted = true
+    const fetchUnread = async () => {
+      try {
+        const data = await chatService.adminGetUnread()
+        if (mounted) setChatUnreadTotal(data.totalUnread || 0)
+      } catch {}
+    }
+
+    fetchUnread()
+    const interval = setInterval(fetchUnread, 5000)
+    return () => { mounted = false; clearInterval(interval) }
+  }, [user])
+
+  // Polling: lista de chats cuando el admin está en la sección chat
+  useEffect(() => {
+    if (seccion !== 'chat' || !user) return
+
+    let mounted = true
+    const fetchChats = async () => {
+      try {
+        const data = await chatService.adminGetChats()
+        if (mounted) setChats(data.chats || [])
+      } catch {}
+    }
+
+    fetchChats()
+    const interval = setInterval(fetchChats, 2000)
+    return () => { mounted = false; clearInterval(interval) }
+  }, [seccion, user])
+
+  // Polling: mensajes del chat seleccionado
+  useEffect(() => {
+    if (!chatSeleccionado?.id || seccion !== 'chat') return
+
+    let mounted = true
+    const fetchMensajes = async () => {
+      try {
+        const data = await chatService.adminGetMensajes(chatSeleccionado.id)
+        if (mounted) setChatMensajes(data.mensajes || [])
+      } catch {}
+    }
+
+    fetchMensajes()
+    const interval = setInterval(fetchMensajes, 2000)
+    return () => { mounted = false; clearInterval(interval) }
+  }, [chatSeleccionado?.id, seccion])
+
+  // Scroll al final de mensajes del admin
+  useEffect(() => {
+    chatMensajesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [chatMensajes])
+
   const cargarSeccion = async (s) => {
     setLoading(true)
 
     try {
+      if (s === 'chat') return
+
       if (s === 'resumen') {
         const d = await authService.adminGetStats()
         setStats(d)
@@ -159,6 +227,71 @@ export default function AdminPanel() {
       console.error(err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleSeleccionarChat = async (chat) => {
+    setChatSeleccionado(chat)
+    setChatMensajes([])
+    try {
+      const data = await chatService.adminGetMensajes(chat.id)
+      setChatMensajes(data.mensajes || [])
+      const leidos = chat.unreadAdmin || 0
+      setChats(prev => prev.map(c => c.id === chat.id ? { ...c, unreadAdmin: 0 } : c))
+      if (leidos > 0) setChatUnreadTotal(prev => Math.max(0, prev - leidos))
+    } catch {}
+  }
+
+  const handleAdminReply = async () => {
+    const text = chatTexto.trim()
+    if (!text || chatEnviando || !chatSeleccionado) return
+    setChatEnviando(true)
+    try {
+      await chatService.adminReply(chatSeleccionado.id, text)
+      setChatTexto('')
+      // Resetear altura del textarea
+      const ta = document.querySelector('.ap-chat-reply-input')
+      if (ta) ta.style.height = 'auto'
+      const data = await chatService.adminGetMensajes(chatSeleccionado.id)
+      setChatMensajes(data.mensajes || [])
+    } catch (err) {
+      console.error('Admin reply error:', err)
+    } finally {
+      setChatEnviando(false)
+    }
+  }
+
+  const handleCerrarChat = async () => {
+    if (!chatSeleccionado) return
+    await chatService.adminSetEstado(chatSeleccionado.id, 'closed').catch(() => {})
+    setChatSeleccionado(prev => ({ ...prev, status: 'closed' }))
+    setChats(prev => prev.map(c => c.id === chatSeleccionado.id ? { ...c, status: 'closed' } : c))
+  }
+
+  const handleAbrirChat = async () => {
+    if (!chatSeleccionado) return
+    await chatService.adminSetEstado(chatSeleccionado.id, 'open').catch(() => {})
+    setChatSeleccionado(prev => ({ ...prev, status: 'open' }))
+    setChats(prev => prev.map(c => c.id === chatSeleccionado.id ? { ...c, status: 'open' } : c))
+  }
+
+  const formatChatTime = (timestamp) => {
+    if (!timestamp) return ''
+    try {
+      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp.seconds * 1000)
+      return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+    } catch {
+      return ''
+    }
+  }
+
+  const formatChatDate = (timestamp) => {
+    if (!timestamp) return ''
+    try {
+      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp.seconds * 1000)
+      return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+    } catch {
+      return ''
     }
   }
 
@@ -724,12 +857,20 @@ export default function AdminPanel() {
               </div>
             </div>
 
-            <button className="ap-chat-btn" title="Chat con clientes (próximamente)">
+            <button
+              className={`ap-chat-btn${seccion === 'chat' ? ' ap-chat-btn--active' : ''}${chatUnreadTotal > 0 && seccion !== 'chat' ? ' ap-chat-btn--alerta' : ''}`}
+              title="Chat de soporte con usuarios"
+              onClick={() => setSeccion('chat')}
+            >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
               </svg>
               Chat soporte
-              <span className="ap-chat-badge">Próximamente</span>
+              {chatUnreadTotal > 0 && seccion !== 'chat' && (
+                <span className="ap-chat-badge ap-chat-badge--unread">
+                  {chatUnreadTotal}
+                </span>
+              )}
             </button>
           </div>
 
@@ -740,6 +881,7 @@ export default function AdminPanel() {
               { id: 'productos', label: 'Productos' },
               { id: 'historial-armas', label: 'Historial armas' },
               { id: 'historial', label: 'Administrador histórico' },
+              { id: 'chat', label: 'Chat soporte' },
             ].map(t => (
               <button
                 key={t.id}
@@ -747,6 +889,11 @@ export default function AdminPanel() {
                 onClick={() => setSeccion(t.id)}
               >
                 {t.label}
+                {t.id === 'chat' && chatUnreadTotal > 0 && (
+                  <span className="ap-tab-badge">
+                    {chatUnreadTotal}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -1446,6 +1593,148 @@ export default function AdminPanel() {
                   )}
                 </div>
               )}
+            </div>
+          )}
+
+          {seccion === 'chat' && (
+            <div className="ap-section">
+              <div className="ap-chat-panel">
+                {/* Lista de conversaciones */}
+                <div className="ap-chat-list">
+                  <div className="ap-chat-list-header">
+                    Conversaciones
+                    <span className="ap-chat-list-count">{chats.length}</span>
+                  </div>
+
+                  {chats.length === 0 ? (
+                    <div className="ap-chat-list-empty">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: '#5A4545', marginBottom: 8 }}>
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                      </svg>
+                      <p>Aún no hay conversaciones</p>
+                    </div>
+                  ) : (
+                    chats.map(chat => (
+                      <div
+                        key={chat.id}
+                        className={`ap-chat-item${chatSeleccionado?.id === chat.id ? ' ap-chat-item--active' : ''}`}
+                        onClick={() => handleSeleccionarChat(chat)}
+                      >
+                        <div className="ap-chat-item-top">
+                          <p className="ap-chat-item-name">{chat.userName || 'Usuario'}</p>
+                          {(chat.unreadAdmin || 0) > 0 && (
+                            <span className="ap-chat-unread">{chat.unreadAdmin}</span>
+                          )}
+                        </div>
+                        <p className="ap-chat-item-email">{chat.userEmail || ''}</p>
+                        <p className="ap-chat-item-preview">{chat.lastMessage || '—'}</p>
+                        <div className="ap-chat-item-meta">
+                          <span className="ap-chat-item-time">{formatChatDate(chat.lastMessageAt)}</span>
+                          <span className={chat.status === 'closed' ? 'ap-chat-status-closed' : 'ap-chat-status-open'}>
+                            {chat.status === 'closed' ? 'Cerrado' : 'Abierto'}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Conversación seleccionada */}
+                <div className="ap-chat-conv">
+                  {!chatSeleccionado ? (
+                    <div className="ap-chat-empty-state">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                      </svg>
+                      <p>Selecciona una conversación</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="ap-chat-conv-header">
+                        <div>
+                          <p className="ap-chat-conv-user">{chatSeleccionado.userName}</p>
+                          <p className="ap-chat-conv-email">{chatSeleccionado.userEmail}</p>
+                        </div>
+                        <div className="ap-chat-conv-actions">
+                          {chatSeleccionado.status === 'closed' ? (
+                            <button className="ap-btn ap-btn--outline" onClick={handleAbrirChat}>
+                              Reabrir
+                            </button>
+                          ) : (
+                            <button className="ap-btn ap-btn--danger" onClick={handleCerrarChat}>
+                              Cerrar chat
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="ap-chat-msgs">
+                        {chatMensajes.length === 0 && (
+                          <div className="ap-chat-empty-state" style={{ flex: 1 }}>
+                            <p style={{ fontSize: 13, color: '#5A4545' }}>No hay mensajes todavía</p>
+                          </div>
+                        )}
+
+                        {chatMensajes.map(msg => (
+                          <div
+                            key={msg.id}
+                            className={`ap-chat-bubble${msg.senderRole === 'admin' ? ' ap-chat-bubble--admin' : ''}`}
+                          >
+                            <div className="ap-chat-bubble-avatar">
+                              {msg.senderRole === 'admin' ? 'A' : (chatSeleccionado.userName?.[0]?.toUpperCase() || 'U')}
+                            </div>
+                            <div className="ap-chat-bubble-text">
+                              <p>{msg.text}</p>
+                              <span className="ap-chat-bubble-time">{formatChatTime(msg.timestamp)}</span>
+                            </div>
+                          </div>
+                        ))}
+
+                        <div ref={chatMensajesEndRef} />
+                      </div>
+
+                      {chatSeleccionado.status === 'closed' ? (
+                        <div className="ap-chat-closed-bar">
+                          Chat cerrado — pulsa "Reabrir" para responder
+                        </div>
+                      ) : (
+                        <div className="ap-chat-reply">
+                          <textarea
+                            className="ap-chat-reply-input"
+                            placeholder="Escribe una respuesta..."
+                            value={chatTexto}
+                            onChange={e => {
+                              setChatTexto(e.target.value)
+                              const el = e.target
+                              el.style.height = 'auto'
+                              el.style.height = Math.min(el.scrollHeight, 80) + 'px'
+                            }}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault()
+                                handleAdminReply()
+                              }
+                            }}
+                            rows={1}
+                            disabled={chatEnviando}
+                          />
+                          <button
+                            className="ap-btn ap-btn--primary"
+                            onClick={handleAdminReply}
+                            disabled={chatEnviando || !chatTexto.trim()}
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <line x1="22" y1="2" x2="11" y2="13" />
+                              <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                            </svg>
+                            Enviar
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>
