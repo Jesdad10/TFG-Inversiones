@@ -55,7 +55,6 @@ export default function App() {
         <Route path="/catalogo" element={<Dashboard />} />
         <Route path="/perfil" element={<Profile />} />
         <Route path="/vender" element={<Vender />} />
-        <Route path="/mis-productos" element={<MisProductos />} />
         <Route path="/armeria" element={<Armeria />} />
         <Route path="/configuracion" element={<Configuracion />} />
 
