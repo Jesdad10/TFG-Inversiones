@@ -7,6 +7,7 @@ const authRoutes = require('./src/routes/auth')
 const articulosRoutes = require('./src/routes/articulos')
 const adminRoutes = require('./src/routes/admin')
 const notificacionesRoutes = require('./src/routes/notificaciones')
+const chatRoutes = require('./src/routes/chat')
 const seedAdmin = require('./src/seed')
 
 const app = express()
@@ -23,6 +24,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/articulos', articulosRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/notificaciones', notificacionesRoutes)
+app.use('/api/chat', chatRoutes)
 
 app.get('/api/health', (_, res) => {
   res.json({ status: 'ok' })

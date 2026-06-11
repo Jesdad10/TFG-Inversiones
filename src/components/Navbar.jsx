@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../services/auth'
+import SoporteChat from './SoporteChat'
 import './Navbar.css'
 
 export default function Navbar({ user, activePage, onNavigate, onLogout }) {
@@ -90,6 +91,8 @@ export default function Navbar({ user, activePage, onNavigate, onLogout }) {
   const esAdmin = user?.rol === 'admin'
 
   return (
+    <>
+    {user && user.rol !== 'admin' && <SoporteChat user={user} />}
     <nav className="navbar">
       <a
         className="nav-logo"
@@ -348,5 +351,6 @@ export default function Navbar({ user, activePage, onNavigate, onLogout }) {
         </div>
       </div>
     </nav>
+    </>
   )
 }
