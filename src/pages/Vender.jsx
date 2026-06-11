@@ -60,7 +60,7 @@ export default function Vender() {
   const comisionEUR = precioEUR * COMISION
   const envioTier   = ENVIO_TIERS.find(t => t.id === form.pesoTier)
   const envioEUR    = envioTier?.precio || 0
-  const netoEUR     = precioEUR - comisionEUR - envioEUR
+  const netoEUR     = precioEUR + comisionEUR + envioEUR
 
   // ── fotos ──────────────────────────────────────────────────────
   const openPicker = () => fileRef.current?.click()
